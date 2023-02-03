@@ -1,6 +1,6 @@
 ﻿
 ;** ====================== GSB_AKHScript ======================
-;|       版本：0.2.4(alpha)             作者：GSB Electronic       |
+;|       版本：v0.2.5_dev2(alpha)             作者：GSB Electronic       |
 ;|      AHK 最低支持版本：                      
 ;**|      提示：需要管理员权限，请以管理员权限启动！
 ;|  代码仓库：https://github.com/BH2WFR/GSB_AHKScript.git
@@ -13,20 +13,28 @@
 ;*			CapsLock 	->	F14
 ;
 ;* 部分代码需要配合 小狼毫输入法 使用，小狼毫输入法快捷键要根据脚本内容进行更改:
-;				功能	|				默认映射			|		更改后映射
-;			弹出菜单	|			F4 或 Ctrl+{`}
-;			中英切换	|	Ctrl+Shift+2 或 Shift 或 Caps
-;			全角/半角	|		Ctrl+Shift+ 
-;			繁简切换	|		Ctrl+Shift+4 或 F4,1,4
-;			中英标点	|		F4,1,5
-; 			输入法切换	|
+;				功能	|				默认映射			|		更改后映射		|    
+;			弹出菜单	|			F4 或 Ctrl+{`}					F20
+;			中英切换	|	Ctrl+Shift+2 或 Shift 或 Caps			Ctrl+F20
+;			全角/半角	|		Ctrl+Shift+3 						Ctrl+Shift+F20
+;			繁简切换	|		Ctrl+Shift+4 或 F4,1,4				Control+Shift+F21
+;			增广字集			Ctrl+Shift+5						Shift+F21
+;			中英标点	|		F4,1,5							Ctrl+F21	
+; 			输入法切换	|     .next  Ctrl+Shift+1					Shift+F20
+;=========== key_bindings.yaml 中，改成：
+;    - { when: always, accept: Shift+F20, select: .next }
+ ;   - { when: always, accept: Control+F20, toggle: ascii_mode }
+;    - { when: always, accept: Control+Shift+F20, toggle: full_shape }
+;    - { when: always, accept: Control+Shift+F21, toggle: simplification }
+;    - { when: always, accept: Shift+F21, toggle: extended_charset }
+;    - { when: always, accept: Ctrl+F21, toggle: ascii_punct }
 ;---------------------------------------------------------------------------------
 
 
 ;TODO =================== 未来完成的功能 ============================
 
 ; 小狼毫 把各种全局快捷键全部改掉，利用各种物理键盘不存在的键
-
+; 识别当前输入法，中文/韩文输出键不同
 
 
 
@@ -58,16 +66,17 @@ isTestMode := 1		; 是否处于测试模式
 rAltMode := 1		; 默认 RAlt 特殊模式，0 为关闭状态
 rAltModeList := {0:"OFF", 1:"Programming Mode", 2:"Galian Script", 3:"Esp Script", 4:"Colemak Input"}
 MouseQuickMoveUnitPixels := 30  ;F13+Shift+方向键 快速移动鼠标速度（每次移动的像素点个数) 
-rime_KeymapChanged := 0	; 小狼毫 快捷键是否非默认状态
+rime_KeymapChanged := 1	; 小狼毫 快捷键是否非默认状态
 
 ;^ 是否启用模块功能
 use_RimeInput := 1
 use_Anki := 1
 use_AutoCAD := 1
+use_Explorer_CopyFullPath := 1
 
 ;*=========================  全局热键   ============================
 
-;* F13 释放时触发正常的 RAlt 功能
+;* F13 释放时触发正常的 F13 功能
 $F13 Up::
 	Send {F13} 
 return
@@ -151,13 +160,55 @@ F13 & Delete::SetRAltMode(0)	;关闭RAlt模式
 		F14 & 4::
 			Send, ^+{4}
 		return
-		;TODO: CapsLock+5 中英标点
+		;TODO: CapsLock+5 增廣字集
 		F14 & 5::
+			Send, ^+{5}
+		return		
+		;TODO: CapsLock+. 中英标点
+		F14 & .::
 			
 		return
 	#If
 	#If rime_KeymapChanged == 1	; 魔改快捷键后
-		
+		; CapsLock 或 CapsLock+2 切换中英文
+		F14 Up::
+		F14 & 2::
+			Send, ^{F20} 
+		return
+
+		; Shift+CapsLock 切换大小写锁定
+		+F14::
+			if(GetKeyState("CapsLock", "T") = 1){
+				SetCapsLockState, Off
+			}else{
+				SetCapsLockState, On
+			}
+		return
+
+		; TODO: CapsLock+Space 调出小狼毫菜单
+		F14 & Space::
+		F14 & `::
+			Send, {F20}	;注意通配符, grave 是 两个``
+		return
+		F14 & 1::
+			Send, +{F20}
+		return
+		;TODO: CapsLock+3 全角/半角
+		F14 & 3::
+			Send, ^+{F20}
+		return
+		;TODO: CapsLock+4 简繁体转换
+		F14 & 4::
+			Send, ^+{F21}
+		return
+		;TODO: CapsLock+5 增廣字集
+		F14 & 5::
+			Send, +{F21}
+		return		
+		;TODO: CapsLock+. 中英标点
+		F14 & .::
+			Send, ^{F21}
+		return		
 	#If
 #If
 
@@ -203,7 +254,7 @@ F14 & l::Run, D:\Downloads
 F14 & m::return	;
 F14 & n::return	;
 F14 & o::return	;		;
-F14 & p::return	;
+;F14 & p::return	; 后面的复制路径程序
 F14 & q::return	;
 F14 & r::return	;
 F14 & s::return	;
@@ -280,8 +331,28 @@ F14 & z::return	;
 
 #IfWinActive
 
+;*======   Explorer 中，按 F13+C 复制选中文本的完整地址到剪贴板
+#If use_Explorer_CopyFullPath == 1
+	F13 & P:: ; Select the shot folders in Explorer, then hit WIN + P , after a few moments the file path of the first EXR in each shot will be added 
+	
+	return
 
+#If
 
+;TODO ============ 测试代码：当前键盘布局和输入法
+F16:: 
+	WinGet, WinID,, A
+	ThreadID:=DllCall("GetWindowThreadProcessId", "UInt", WinID, "UInt", 0)
+	InputLocaleID:=DllCall("GetKeyboardLayout", "UInt", ThreadID, "UInt")
+	If(!InputLocaleID){
+		WinActivate, ahk_class WorkerW
+		WinGet, WinID2,, ahk_class WorkerW
+		ThreadID:=DllCall("GetWindowThreadProcessId", "UInt", WinID2, "UInt", 0)
+		WinActivate, ahk_id %WinID%
+		InputLocaleID:=DllCall("GetKeyboardLayout", "UInt", ThreadID, "UInt")
+	}
+	MsgBox, %InputLocaleID%
+return
 ;========================  系统级别特殊功能：=====================
 
 
