@@ -1,6 +1,6 @@
 ﻿
 ;** ====================== GSB_AKHScript ======================
-;|       版本：v0.2.5_dev2(alpha)             作者：GSB Electronic       |
+;|       版本：v0.2.5_dev3(alpha)             作者：GSB Electronic       |
 ;|      AHK 最低支持版本：                      
 ;**|      提示：需要管理员权限，请以管理员权限启动！
 ;|  代码仓库：https://github.com/BH2WFR/GSB_AHKScript.git
@@ -8,20 +8,21 @@
 ;============================================================
 
 ;! ======================= 使用说明和注意事项：=====================
-;* 要先使用 PowerToys 等工具物理映射下列按键：
+/** 要先使用 PowerToys 等工具物理映射下列按键：
 ;*			右Alt		->	F13
 ;*			CapsLock 	->	F14
+;* 朝鲜语输入法设置中需要将键盘布局设置为：Keyboard layout: Korean keyboard (101 key) Type 1，把韩文切换键和汉字键映射到专用按键上
+; 			Hangul Key:{vk15sc1F2}     Hanja Key:sc1F1
 ;
-;* 部分代码需要配合 小狼毫输入法 使用，小狼毫输入法快捷键要根据脚本内容进行更改:
 ;				功能	|				默认映射			|		更改后映射		|    
-;			弹出菜单	|			F4 或 Ctrl+{`}					F20
+;			弹出菜单	|			F4 或 Ctrl+{`}					F20 或 Ctrl+Shift+{`(grave)}
 ;			中英切换	|	Ctrl+Shift+2 或 Shift 或 Caps			Ctrl+F20
 ;			全角/半角	|		Ctrl+Shift+3 						Ctrl+Shift+F20
 ;			繁简切换	|		Ctrl+Shift+4 或 F4,1,4				Control+Shift+F21
 ;			增广字集			Ctrl+Shift+5						Shift+F21
-;			中英标点	|		F4,1,5							Ctrl+F21	
+;			中英标点	|		F4,1,5								Ctrl+F21	
 ; 			输入法切换	|     .next  Ctrl+Shift+1					Shift+F20
-;=========== key_bindings.yaml 中，改成：
+;*=========== key_bindings.yaml 中，改成：
 ;    - { when: always, accept: Shift+F20, select: .next }
  ;   - { when: always, accept: Control+F20, toggle: ascii_mode }
 ;    - { when: always, accept: Control+Shift+F20, toggle: full_shape }
@@ -29,6 +30,7 @@
 ;    - { when: always, accept: Shift+F21, toggle: extended_charset }
 ;    - { when: always, accept: Ctrl+F21, toggle: ascii_punct }
 ;---------------------------------------------------------------------------------
+*/
 
 
 ;TODO =================== 未来完成的功能 ============================
@@ -66,19 +68,41 @@ isTestMode := 1		; 是否处于测试模式
 rAltMode := 1		; 默认 RAlt 特殊模式，0 为关闭状态
 rAltModeList := {0:"OFF", 1:"Programming Mode", 2:"Galian Script", 3:"Esp Script", 4:"Colemak Input"}
 MouseQuickMoveUnitPixels := 30  ;F13+Shift+方向键 快速移动鼠标速度（每次移动的像素点个数) 
+
+
+verticalScroll_inverseDir := 0  ; 横向滚动是否相反方向
+
+
+;^ 系统安装的输入法语言代码：
+installedKeyboardLayout := {134481924:"Chinese,Simplicated", 68289554:"Korean", 67699721:"English,US,QWERTY"}
+;Layout_ChineseSimp_Code := 134481924
+;Layout_Korean_Code := 68289554
+
+;IMEmodeChangeKey := 1   ; ==0:Shift切换，1:F14(Caps)切换, 2:Ctrl+Space 切换 3: Ctrl切换
 rime_KeymapChanged := 1	; 小狼毫 快捷键是否非默认状态
+installed_Korean := 1
+installed_English_US := 1
+use_test_getIMEcode := 1 ; F16键弹出对话框显示当前输入法代号
 
 ;^ 是否启用模块功能
 use_RimeInput := 1
 use_Anki := 1
 use_AutoCAD := 1
-use_Explorer_CopyFullPath := 1
+use_Explorer_CopyFullPath := 1 
+
 
 ;*=========================  全局热键   ============================
 
 ;* F13 释放时触发正常的 F13 功能
 $F13 Up::
-	Send {F13} 
+	layout := GetCurrentKeyboardLayoutCode()
+	
+	If(layout == 68289554){	; 如果处于韩文输入法下
+		Send, {vk19}	; 汉字切换
+	}else{
+		Send {F13} ; 释放正常 RAlt 点击
+	}
+	
 return
 
 
@@ -94,6 +118,7 @@ return
 
 
 ;*=============== 全局：F13
+F14 & Backspace::
 F13 & Backspace::	;* 删除二字词的第一个字
 	Send, {Left}{Backspace}{Right}
 return
@@ -130,23 +155,24 @@ F13 & Delete::SetRAltMode(0)	;关闭RAlt模式
 ;GetKeyState("CapsLock", "T") = 1
 ;SetCapsLockState, on
 
+;* CapsLock 或 CapsLock+2 切换中英文
+F14 Up::
+F14 & 2::
+	ChangeIMEmode()
+return
+
+;* Ctrl+CapsLock 切换大小写锁定
+^F14::
+	if(GetKeyState("CapsLock", "T") = 1){
+		SetCapsLockState, Off
+	}else{
+		SetCapsLockState, On
+	}
+return
+		
+		
 #If use_RimeInput == 1	; 仅适用于魔改快捷键的小狼毫输入法
 	#If rime_KeymapChanged == 0
-		; CapsLock 或 CapsLock+2 切换中英文
-		F14 Up::
-		F14 & 2::
-			Send,^+{2} 
-		return
-
-		; Shift+CapsLock 切换大小写锁定
-		+F14::
-			if(GetKeyState("CapsLock", "T") = 1){
-				SetCapsLockState, Off
-			}else{
-				SetCapsLockState, On
-			}
-		return
-
 		; TODO: CapsLock+Space 调出小狼毫菜单
 		F14 & Space::
 		F14 & `::
@@ -168,23 +194,7 @@ F13 & Delete::SetRAltMode(0)	;关闭RAlt模式
 		F14 & .::
 			
 		return
-	#If
-	#If rime_KeymapChanged == 1	; 魔改快捷键后
-		; CapsLock 或 CapsLock+2 切换中英文
-		F14 Up::
-		F14 & 2::
-			Send, ^{F20} 
-		return
-
-		; Shift+CapsLock 切换大小写锁定
-		+F14::
-			if(GetKeyState("CapsLock", "T") = 1){
-				SetCapsLockState, Off
-			}else{
-				SetCapsLockState, On
-			}
-		return
-
+	#If rime_KeymapChanged == 1	;* 魔改快捷键后
 		; TODO: CapsLock+Space 调出小狼毫菜单
 		F14 & Space::
 		F14 & `::
@@ -217,7 +227,7 @@ F14 & Tab::return		;
 ;F14 & CapsLock::return	;无效组合
 ;F14 & Space::return	;输入法占用
 F14 & Enter::return		;
-F14 & BackSpace::return	;
+;F14 & BackSpace::return	; 重映射到 F13+Backspace，代码在前面，去除二字汉字词的第一个字
 ;F14 & `::return		;
 F14 & 1::return			;
 ;F14 & 2::return		;输入法占用
@@ -241,7 +251,7 @@ F14 & .::return		;
 F14 & /::return		;
 F14 & a::CopyTextAndSearch("Baidu")
 F14 & b::CopyTextAndSearch("Bing")	;F14+C 复制当前选中文本并网上搜索, 如果选中的是链接则打开链接
-F14 & c::Run, C:\
+F14 & c::Send, ^{c} ;* 复制
 F14 & d::Run, D:\
 F14 & e::return	;
 F14 & f::return	;
@@ -257,12 +267,12 @@ F14 & o::return	;		;
 ;F14 & p::return	; 后面的复制路径程序
 F14 & q::return	;
 F14 & r::return	;
-F14 & s::return	;
+F14 & s::Run, C:\
 F14 & t::Run, TaskMgr.exe	; 打开任务管理器
 F14 & u::return	;
-F14 & v::return	;
+F14 & v::Send, ^{v}	;* 粘贴
 F14 & w::return	;
-F14 & x::return	;
+F14 & x::Send, ^{x}	;* 剪切
 F14 & y::return	;		;
 F14 & z::return	;	
 
@@ -290,9 +300,8 @@ F14 & z::return	;
 	#If  ;WinActive
 
 	#If WinActive("ahk_exe anki.exe")  && !(WinActive("Add") || WinActive("Edit Current")) ; 背诵窗口中
-		XButton1::
-			MsgBox, ahk
-		return
+		;TODO 功能预留
+		
 	#If  ;WinActive
 #If
 
@@ -307,13 +316,13 @@ F14 & z::return	;
 			Send, {Enter}
 		return
 		
-		WheelLeft::	; 鼠标 向左滚动 触发 
+		;WheelLeft::	; 鼠标 向左滚动 触发 
 			
-		return
+		;return
 		
-		WheelRight:: ; 鼠标 向右滚动 触发
+		;WheelRight:: ; 鼠标 向右滚动 触发
 			
-		return	
+		;return	
 	#If
 #If
 
@@ -340,19 +349,14 @@ F14 & z::return	;
 #If
 
 ;TODO ============ 测试代码：当前键盘布局和输入法
-F16:: 
-	WinGet, WinID,, A
-	ThreadID:=DllCall("GetWindowThreadProcessId", "UInt", WinID, "UInt", 0)
-	InputLocaleID:=DllCall("GetKeyboardLayout", "UInt", ThreadID, "UInt")
-	If(!InputLocaleID){
-		WinActivate, ahk_class WorkerW
-		WinGet, WinID2,, ahk_class WorkerW
-		ThreadID:=DllCall("GetWindowThreadProcessId", "UInt", WinID2, "UInt", 0)
-		WinActivate, ahk_id %WinID%
-		InputLocaleID:=DllCall("GetKeyboardLayout", "UInt", ThreadID, "UInt")
-	}
-	MsgBox, %InputLocaleID%
-return
+#If use_test_getIMEcode == 1
+	F16:: 
+		InputLocaleID := GetCurrentKeyboardLayoutCode()
+		;MsgBox, 0x40, 输入法%InputLocaleID%
+		InputName := GetCurrentKeyboardLayoutName()
+		MsgBox,  0x40, 当前输入法检测, ID:   %InputLocaleID% `nName: %InputName%
+	return
+#If
 ;========================  系统级别特殊功能：=====================
 
 
@@ -471,34 +475,52 @@ return
 
 
 ;* ================ RAlt+鼠标滚轮 横向滚动, 加 Shift 更快速
-F13 & WheelDown::
-	if (GetKeyState("Shift")){
-		Send, {WheelLeft 3} 
-	}else{
-		Send, {WheelLeft}
-	}
-return
-F13 & WheelUp::
-	if (GetKeyState("Shift")){
-		Send, {WheelRight 3}
-	}else{
-		Send, {WheelRight}
-	}
-return
+#If (verticalScroll_inverseDir == 1)
+	F13 & WheelDown::
+		if (GetKeyState("Shift")){
+			Send, {WheelLeft 3} 
+		}else{
+			Send, {WheelLeft}
+		}
+	return
+	F13 & WheelUp::
+		if (GetKeyState("Shift")){
+			Send, {WheelRight 3}
+		}else{
+			Send, {WheelRight}
+		}
+	return
+#If (verticalScroll_inverseDir == 0)
+	F13 & WheelDown::
+		if (GetKeyState("Shift")){
+			Send, {WheelRight 3} 
+		}else{
+			Send, {WheelRight}
+		}
+	return
+	F13 & WheelUp::
+		if (GetKeyState("Shift")){
+			Send, {WheelLeft 3}
+		}else{
+			Send, {WheelLeft}
+		}
+	return
+#If
+
 
 ;* ================ Caps+鼠标滚轮  纵向滚动, 加 Shift 更快速
 F14 & WheelDown::
 	if (GetKeyState("Shift")){
-		Send, {WheelDown 6}
+		;Send, {WheelDown 6}
 	}else{
-		Send, {WheelDown 3}
+		Send, {WheelDown 4}
 	}
 return
 F14 & WheelUp::
 	if (GetKeyState("Shift")){
-		Send, {WheelDown 6}
+		;Send, {WheelDown 6}
 	}else{
-		Send, {WheelUp 3}
+		Send, {WheelUp 4}
 	}
 return
 
@@ -646,7 +668,7 @@ InternetSearch(text, searchEngine)
 		case "":
 			MsgBox, 未指定搜索引擎
 		Default:
-			MsgBox, 不知道这是什么搜索引擎诶
+			MsgBox, 不知道这是什么搜索引擎捏
 		}
 		
 		searchURL := searchURL . text ; 拼接文本
@@ -662,11 +684,82 @@ CopyTextAndSearch(searchEngine)
 	Sleep, 20				; 暂停一段时间等它复制完
 	Clip := clipboard		; 拷贝剪贴板
 	
-	InternetSearch(Clip, searchEngine)
+	Clip := Trim(Clip)				; 删掉网址或搜索词的前后空格
+	;Msgbox, "%Clip%"
+	;return
+	InternetSearch(Clip, searchEngine) ; 搜索或打开网址
 	
 	clipboard := lastClip	; 恢复剪贴板为之前的状态	
 	
 }
+;   asdf asdf asdf       http://www.baidu.com      1
+;    asdf asdf 			asdf asdf 	asdf 		
+
+;* 获取当前使用的输入法/键盘布局名字，输出文本依照全局变量
+GetCurrentKeyboardLayoutName(InputLocaleID:=0)
+{
+	global installedKeyboardLayout  ; 声明全局变量
+	getLayout := 0
+	layoutName := ""
+	
+	if(InputLocaleID == 0){
+		InputLocaleID := GetCurrentKeyboardLayoutCode()
+	}
+	
+	for ID, nm in installedKeyboardLayout{
+		if(InputLocaleID == ID){
+			getLayout := 1
+			layoutName = %nm%
+			;MsgBox, Found
+			break
+		}
+	}
+	
+	if(getLayout == 0){
+		MsgBox, 0x10, 未识别到你的输入法, 程序还没录入当前的输入法，不认识捏
+	}
+	
+	;MsgBox, layoutName: %layoutName%
+	
+	Return layoutName
+}
+
+GetCurrentKeyboardLayoutCode()
+{
+	WinGet, WinID,, A
+	ThreadID:=DllCall("GetWindowThreadProcessId", "UInt", WinID, "UInt", 0)
+	InputLocaleID:=DllCall("GetKeyboardLayout", "UInt", ThreadID, "UInt")
+	;DllCall("GetKeyboardLayout","int",0,UInt)
+	
+	If(InputLocaleID == 0){
+		WinActivate, ahk_class WorkerW
+		WinGet, WinID2,, ahk_class WorkerW
+		ThreadID:=DllCall("GetWindowThreadProcessId", "UInt", WinID2, "UInt", 0)
+		WinActivate, ahk_id %WinID%
+		InputLocaleID:=DllCall("GetKeyboardLayout", "UInt", ThreadID, "UInt")
+	}	
+	return InputLocaleID
+}
+
+;* 切换输入法中英/韩英问状态，适用于
+ChangeIMEmode()
+{
+	layout := GetCurrentKeyboardLayoutCode()
+	switch (layout){
+		case 134481924:	; Chinese_Simp
+			If(rime_KeymapChanged == 0){
+				Send, ^+{F4}
+			}else{
+				Send, ^{F20} 
+			}
+			
+		case 68289554:	; Korean	要求：设置中关闭 RAlt 映射到韩英切换键，改为专用的 韩文切换键
+			Send, {vk15sc1F2}
+			
+	}
+}
+
+
 
 ;*=============================== RAlt 特殊方案列表：================================
 ;*    ========= 0 OFF 模式，关闭所有热键 ===============
