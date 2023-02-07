@@ -118,8 +118,8 @@ return
 
 
 ;*=============== 全局：F13
-F14 & Backspace::
-F13 & Backspace::	;* 删除二字词的第一个字
+F14 & Backspace::	;^ 映射 F14+Bksp
+F13 & Backspace::	;* 删除二字词的第一个字，暂同时支持 Caps+Bksp 和 RAlt+Bksp 触发
 	Send, {Left}{Backspace}{Right}
 return
 F13 & Esc::   ;* 查看当前 RAlt 模式
