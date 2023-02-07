@@ -1,6 +1,6 @@
 ﻿
 ;** ====================== GSB_AKHScript ======================
-;|       版本：v0.2.5_dev3(alpha)             作者：GSB Electronic       |
+;|       版本：v0.2.5_dev4(alpha)             作者：GSB Electronic       |
 ;|      AHK 最低支持版本：                      
 ;**|      提示：需要管理员权限，请以管理员权限启动！
 ;|  代码仓库：https://github.com/BH2WFR/GSB_AHKScript.git
@@ -45,7 +45,7 @@
 ; 	Run *RunAs "%A_ScriptFullPath%"  ; Requires v1.0.92.01+
 ; 	ExitApp
 ; }
-#If 0
+#If 1
 full_command_line := DllCall("GetCommandLine", "str")
 
 if (!(A_IsAdmin or RegExMatch(full_command_line, " /restart(?!\S)")))
@@ -61,6 +61,16 @@ if (!(A_IsAdmin or RegExMatch(full_command_line, " /restart(?!\S)")))
 }
 #If
 
+;*============== 检查系统版本 ===========
+;osv := A_OSVersion
+osv := ((r := DllCall("GetVersion") & 0xFFFF) & 0xFF) "." (r >> 8)
+If(A_OSVersion == "WIN_2000" || A_OSVersion == "WIN_XP" || A_OSVersion == "WIN_2003"){
+	Msgbox, 0x10, 错误, 操作系统版本过低！请使用至少 windows vista 以上的系统！
+	ExitApp
+}
+
+
+
 
 ;*===========================  全局变量 ========================
 ; 使用时要在函数头部中声明一次这个变量, 否则无法使用, 格式: global isTestMode
@@ -69,8 +79,6 @@ rAltMode := 1		; 默认 RAlt 特殊模式，0 为关闭状态
 rAltModeList := {0:"OFF", 1:"Programming Mode", 2:"Galian Script", 3:"Esp Script", 4:"Colemak Input"}
 MouseQuickMoveUnitPixels := 30  ;F13+Shift+方向键 快速移动鼠标速度（每次移动的像素点个数) 
 
-
-verticalScroll_inverseDir := 0  ; 横向滚动是否相反方向
 
 
 ;^ 系统安装的输入法语言代码：
@@ -97,7 +105,7 @@ use_Explorer_CopyFullPath := 1
 $F13 Up::
 	layout := GetCurrentKeyboardLayoutCode()
 	
-	If(layout == 68289554){	; 如果处于韩文输入法下
+	If(layout == 68289554){	;^ 如果处于韩文输入法下
 		Send, {vk19}	; 汉字切换
 	}else{
 		Send {F13} ; 释放正常 RAlt 点击
@@ -173,29 +181,29 @@ return
 		
 #If use_RimeInput == 1	; 仅适用于魔改快捷键的小狼毫输入法
 	#If rime_KeymapChanged == 0
-		; TODO: CapsLock+Space 调出小狼毫菜单
+		; CapsLock+Space 调出小狼毫菜单
 		F14 & Space::
 		F14 & `::
 			Send, ^``	;注意通配符, grave 是 两个``
 		return
-		;TODO: CapsLock+3 全角/半角
+		; CapsLock+3 全角/半角
 		F14 & 3::
 			Send, ^+{3}
 		return
-		;TODO: CapsLock+4 简繁体转换
+		; CapsLock+4 简繁体转换
 		F14 & 4::
 			Send, ^+{4}
 		return
-		;TODO: CapsLock+5 增廣字集
+		; CapsLock+5 增廣字集
 		F14 & 5::
 			Send, ^+{5}
 		return		
-		;TODO: CapsLock+. 中英标点
+		; CapsLock+. 中英标点
 		F14 & .::
 			
 		return
 	#If rime_KeymapChanged == 1	;* 魔改快捷键后
-		; TODO: CapsLock+Space 调出小狼毫菜单
+		; CapsLock+Space 调出小狼毫菜单
 		F14 & Space::
 		F14 & `::
 			Send, {F20}	;注意通配符, grave 是 两个``
@@ -203,19 +211,19 @@ return
 		F14 & 1::
 			Send, +{F20}
 		return
-		;TODO: CapsLock+3 全角/半角
+		; CapsLock+3 全角/半角
 		F14 & 3::
 			Send, ^+{F20}
 		return
-		;TODO: CapsLock+4 简繁体转换
+		; CapsLock+4 简繁体转换
 		F14 & 4::
 			Send, ^+{F21}
 		return
-		;TODO: CapsLock+5 增廣字集
+		; CapsLock+5 增廣字集
 		F14 & 5::
 			Send, +{F21}
 		return		
-		;TODO: CapsLock+. 中英标点
+		; CapsLock+. 中英标点
 		F14 & .::
 			Send, ^{F21}
 		return		
@@ -276,6 +284,27 @@ F14 & x::Send, ^{x}	;* 剪切
 F14 & y::return	;		;
 F14 & z::return	;	
 
+F14 & Esc::return
+F14 & F1::return	; 设置 RAlt 模式
+F14 & F2::return
+F14 & F3::return
+F14 & F4::return
+F14 & F5::return
+F14 & F6::return
+F14 & F7::return
+F14 & F8::return
+F14 & F9::return
+F14 & F10::return
+F14 & F11::return
+F14 & F12::return
+F14 & PrintScreen::return
+F14 & ScrollLock::return
+F14 & Home::return
+F14 & End::return
+F14 & PgUp::return
+F14 & PgDn::return
+F14 & Delete::return	;关闭RAlt模式
+
 ;*======================== 程序特殊热键   ========================
 
 
@@ -328,9 +357,7 @@ F14 & z::return	;
 
 ; Onenote F20触发鼠标位置显示
 #IfWinActive ahk_exe ONENOTE.EXE
-	F20::
-		Send {CtrlDown}{CtrlUp}
-	return
+	
 #IfWinActive
 
 ; MDK中：
@@ -348,7 +375,7 @@ F14 & z::return	;
 
 #If
 
-;TODO ============ 测试代码：当前键盘布局和输入法
+;^ ============ 测试代码：当前键盘布局和输入法
 #If use_test_getIMEcode == 1
 	F16:: 
 		InputLocaleID := GetCurrentKeyboardLayoutCode()
@@ -401,9 +428,21 @@ return
 
 ;*=============== 任务栏上：任务栏上滚动鼠标滚轮以调节音量（更新：副屏的任务栏也可以了）
 #if MouseIsOver("ahk_class Shell_TrayWnd") || MouseIsOver("ahk_class Shell_SecondaryTrayWnd")
-	WheelUp::Send {Volume_Up}
-	WheelDown::Send {Volume_Down}
-	Mbutton::Send {Volume_Mute}
+	WheelUp::
+		BlockInput, On	;* 新增：阻塞键盘鼠标输入（不含触控板）
+		Send {Volume_Up}
+		BlockInput, Off
+	return
+	WheelDown::
+		BlockInput, On
+		Send {Volume_Down}
+		BlockInput, Off
+	return
+	Mbutton::
+		BlockInput, On
+		Send {Volume_Mute}
+		BlockInput, Off
+	return
 
 	MouseIsOver(WinTitle) {
 		MouseGetPos,,, Win
@@ -415,6 +454,7 @@ return
 ~LWin & WheelUp::
 #F1::
 ; 透明度调整，增加。
+	BlockInput, On	;* 新增：阻塞键盘鼠标输入（不含触控板）
 	if (GetKeyState("Shift")){
 		WinGet, Transparent, Transparent,A
 		If (Transparent="")
@@ -431,11 +471,13 @@ return
 		tooltip, AlwaysOnTop ON
 		SetTimer, RemoveToolTip, -1000
 	}
+	BlockInput, Off
 return
  
 ~LWin & WheelDown::
 #F2::
 ;透明度调整，减少。
+	BlockInput, On
 	if (GetKeyState("Shift")){
 		WinGet, Transparent, Transparent,A
 		If (Transparent="")
@@ -452,6 +494,7 @@ return
 		tooltip, AlwaysOnTop OFF
 		SetTimer, RemoveToolTip, -1000
 	}
+	BlockInput, Off
 return
  
 ;设置Lwin &Mbutton直接恢复透明度到255。
@@ -475,60 +518,55 @@ return
 
 
 ;* ================ RAlt+鼠标滚轮 横向滚动, 加 Shift 更快速
-#If (verticalScroll_inverseDir == 1)
-	F13 & WheelDown::
-		if (GetKeyState("Shift")){
-			Send, {WheelLeft 3} 
-		}else{
-			Send, {WheelLeft}
-		}
-	return
-	F13 & WheelUp::
-		if (GetKeyState("Shift")){
-			Send, {WheelRight 3}
-		}else{
-			Send, {WheelRight}
-		}
-	return
-#If (verticalScroll_inverseDir == 0)
-	F13 & WheelDown::
-		if (GetKeyState("Shift")){
-			Send, {WheelRight 3} 
-		}else{
-			Send, {WheelRight}
-		}
-	return
-	F13 & WheelUp::
-		if (GetKeyState("Shift")){
-			Send, {WheelLeft 3}
-		}else{
-			Send, {WheelLeft}
-		}
-	return
-#If
+F13 & WheelDown::	;* Right
+	if (GetKeyState("Shift")){
+		WheelScroll("right", 3)
+	}else{
+		WheelScroll("right", 1)
+	}
+return
+F13 & WheelUp::		;* Left
+	if (GetKeyState("Shift")){
+		WheelScroll("left", 3)
+	}else{
+		WheelScroll("left", 1)
+	}
+return
 
 
-;* ================ Caps+鼠标滚轮  纵向滚动, 加 Shift 更快速
+
+;* ================ Caps+鼠标滚轮  加速纵向滚动, 加 Shift 更快速
 F14 & WheelDown::
 	if (GetKeyState("Shift")){
-		;Send, {WheelDown 6}
+		WheelScroll("down", 6)
 	}else{
-		Send, {WheelDown 4}
+		WheelScroll("down", 3)
 	}
 return
 F14 & WheelUp::
 	if (GetKeyState("Shift")){
-		;Send, {WheelDown 6}
+		WheelScroll("up", 6)
 	}else{
-		Send, {WheelUp 4}
+		WheelScroll("up", 3)
 	}
 return
 
-
-
+;TODO 浏览器触控板缩放
+#If ! WinActive("ahk_exe msedge.exe") || WinActive("ahk_exe chrome.exe")
+	^WheelUp::
+	
+	return
+	
+	^WheelDown::
+	
+	return
+	
+#If
 
  
 ;*===================================== 自制函数 =======================================
+
+
 SetRAltMode(mode)
 {
 	global rAltMode
@@ -623,7 +661,7 @@ MoveMouse(Dir, Increment)
 	case "Down":
 		y_pos += Increment
 	default:
-		MsgBox, 移动鼠标：方向参数错误调用！
+		MsgBox, 0x10, 错误, 移动鼠标：方向参数错误调用！
 		return
 	}
 	;MsgBox,  X:%x_pos% Y:%y_pos%
@@ -668,7 +706,7 @@ InternetSearch(text, searchEngine)
 		case "":
 			MsgBox, 未指定搜索引擎
 		Default:
-			MsgBox, 不知道这是什么搜索引擎捏
+			MsgBox, 0x10, 错误, 不知道这是什么搜索引擎捏
 		}
 		
 		searchURL := searchURL . text ; 拼接文本
@@ -744,7 +782,7 @@ GetCurrentKeyboardLayoutCode()
 ;* 切换输入法中英/韩英问状态，适用于
 ChangeIMEmode()
 {
-	layout := GetCurrentKeyboardLayoutCode()
+	layout := GetCurrentKeyboardLayoutCode() ; 获取当前的输入法
 	switch (layout){
 		case 134481924:	; Chinese_Simp
 			If(rime_KeymapChanged == 0){
@@ -754,12 +792,73 @@ ChangeIMEmode()
 			}
 			
 		case 68289554:	; Korean	要求：设置中关闭 RAlt 映射到韩英切换键，改为专用的 韩文切换键
-			Send, {vk15sc1F2}
+			Send, {vk15sc1F2}	;* 韩文键盘专有的「hangul」键
 			
 	}
 }
 
-
+;* 发送鼠标滚动操作
+WheelScroll(dir, steps:= 1, sleepTime := 15, isBlockInput := 1)
+{
+;   SetTitleMatchMode, 2
+; 	IfWinActive, Microsoft Excel -
+; 	{
+; 	    ;SetScrollLockState, on
+; 	    ComObjActive("Excel.Application").ActiveWindow.SmallScroll(0,0,2,0)
+; 	    ;SetScrollLockState, off
+; 	}
+; 	else IfWinActive, PowerPoint
+; 	    ComObjActive("PowerPoint.Application").ActiveWindow.SmallScroll(0,0,3,0)
+; 	else IfWinActive, Adobe Acrobat Professional -
+; 	{
+; 	    send,+{right}
+; 	}
+; 	else IfWinActive, - Mozilla Firefox
+; 	{
+; 	    Loop 4
+; 	        send,{right}
+; 	}
+; 	else
+; 	{
+; 	    ControlGetFocus, FocusedControl, A
+; 	    Loop 10
+; 	        SendMessage, 0x114, 1, 0, %FocusedControl%, A  ; 0x114 is WM_HSCROLL ; 1 vs. 0 causes SB_LINEDOWN vs. UP
+; 	}	
+	
+	;%A_Index%
+	
+	If(isBlockInput == 1){ ;* 屏蔽外界输入
+		;Msgbox, block
+		BlockInput, On
+	}
+	;If WinActive(ahk_exe vscode.exe){  ;^ 保留备用
+	
+ 	;* 直接发送鼠标横向滚动键
+	Switch dir{
+		case "up":
+		;Msgbox, scrool up
+			Send, {WheelUp %steps%}
+			; Loop %steps%{
+			; 	Send, {WheelUp}
+			; 	Sleep, %sleepTime%
+			; 	;Msgbox, scrool up
+			; }
+		case "down":
+			Send, {WheelDown %steps%}		
+		case "left":
+			Send, {WheelLeft %steps%}	
+		case "right":
+			Send, {WheelRight %steps%}	
+		Default:
+			MsgBox, 0x10, 方向指令无效, 方向指令无效，请输入小写字母的"up""down""left""right"
+			;return
+	}
+	
+	If(isBlockInput == 1){ ;* 恢复外界输入
+		BlockInput, Off
+		;Msgbox, block
+	}
+}
 
 ;*=============================== RAlt 特殊方案列表：================================
 ;*    ========= 0 OFF 模式，关闭所有热键 ===============
