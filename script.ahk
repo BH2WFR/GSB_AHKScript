@@ -1,6 +1,6 @@
 ﻿
 ;** ====================== GSB_AKHScript ======================
-;|       版本：v0.2.5_dev4(alpha)             作者：GSB Electronic       |
+;|       版本：v0.2.5.dev5             作者：GSB Electronic       |
 ;|      AHK 最低支持版本：                      
 ;**|      提示：需要管理员权限，请以管理员权限启动！
 ;|  代码仓库：https://github.com/BH2WFR/GSB_AHKScript.git
@@ -14,7 +14,7 @@
 ;* 朝鲜语输入法设置中需要将键盘布局设置为：Keyboard layout: Korean keyboard (101 key) Type 1，把韩文切换键和汉字键映射到专用按键上
 ; 			Hangul Key:{vk15sc1F2}     Hanja Key:sc1F1
 ;
-;				功能	|				默认映射			|		更改后映射		|    
+;*				功能	|				默认映射			|		更改后映射		|    
 ;			弹出菜单	|			F4 或 Ctrl+{`}					F20 或 Ctrl+Shift+{`(grave)}
 ;			中英切换	|	Ctrl+Shift+2 或 Shift 或 Caps			Ctrl+F20
 ;			全角/半角	|		Ctrl+Shift+3 						Ctrl+Shift+F20
@@ -40,6 +40,28 @@
 
 
 
+
+
+;*============== 检查系统版本 ===========
+;osv := A_OSVersion
+osv := ((r := DllCall("GetVersion") & 0xFFFF) & 0xFF) "." (r >> 8)
+If(A_OSVersion == "WIN_2000" || A_OSVersion == "WIN_XP" || A_OSVersion == "WIN_2003"){
+	Msgbox, 0x10, 不支持的操作系统, 你的 Windows 操作系统版本 %A_OSVersion% 太低了捏！`n  请使用至少 Windows Vista (NT 6.0) 以上的系统！
+	ExitApp
+}
+
+;*============= 检查 AutoHotkey 版本========
+If (VerCompare(A_AhkVersion, "<= 1.1")){
+	Msgbox, 0x10, 不支持的 AutoHotkey 解释器版本, 您的 AutoHotkey 解释器版本 v%A_AhkVersion% 太低 `n  请使用 AutoHotkey v1.1.x 的版本运行！
+	ExitApp
+}else if (VerCompare(A_AhkVersion, ">= 2")){
+	Msgbox, 0x10, 不支持的 AutoHotkey 解释器版本, 这是一个基于 AutoHotkey v1.1.x 的脚本，`n  不可以使用 v%A_AhkVersion% 运行！
+	ExitApp
+}else{
+	
+}
+
+
 ;*================  启动时申请管理员权限 =================
 ; if (! A_IsAdmin){ ;http://ahkscript.org/docs/Variables.htm#IsAdmin
 ; 	Run *RunAs "%A_ScriptFullPath%"  ; Requires v1.0.92.01+
@@ -60,17 +82,6 @@ if (!(A_IsAdmin or RegExMatch(full_command_line, " /restart(?!\S)")))
     ExitApp
 }
 #If
-
-;*============== 检查系统版本 ===========
-;osv := A_OSVersion
-osv := ((r := DllCall("GetVersion") & 0xFFFF) & 0xFF) "." (r >> 8)
-If(A_OSVersion == "WIN_2000" || A_OSVersion == "WIN_XP" || A_OSVersion == "WIN_2003"){
-	Msgbox, 0x10, 错误, 操作系统版本过低！请使用至少 windows vista 以上的系统！
-	ExitApp
-}
-
-
-
 
 ;*===========================  全局变量 ========================
 ; 使用时要在函数头部中声明一次这个变量, 否则无法使用, 格式: global isTestMode
@@ -428,27 +439,16 @@ return
 
 ;*=============== 任务栏上：任务栏上滚动鼠标滚轮以调节音量（更新：副屏的任务栏也可以了）
 #if MouseIsOver("ahk_class Shell_TrayWnd") || MouseIsOver("ahk_class Shell_SecondaryTrayWnd")
-	WheelUp::
-		BlockInput, On	;* 新增：阻塞键盘鼠标输入（不含触控板）
-		Send {Volume_Up}
-		BlockInput, Off
-	return
-	WheelDown::
-		BlockInput, On
-		Send {Volume_Down}
-		BlockInput, Off
-	return
-	Mbutton::
-		BlockInput, On
-		Send {Volume_Mute}
-		BlockInput, Off
-	return
+	WheelUp::Send {Volume_Up}
+	WheelDown::Send {Volume_Down}
+	Mbutton::Send {Volume_Mute}
 
 	MouseIsOver(WinTitle) {
 		MouseGetPos,,, Win
 		return WinExist(WinTitle . " ahk_id " . Win)
 	}
 #If
+
 
 ;*===============窗口上： LWin+鼠标滚轮：窗口置顶/取消置顶， LWin+Shift+鼠标滚轮：调节窗口透明度
 ~LWin & WheelUp::
@@ -553,13 +553,13 @@ return
 
 ;TODO 浏览器触控板缩放
 #If ! WinActive("ahk_exe msedge.exe") || WinActive("ahk_exe chrome.exe")
-	^WheelUp::
+	; ^WheelUp::
 	
-	return
+	; return
 	
-	^WheelDown::
+	; ^WheelDown::
 	
-	return
+	; return
 	
 #If
 
