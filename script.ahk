@@ -1,73 +1,90 @@
-﻿
-;** ====================== GSB_AKHScript ======================
-;|       版本：v0.2.5.dev5             作者：GSB Electronic       |
-;|      AHK 最低支持版本：                      
-;**|      提示：需要管理员权限，请以管理员权限启动！
-;|  代码仓库：https://github.com/BH2WFR/GSB_AHKScript.git
-;| 汉字提交 
-;============================================================
+﻿; encoding: UTF-8 with BOM
 
-;! ======================= 使用说明和注意事项：=====================
-/** 要先使用 PowerToys 等工具物理映射下列按键：
+/*
+^ ====================================== GSB_AKHScript ==================================
+^ |   	版本：v0.2.5.dev6      作者：BH2WFR, GSB Electronic   	更新时间：8 Feb 2023 	 |
+------------------------------------------------------------------------------------
+*     				 AHK 版本： v1.1.x, 		操作系统支持版本 >= Vista(NT6.0)                     
+	----------------------------------------------------------------	
+*  			代码仓库 git 地址：	 https://github.com/BH2WFR/GSB_AHKScript.git
+*			网页：				https://github.com/BH2WFR/GSB_AHKScript
+* 			开源协议：  
+*
+*-----------------------------------------------------------------------------------
+*/
+
+/* 
+^ ==================================== 使用说明和注意事项：=================================        
+*  -- 1. 要先使用 PowerToys 等工具物理映射下列按键：
 ;*			右Alt		->	F13
 ;*			CapsLock 	->	F14
-;* 朝鲜语输入法设置中需要将键盘布局设置为：Keyboard layout: Korean keyboard (101 key) Type 1，把韩文切换键和汉字键映射到专用按键上
-; 			Hangul Key:{vk15sc1F2}     Hanja Key:sc1F1
-;
-;*				功能	|				默认映射			|		更改后映射		|    
-;			弹出菜单	|			F4 或 Ctrl+{`}					F20 或 Ctrl+Shift+{`(grave)}
-;			中英切换	|	Ctrl+Shift+2 或 Shift 或 Caps			Ctrl+F20
-;			全角/半角	|		Ctrl+Shift+3 						Ctrl+Shift+F20
-;			繁简切换	|		Ctrl+Shift+4 或 F4,1,4				Control+Shift+F21
-;			增广字集			Ctrl+Shift+5						Shift+F21
-;			中英标点	|		F4,1,5								Ctrl+F21	
-; 			输入法切换	|     .next  Ctrl+Shift+1					Shift+F20
-;*=========== key_bindings.yaml 中，改成：
-;    - { when: always, accept: Shift+F20, select: .next }
- ;   - { when: always, accept: Control+F20, toggle: ascii_mode }
-;    - { when: always, accept: Control+Shift+F20, toggle: full_shape }
-;    - { when: always, accept: Control+Shift+F21, toggle: simplification }
-;    - { when: always, accept: Shift+F21, toggle: extended_charset }
-;    - { when: always, accept: Ctrl+F21, toggle: ascii_punct }
+
+* -- 2. 中文 小狼毫输入法中，如下更改快捷键：
+*				功能	|				默认映射			|			更改后映射			|    
+			弹出菜单	|			F4 或 Ctrl+{`}			|		F20 或 Ctrl+Shift+{`(grave)}
+			中英切换	|	Ctrl+Shift+2 或 Shift 或 Caps	|		Ctrl+F20
+			全角/半角	|		Ctrl+Shift+3 				|		Ctrl+Shift+F20
+			繁简切换	|		Ctrl+Shift+4 或 F4,1,4		|		Control+Shift+F21
+			增广字集			Ctrl+Shift+5				|		Shift+F21
+			中英标点	|		F4,1,5						|		Ctrl+F21	
+ 			输入法切换	|     .next  Ctrl+Shift+1			|		Shift+F20
+			---------------------------------------------------------------------
+*		更改方法：在程序目录的 key_bindings.yaml 中，找到对应配置代码，更改或 patch 为：
+    - { when: always, accept: Shift+F20, select: .next }
+    - { when: always, accept: Control+F20, toggle: ascii_mode }
+    - { when: always, accept: Control+Shift+F20, toggle: full_shape }
+    - { when: always, accept: Control+Shift+F21, toggle: simplification }
+    - { when: always, accept: Shift+F21, toggle: extended_charset }
+    - { when: always, accept: Ctrl+F21, toggle: ascii_punct }
+
+
+;* -- 3. 朝鲜语输入法中 需要将键盘布局设置为：Keyboard layout: Korean keyboard (101 key) Type 1，
+		即把韩文切换键和汉字键映射到专用按键上, 否则会默认按照 RAlt 韩英，RCtrl 汉字作为切换快捷键，
+		输入法快捷键为系统级别快捷键，会干扰 PowerToys 的 将 RAlt 映射到 F13 的功能
+; 			注释：Hangul Key:{vk15sc1F2}     Hanja Key:sc1F1
+
+
+
 ;---------------------------------------------------------------------------------
 */
 
+/* 
+TODO ============================== 未来将完成的功能 =================================
 
-;TODO =================== 未来完成的功能 ============================
+*	暂时不要push，或者只能force push，用 git commit --amend 的形式完成 v0.2.5.dev6 的制作
+	
+	功能完善后版本跳到 v0.2.6 正式版，然后开始改成  v0.2.6.devX 完善具体快捷键功能
+	程序大体框架已经完成，接下来主要专注于 Caps 和 RAlt 组合键的具体功能，完善后版本号将跳到 v1.0.0
+	
+*/
 
-; 小狼毫 把各种全局快捷键全部改掉，利用各种物理键盘不存在的键
-; 识别当前输入法，中文/韩文输出键不同
 
-
-
-
-
-;*============== 检查系统版本 ===========
+;^ ============================== 运行前检查兼容性并获取管理员权限 ===============================
+;*=================== 检查系统版本 ===============
 ;osv := A_OSVersion
-osv := ((r := DllCall("GetVersion") & 0xFFFF) & 0xFF) "." (r >> 8)
+;osv := ((r := DllCall("GetVersion") & 0xFFFF) & 0xFF) "." (r >> 8)
 If(A_OSVersion == "WIN_2000" || A_OSVersion == "WIN_XP" || A_OSVersion == "WIN_2003"){
 	Msgbox, 0x10, 不支持的操作系统, 你的 Windows 操作系统版本 %A_OSVersion% 太低了捏！`n  请使用至少 Windows Vista (NT 6.0) 以上的系统！
 	ExitApp
 }
 
-;*============= 检查 AutoHotkey 版本========
+;*================== 检查 AutoHotkey 版本============
 If (VerCompare(A_AhkVersion, "<= 1.1")){
-	Msgbox, 0x10, 不支持的 AutoHotkey 解释器版本, 您的 AutoHotkey 解释器版本 v%A_AhkVersion% 太低 `n  请使用 AutoHotkey v1.1.x 的版本运行！
+	Msgbox, 0x10, 不支持的 AutoHotkey 解释器版本, 您的 AutoHotkey 解释器版本 v%A_AhkVersion% 太低 `n  请使用 AutoHotkey v1.1.x 的版本（也不能使用 v2 及以上版本）运行！
 	ExitApp
 }else if (VerCompare(A_AhkVersion, ">= 2")){
-	Msgbox, 0x10, 不支持的 AutoHotkey 解释器版本, 这是一个基于 AutoHotkey v1.1.x 的脚本，`n  不可以使用 v%A_AhkVersion% 运行！
+	Msgbox, 0x10, 不支持的 AutoHotkey 解释器版本, 这是一个基于 AutoHotkey v1.1.x 的脚本，`n  不可以使用 v2 及以上版本运行，因为 AutoHotkey v1 和 v2 互不兼容！
 	ExitApp
 }else{
 	
 }
 
 
-;*================  启动时申请管理员权限 =================
+;*==================  申请管理员权限 ==================
 ; if (! A_IsAdmin){ ;http://ahkscript.org/docs/Variables.htm#IsAdmin
 ; 	Run *RunAs "%A_ScriptFullPath%"  ; Requires v1.0.92.01+
 ; 	ExitApp
 ; }
-#If 1
 full_command_line := DllCall("GetCommandLine", "str")
 
 if (!(A_IsAdmin or RegExMatch(full_command_line, " /restart(?!\S)")))
@@ -81,18 +98,21 @@ if (!(A_IsAdmin or RegExMatch(full_command_line, " /restart(?!\S)")))
     }
     ExitApp
 }
-#If
 
-;*===========================  全局变量 ========================
-; 使用时要在函数头部中声明一次这个变量, 否则无法使用, 格式: global isTestMode
+
+
+
+;^==================================  全局变量 ================================
+;全局变量
+; 注意： 使用时要在函数头部中声明一次这个变量, 否则无法使用, 格式: global isTestMode
+
 isTestMode := 1		; 是否处于测试模式
 rAltMode := 1		; 默认 RAlt 特殊模式，0 为关闭状态
 rAltModeList := {0:"OFF", 1:"Programming Mode", 2:"Galian Script", 3:"Esp Script", 4:"Colemak Input"}
 MouseQuickMoveUnitPixels := 30  ;F13+Shift+方向键 快速移动鼠标速度（每次移动的像素点个数) 
 
 
-
-;^ 系统安装的输入法语言代码：
+;* 系统安装的输入法语言代码：
 installedKeyboardLayout := {134481924:"Chinese,Simplicated", 68289554:"Korean", 67699721:"English,US,QWERTY"}
 ;Layout_ChineseSimp_Code := 134481924
 ;Layout_Korean_Code := 68289554
@@ -103,20 +123,21 @@ installed_Korean := 1
 installed_English_US := 1
 use_test_getIMEcode := 1 ; F16键弹出对话框显示当前输入法代号
 
-;^ 是否启用模块功能
+;* 是否启用模块功能
 use_RimeInput := 1
 use_Anki := 1
 use_AutoCAD := 1
 use_Explorer_CopyFullPath := 1 
 
 
-;*=========================  全局热键   ============================
 
-;* F13 释放时触发正常的 F13 功能
+;^===================================  全局热键   ====================================
+; 全局热键
+;* F13 释放时触发正常的 F13 功能，如果在韩文输入法下则输出汉字切换键
 $F13 Up::
 	layout := GetCurrentKeyboardLayoutCode()
 	
-	If(layout == 68289554){	;^ 如果处于韩文输入法下
+	If(layout == 68289554){	;* 如果处于韩文输入法下
 		Send, {vk19}	; 汉字切换
 	}else{
 		Send {F13} ; 释放正常 RAlt 点击
@@ -125,18 +146,8 @@ $F13 Up::
 return
 
 
-;*================ Excel 中： F13+Enter 直接输出原本的 Alt+Enter
-; EXCEL, wps, libreoffice 中
-#If WinActive("ahk_exe EXCEL.EXE") || WinActive("ahk_exe wps.exe") || WinActive("ahk_exe soffice.exe") 
-F13 & Enter::
-	;If (WinActive("ahk_exe EXCEL.EXE") || WinActive("ahk_exe wps.exe") || WinActive("ahk_exe soffice.exe")){	
-		Send, !{Enter}
-	;}
-return
-#If
 
-
-;*=============== 全局：F13
+;*=============== F13：全局切换 RAlt 模式 ========
 F14 & Backspace::	;^ 映射 F14+Bksp
 F13 & Backspace::	;* 删除二字词的第一个字，暂同时支持 Caps+Bksp 和 RAlt+Bksp 触发
 	Send, {Left}{Backspace}{Right}
@@ -241,7 +252,7 @@ return
 	#If
 #If
 
-;*== 其余 CapsLock 快捷键, 用掉一个注释一个
+;*================== 其余 F14（CapsLock）组合快捷键, 用掉一个注释一个 =============
 F14 & Tab::return		;
 ;F14 & CapsLock::return	;无效组合
 ;F14 & Space::return	;输入法占用
@@ -316,12 +327,23 @@ F14 & PgUp::return
 F14 & PgDn::return
 F14 & Delete::return	;关闭RAlt模式
 
-;*======================== 程序特殊热键   ========================
 
 
-;* Anki： 鼠标特殊键触发文本加粗和标红
+;^====================== 特定程序中的自定义特殊热键 （根据需求随时更改） ===================
+; 程序热键
+;*================ Excel 中： F13+Enter 直接输出原本的 Alt+Enter
+; EXCEL, wps, libreoffice 中
+#If WinActive("ahk_exe EXCEL.EXE") || WinActive("ahk_exe wps.exe") || WinActive("ahk_exe soffice.exe") 
+F13 & Enter::
+	;If (WinActive("ahk_exe EXCEL.EXE") || WinActive("ahk_exe wps.exe") || WinActive("ahk_exe soffice.exe")){	
+		Send, !{Enter}
+	;}
+return
+#If
+
+;*============== Anki： 鼠标特殊键触发文本加粗和标红
 #If use_Anki == 1
-	#If WinActive("ahk_exe anki.exe") && (WinActive("Add") || WinActive("Edit Current")) ; 编辑窗口中
+	#If WinActive("ahk_exe anki.exe") && (WinActive("Add") || WinActive("Edit Current") || WinActive("Browse")) ; 编辑窗口中
 		XButton1::	;鼠标 后退键 触发 文本加粗
 			Send, ^b
 		return
@@ -345,7 +367,7 @@ F14 & Delete::return	;关闭RAlt模式
 	#If  ;WinActive
 #If
 
-;* AutoCAD 快捷键映射
+;*============== AutoCAD  鼠标特殊按键映射到快捷键
 #If use_AutoCAD == 1
 	#If WinActive("ahk_exe acad.exe")
 		XButton1::	;鼠标 后退键 触发 
@@ -378,7 +400,7 @@ F14 & Delete::return	;关闭RAlt模式
 
 #IfWinActive
 
-;*======   Explorer 中，按 F13+C 复制选中文本的完整地址到剪贴板
+;*============   Explorer 中，按 F13+C 复制选中文本的完整地址到剪贴板
 #If use_Explorer_CopyFullPath == 1
 	F13 & P:: ; Select the shot folders in Explorer, then hit WIN + P , after a few moments the file path of the first EXR in each shot will be added 
 	
@@ -386,19 +408,13 @@ F14 & Delete::return	;关闭RAlt模式
 
 #If
 
-;^ ============ 测试代码：当前键盘布局和输入法
-#If use_test_getIMEcode == 1
-	F16:: 
-		InputLocaleID := GetCurrentKeyboardLayoutCode()
-		;MsgBox, 0x40, 输入法%InputLocaleID%
-		InputName := GetCurrentKeyboardLayoutName()
-		MsgBox,  0x40, 当前输入法检测, ID:   %InputLocaleID% `nName: %InputName%
-	return
-#If
-;========================  系统级别特殊功能：=====================
 
 
 
+
+
+;^===================================  系统特殊功能：=====================================
+;系统功能
 ;*========== RAlt+方向键 以像素为单位移动鼠标指针, 加上 Shift 后快速移动鼠标
 #If 1
 
@@ -563,10 +579,22 @@ return
 	
 #If
 
+;^==================================== 测试代码和临时函数 ==================================
+;* ============ 测试代码：当前键盘布局和输入法
+#If use_test_getIMEcode == 1
+	F16:: 
+		InputLocaleID := GetCurrentKeyboardLayoutCode()
+		;MsgBox, 0x40, 输入法%InputLocaleID%
+		InputName := GetCurrentKeyboardLayoutName()
+		MsgBox,  0x40, 当前输入法检测, ID:   %InputLocaleID% `nName: %InputName%
+	return
+#If
  
-;*===================================== 自制函数 =======================================
-
-
+ 
+ 
+;^======================================= 函数区 ==========================================
+; 函数
+;* ===设置 RAlt 模式并弹出工具条提示
 SetRAltMode(mode)
 {
 	global rAltMode
@@ -645,7 +673,7 @@ SendCodeBlock(str){
 	}	
 }
 
-;移动鼠标，Dir=1左，2右，3上，4下； Increment 为每次移动像素点
+;*移动鼠标，Dir=1左，2右，3上，4下； Increment 为每次移动像素点
 MoveMouse(Dir, Increment)
 {
 	CoordMode,Mouse,Screen	;必须加入，适应多屏幕情况，否则会抽风
@@ -669,13 +697,13 @@ MoveMouse(Dir, Increment)
 	;MsgBox,  X:%x_pos% Y:%y_pos%
 }
 
-; 打开网址, 要先确认打开的网址是合乎格式的
+;* 打开网址, 要先确认打开的网址是合乎格式的
 OpenURL(URL)
 {
 	run, %URL%
 }
 
-;上网搜索东西
+;*上网搜索东西
 InternetSearch(text, searchEngine)
 {
 
@@ -714,7 +742,7 @@ InternetSearch(text, searchEngine)
 	}
 }
 
-; 复制文本并搜索, 如果选中的是网址则打开网址
+;* 复制文本并搜索, 如果选中的是网址则打开网址
 CopyTextAndSearch(searchEngine)
 {
 	lastClip := clipboard	; 将当前剪贴板内容备份一下, 执行本函数后还原回去
@@ -860,8 +888,14 @@ WheelScroll(dir, steps:= 1, sleepTime := 15, isBlockInput := 1)
 	}
 }
 
-;*=============================== RAlt 特殊方案列表：================================
-;*    ========= 0 OFF 模式，关闭所有热键 ===============
+
+
+
+
+
+;^================================= RAlt 模式具体方案列表：==================================
+; RAlt
+;*   ========================== 0 OFF 模式，关闭所有热键 =============================
 #If rAltMode == 0
 	F13 & Tab::return
 	F13 & CapsLock::return
@@ -920,7 +954,7 @@ WheelScroll(dir, steps:= 1, sleepTime := 15, isBlockInput := 1)
 
 
 
-;*   =========== 1 编程模式 =================
+;*   =========================== 1 编程模式 =================================
 #If rAltMode == 1
 	F13 & CapsLock::return
 	F13 & Space::return
@@ -1263,7 +1297,7 @@ WheelScroll(dir, steps:= 1, sleepTime := 15, isBlockInput := 1)
 
 
 
-;   ========== 2 Galia输入法模式 ============
+;*   ============================= 2 统一字母输入模式 ===============================
 #If rAltMode == 2
 
 	F13 & Tab::return
@@ -1601,6 +1635,10 @@ WheelScroll(dir, steps:= 1, sleepTime := 15, isBlockInput := 1)
 
 
 
-;    ========= 3 Esp 模式 ================
+;*  ============================= 3 ____ 模式 =============================
+
+
+
+
 
 
