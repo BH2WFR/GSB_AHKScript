@@ -2,7 +2,7 @@
 
 /*
 ^ ====================================== GSB_AKHScript ==================================
-^ |   	版本：v0.2.5.dev6      作者：BH2WFR, GSB Electronic   	更新时间：8 Feb 2023 	 |
+^ |   	版本：v0.2.6.dev1      作者：BH2WFR, GSB Electronic   	更新时间：26 Feb 2023 	 |
 ------------------------------------------------------------------------------------
 *     				 AHK 版本： v1.1.x, 		操作系统支持版本 >= Vista(NT6.0)                     
 	----------------------------------------------------------------	
@@ -16,8 +16,8 @@
 /* 
 ^ ==================================== 使用说明和注意事项：=================================        
 *  -- 1. 要先使用 PowerToys 等工具物理映射下列按键：
-;*			右Alt		->	F13
-;*			CapsLock 	->	F14
+;*			右Alt 或 分号键	 ->	F23(之前为F13), 需要更改全局变量"use_SemiColonAsRAlt"来选择
+;*			CapsLock 		->	F24(之前为F14)
 
 * -- 2. 中文 小狼毫输入法中，如下更改快捷键：
 *				功能	|				默认映射			|			更改后映射			|    
@@ -40,7 +40,7 @@
 
 ;* -- 3. 朝鲜语输入法中 需要将键盘布局设置为：Keyboard layout: Korean keyboard (101 key) Type 1，
 		即把韩文切换键和汉字键映射到专用按键上, 否则会默认按照 RAlt 韩英，RCtrl 汉字作为切换快捷键，
-		输入法快捷键为系统级别快捷键，会干扰 PowerToys 的 将 RAlt 映射到 F13 的功能
+		输入法快捷键为系统级别快捷键，会干扰 PowerToys 的 将 RAlt 映射到 F23 的功能
 ; 			注释：Hangul Key:{vk15sc1F2}     Hanja Key:sc1F1
 
 
@@ -99,9 +99,47 @@ if (!(A_IsAdmin or RegExMatch(full_command_line, " /restart(?!\S)")))
     ExitApp
 }
 
+  sb := "http://www.bai-du.com:8086/w的w/ww.html"
+;  sd := RegExMatch(sb, "\/\/([\w\.\d-]+)", sc)
 
+;  MsgBox, sb:%sb% `n sc:%sc% `n sd:%sd%
 
+;  if(ReGexMatch(sb, "^['""](.*)['""]$") != 0){
+; 	sb_len := StrLen(sb)
+; 		sb := SubStr(sb, 2, sb_len - 2)
+;  	MsgBox, %sb%
+	
+;  }
+;   if(InStr(sb, "`n")){
+; 	MsgBox, n
+;   }
+; 	sb := StrReplace(sb, "`n")
+; 	sb := StrReplace(sb, "`r")
+	
+;   MsgBox, %sb%
+;   if(InStr(sb, "`n")){
+; 	MsgBox, n
+;   }
 
+; sblen := StrLen(sb)
+; se := SubStr(sb, 2, sblen)
+;   MsgBox, %se%, %sblen%
+  
+  
+  	; if(RegExMatch(sb, "^file:\/\/(.+)")){
+	; 	sb_len := StrLen(sb)
+	; 	sb := SubStr(sb, 8, sb_len)
+		
+	; }
+	
+	; if(ReGexMatch(sb, "^(http|https|ftp):\/\/(.+)") != 0){
+	; 	sbi := RegExMatch(sb, "\/\/([\w\.\d-]+)", sbdomain)
+	; 	sblen := StrLen(sbdomain)
+	; 	sbdomain := SubStr(sbdomain, 3, sblen)
+	; }
+	
+	; MsgBox, %sb% `n%sbi% `n%sbdomain%
+	
 ;^==================================  全局变量 ================================
 ;全局变量
 ; 注意： 使用时要在函数头部中声明一次这个变量, 否则无法使用, 格式: global isTestMode
@@ -109,7 +147,7 @@ if (!(A_IsAdmin or RegExMatch(full_command_line, " /restart(?!\S)")))
 isTestMode := 1		; 是否处于测试模式
 rAltMode := 1		; 默认 RAlt 特殊模式，0 为关闭状态
 rAltModeList := {0:"OFF", 1:"Programming Mode", 2:"Galian Script", 3:"Esp Script", 4:"Colemak Input"}
-MouseQuickMoveUnitPixels := 30  ;F13+Shift+方向键 快速移动鼠标速度（每次移动的像素点个数) 
+MouseQuickMoveUnitPixels := 30  ;F23+Shift+方向键 快速移动鼠标速度（每次移动的像素点个数) 
 
 
 ;* 系统安装的输入法语言代码：
@@ -117,11 +155,15 @@ installedKeyboardLayout := {134481924:"Chinese,Simplicated", 68289554:"Korean", 
 ;Layout_ChineseSimp_Code := 134481924
 ;Layout_Korean_Code := 68289554
 
-;IMEmodeChangeKey := 1   ; ==0:Shift切换，1:F14(Caps)切换, 2:Ctrl+Space 切换 3: Ctrl切换
+;IMEmodeChangeKey := 1   ; ==0:Shift切换，1:F24(Caps)切换, 2:Ctrl+Space 切换 3: Ctrl切换
+
+use_SemiColonAsRAlt := 0  ; 使用分号代替RAlt,（适用于一些 RAlt 不方便按到的键盘, 要提前映射到 F23）
+
 rime_KeymapChanged := 1	; 小狼毫 快捷键是否非默认状态
 installed_Korean := 1
 installed_English_US := 1
 use_test_getIMEcode := 1 ; F16键弹出对话框显示当前输入法代号
+
 
 ;* 是否启用模块功能
 use_RimeInput := 1
@@ -133,66 +175,88 @@ use_Explorer_CopyFullPath := 1
 
 ;^===================================  全局热键   ====================================
 ; 全局热键
-;* F13 释放时触发正常的 F13 功能，如果在韩文输入法下则输出汉字切换键
-$F13 Up::
-	layout := GetCurrentKeyboardLayoutCode()
+;* F23 释放时触发正常的 F23 功能，如果在韩文输入法下则输出汉字切换键
+#If use_SemiColonAsRAlt == 0
+;$F23 Up::
+$F23::
 	
-	If(layout == 68289554){	;* 如果处于韩文输入法下
-		Send, {vk19}	; 汉字切换
+	If(1 == IsInKoreanLayout()){	;* 如果处于韩文输入法下
+		SendHanjaKey()	; 汉字切换
 	}else{
-		Send {F13} ; 释放正常 RAlt 点击
+		Send {F23} ; 释放正常 RAlt 点击
 	}
 	
 return
 
+;* 对于 RAlt 不方便按下的键盘, 用分号键替代 F23 功能键
+#If use_SemiColonAsRAlt == 1
+F24 & F23::
+$RAlt::
+	
+	If(1 == IsInKoreanLayout()){	;* 如果处于韩文输入法下
+		SendHanjaKey()	; 汉字切换
+	}else{
+		
+	}
+return
 
+Shift & F23::	;* 输出正常的分号和冒号
+	Send, :
+return	
+$F23::
+	Send, `;
+return
 
-;*=============== F13：全局切换 RAlt 模式 ========
-F14 & Backspace::	;^ 映射 F14+Bksp
-F13 & Backspace::	;* 删除二字词的第一个字，暂同时支持 Caps+Bksp 和 RAlt+Bksp 触发
+#If
+
+;*=============== F23：全局切换 RAlt 模式 ========
+F24 & Backspace::	;^ 映射 F24+Bksp
+F23 & Backspace::	;* 删除二字词的第一个字，暂同时支持 Caps+Bksp 和 RAlt+Bksp 触发
 	Send, {Left}{Backspace}{Right}
 return
-F13 & Esc::   ;* 查看当前 RAlt 模式
+F23 & Esc::   ;* 查看当前 RAlt 模式
 	if (GetKeyState("Shift")){
 		AltModeTestToolTip(1)
 	}else{
 		AltModeTestToolTip()
 	}
 return
-F13 & F1::SetRAltMode(1)	; 设置 RAlt 模式
-F13 & F2::SetRAltMode(2)
-F13 & F3::return
-F13 & F4::return
-F13 & F5::return
-F13 & F6::return
-F13 & F7::return
-F13 & F8::return
-F13 & F9::return
-F13 & F10::return
-F13 & F11::return
-F13 & F12::return
-F13 & PrintScreen::return
-F13 & ScrollLock::return
-F13 & Home::return
-F13 & End::return
-F13 & PgUp::return
-F13 & PgDn::return
-F13 & Delete::SetRAltMode(0)	;关闭RAlt模式
+F23 & F1::SetRAltMode(1)	; 设置 RAlt 模式
+F23 & F2::SetRAltMode(2)
+F23 & F3::return
+F23 & F4::return
+F23 & F5::return
+F23 & F6::return
+F23 & F7::return
+F23 & F8::return
+F23 & F9::return
+F23 & F10::return
+F23 & F11::return
+F23 & F12::return
+F23 & PrintScreen::return
+F23 & ScrollLock::return
+F23 & Home::return
+F23 & End::return
+F23 & PgUp::return
+F23 & PgDn::return
+F23 & Delete::SetRAltMode(0)	;关闭RAlt模式
 
 
 
-;*======================  输入法 特殊热键, 注意: 要先使用其他软件将 CapsLock 映射为 F14
+;*======================  输入法 特殊热键, 注意: 要先使用其他软件将 CapsLock 映射为 F24
 ;GetKeyState("CapsLock", "T") = 1
 ;SetCapsLockState, on
 
 ;* CapsLock 或 CapsLock+2 切换中英文
-F14 Up::
-F14 & 2::
+;F24 Up::
+F24::
+F24 & 2::
+	;MsgBox, shabi
 	ChangeIMEmode()
 return
 
 ;* Ctrl+CapsLock 切换大小写锁定
-^F14::
+^F24::
 	if(GetKeyState("CapsLock", "T") = 1){
 		SetCapsLockState, Off
 	}else{
@@ -204,137 +268,146 @@ return
 #If use_RimeInput == 1	; 仅适用于魔改快捷键的小狼毫输入法
 	#If rime_KeymapChanged == 0
 		; CapsLock+Space 调出小狼毫菜单
-		F14 & Space::
-		F14 & `::
+		F24 & Space::
+		F24 & `::
 			Send, ^``	;注意通配符, grave 是 两个``
 		return
 		; CapsLock+3 全角/半角
-		F14 & 3::
+		F24 & 3::
 			Send, ^+{3}
 		return
 		; CapsLock+4 简繁体转换
-		F14 & 4::
+		F24 & 4::
 			Send, ^+{4}
 		return
 		; CapsLock+5 增廣字集
-		F14 & 5::
+		F24 & 5::
 			Send, ^+{5}
 		return		
 		; CapsLock+. 中英标点
-		F14 & .::
+		F24 & .::
 			
 		return
 	#If rime_KeymapChanged == 1	;* 魔改快捷键后
 		; CapsLock+Space 调出小狼毫菜单
-		F14 & Space::
-		F14 & `::
+		F24 & Space::
+		F24 & `::
 			Send, {F20}	;注意通配符, grave 是 两个``
 		return
-		F14 & 1::
+		F24 & 1::
 			Send, +{F20}
 		return
 		; CapsLock+3 全角/半角
-		F14 & 3::
+		F24 & 3::
 			Send, ^+{F20}
 		return
 		; CapsLock+4 简繁体转换
-		F14 & 4::
+		F24 & 4::
 			Send, ^+{F21}
 		return
 		; CapsLock+5 增廣字集
-		F14 & 5::
+		F24 & 5::
 			Send, +{F21}
 		return		
 		; CapsLock+. 中英标点
-		F14 & .::
+		F24 & .::
 			Send, ^{F21}
 		return		
 	#If
 #If
 
-;*================== 其余 F14（CapsLock）组合快捷键, 用掉一个注释一个 =============
-F14 & Tab::return		;
-;F14 & CapsLock::return	;无效组合
-;F14 & Space::return	;输入法占用
-F14 & Enter::return		;
-;F14 & BackSpace::return	; 重映射到 F13+Backspace，代码在前面，去除二字汉字词的第一个字
-;F14 & `::return		;
-F14 & 1::return			;
-;F14 & 2::return		;输入法占用
-;F14 & 3::return		;输入法占用
-;F14 & 4::return		;输入法占用
-;F14 & 5::return		;输入法占用
-F14 & 6::return			;
-F14 & 7::return			;
-F14 & 8::return	;
-F14 & 9::return	;
-F14 & 0::return	;
-F14 & -::return	;
-F14 & =::return	;
-F14 & [::return	;        "	""	"
-F14 & ]::return	;
-F14 & \::return	;		;
-F14 & `;::return		;
-F14 & '::return	;
-F14 & ,::return		;
-F14 & .::return		;
-F14 & /::return		;
-F14 & a::CopyTextAndSearch("Baidu")
-F14 & b::CopyTextAndSearch("Bing")	;F14+C 复制当前选中文本并网上搜索, 如果选中的是链接则打开链接
-F14 & c::Send, ^{c} ;* 复制
-F14 & d::Run, D:\
-F14 & e::return	;
-F14 & f::return	;
-F14 & g::CopyTextAndSearch("Google")
-F14 & h::return	;
-F14 & i::return	;		;
-F14 & j::return	;
-F14 & k::return	;
-F14 & l::Run, D:\Downloads
-F14 & m::return	;
-F14 & n::return	;
-F14 & o::return	;		;
-;F14 & p::return	; 后面的复制路径程序
-F14 & q::return	;
-F14 & r::return	;
-F14 & s::Run, C:\
-F14 & t::Run, TaskMgr.exe	; 打开任务管理器
-F14 & u::return	;
-F14 & v::Send, ^{v}	;* 粘贴
-F14 & w::return	;
-F14 & x::Send, ^{x}	;* 剪切
-F14 & y::return	;		;
-F14 & z::return	;	
+;* 高级粘贴
+F24 & v::
+	if (GetKeyState("Shift")){
+		AdvancedPaste()	; 参见说明, 粘贴时去换行, 解引号, 如果是网址则提取域名粘贴
+	}else{
+		PasteWithoutFormat() ; 去格式粘贴
+	}
+return
 
-F14 & Esc::return
-F14 & F1::return	; 设置 RAlt 模式
-F14 & F2::return
-F14 & F3::return
-F14 & F4::return
-F14 & F5::return
-F14 & F6::return
-F14 & F7::return
-F14 & F8::return
-F14 & F9::return
-F14 & F10::return
-F14 & F11::return
-F14 & F12::return
-F14 & PrintScreen::return
-F14 & ScrollLock::return
-F14 & Home::return
-F14 & End::return
-F14 & PgUp::return
-F14 & PgDn::return
-F14 & Delete::return	;关闭RAlt模式
+;*================== 其余 F24（CapsLock）组合快捷键, 用掉一个注释一个 =============
+F24 & Tab::return		;
+;F24 & CapsLock::return	;无效组合
+;F24 & Space::return	;输入法占用
+F24 & Enter::return		;
+;F24 & BackSpace::return	; 重映射到 F23+Backspace，代码在前面，去除二字汉字词的第一个字
+;F24 & `::return		;
+F24 & 1::return			;
+;F24 & 2::return		;输入法占用
+;F24 & 3::return		;输入法占用
+;F24 & 4::return		;输入法占用
+;F24 & 5::return		;输入法占用
+F24 & 6::return			;
+F24 & 7::return			;
+F24 & 8::return	;
+F24 & 9::return	;
+F24 & 0::return	;
+F24 & -::return	;
+F24 & =::return	;
+F24 & [::return	;        "	""	"
+F24 & ]::return	;
+F24 & \::return	;		;
+F24 & `;::return		;
+F24 & '::return	;
+F24 & ,::return		;
+F24 & .::return		;
+F24 & /::return		;
+F24 & a::CopyTextAndSearch("Baidu")
+F24 & b::CopyTextAndSearch("Bing")	;F24+C 复制当前选中文本并网上搜索, 如果选中的是链接则打开链接
+F24 & c::Send, ^{c} ;* 复制
+F24 & d::Run, D:\
+F24 & e::return	;
+F24 & f::return	;
+F24 & g::CopyTextAndSearch("Google")
+F24 & h::return	;
+F24 & i::return	;		;
+F24 & j::return	;
+F24 & k::return	;
+F24 & l::Run, D:\Downloads
+F24 & m::return	;
+F24 & n::return	;
+F24 & o::return	;		;
+;F24 & p::return	; 后面的复制路径程序
+F24 & q::return	;
+F24 & r::return	;
+F24 & s::Run, C:\
+F24 & t::Run, TaskMgr.exe	; 打开任务管理器
+F24 & u::return	;
+;F24 & v::Send, ^{v}	;* 粘贴
+F24 & w::return	;
+F24 & x::Send, ^{x}	;* 剪切
+F24 & y::return	;		;
+F24 & z::return	;	
+
+F24 & Esc::return
+F24 & F1::return	; 设置 RAlt 模式
+F24 & F2::return
+F24 & F3::return
+F24 & F4::return
+F24 & F5::return
+F24 & F6::return
+F24 & F7::return
+F24 & F8::return
+F24 & F9::return
+F24 & F10::return
+F24 & F11::return
+F24 & F12::return
+F24 & PrintScreen::return
+F24 & ScrollLock::return
+F24 & Home::return
+F24 & End::return
+F24 & PgUp::return
+F24 & PgDn::return
+F24 & Delete::return	;关闭RAlt模式
 
 
 
 ;^====================== 特定程序中的自定义特殊热键 （根据需求随时更改） ===================
 ; 程序热键
-;*================ Excel 中： F13+Enter 直接输出原本的 Alt+Enter
+;*================ Excel 中： F23+Enter 直接输出原本的 Alt+Enter
 ; EXCEL, wps, libreoffice 中
 #If WinActive("ahk_exe EXCEL.EXE") || WinActive("ahk_exe wps.exe") || WinActive("ahk_exe soffice.exe") 
-F13 & Enter::
+F23 & Enter::
 	;If (WinActive("ahk_exe EXCEL.EXE") || WinActive("ahk_exe wps.exe") || WinActive("ahk_exe soffice.exe")){	
 		Send, !{Enter}
 	;}
@@ -400,9 +473,9 @@ return
 
 #IfWinActive
 
-;*============   Explorer 中，按 F13+C 复制选中文本的完整地址到剪贴板
+;*============   Explorer 中，按 F23+C 复制选中文本的完整地址到剪贴板
 #If use_Explorer_CopyFullPath == 1
-	F13 & P:: ; Select the shot folders in Explorer, then hit WIN + P , after a few moments the file path of the first EXR in each shot will be added 
+	F23 & P:: ; Select the shot folders in Explorer, then hit WIN + P , after a few moments the file path of the first EXR in each shot will be added 
 	
 	return
 
@@ -418,10 +491,10 @@ return
 ;*========== RAlt+方向键 以像素为单位移动鼠标指针, 加上 Shift 后快速移动鼠标
 #If 1
 
-F13 & Right::
-F13 & Left::
-F13 & Up::
-F13 & Down::
+F23 & Right::
+F23 & Left::
+F23 & Up::
+F23 & Down::
 	if (GetKeyState("Shift")){
 		increment := MouseQuickMoveUnitPixels
 	}else{
@@ -441,10 +514,10 @@ F13 & Down::
 return
 
 
-F13 & RWin::
+F23 & RWin::
 	Send, {LButton}
 return
-F13 & AppsKey::
+F23 & AppsKey::
 	Send, {RButton}
 return
 
@@ -534,14 +607,14 @@ return
 
 
 ;* ================ RAlt+鼠标滚轮 横向滚动, 加 Shift 更快速
-F13 & WheelDown::	;* Right
+F23 & WheelDown::	;* Right
 	if (GetKeyState("Shift")){
 		WheelScroll("right", 3)
 	}else{
 		WheelScroll("right", 1)
 	}
 return
-F13 & WheelUp::		;* Left
+F23 & WheelUp::		;* Left
 	if (GetKeyState("Shift")){
 		WheelScroll("left", 3)
 	}else{
@@ -552,14 +625,14 @@ return
 
 
 ;* ================ Caps+鼠标滚轮  加速纵向滚动, 加 Shift 更快速
-F14 & WheelDown::
+F24 & WheelDown::
 	if (GetKeyState("Shift")){
 		WheelScroll("down", 6)
 	}else{
 		WheelScroll("down", 3)
 	}
 return
-F14 & WheelUp::
+F24 & WheelUp::
 	if (GetKeyState("Shift")){
 		WheelScroll("up", 6)
 	}else{
@@ -813,16 +886,38 @@ ChangeIMEmode()
 	layout := GetCurrentKeyboardLayoutCode() ; 获取当前的输入法
 	switch (layout){
 		case 134481924:	; Chinese_Simp
-			If(rime_KeymapChanged == 0){
+			If(rime_KeymapChanged == 0){	;切换汉英
 				Send, ^+{F4}
 			}else{
 				Send, ^{F20} 
 			}
 			
 		case 68289554:	; Korean	要求：设置中关闭 RAlt 映射到韩英切换键，改为专用的 韩文切换键
-			Send, {vk15sc1F2}	;* 韩文键盘专有的「hangul」键
+			SendHangulKey()  ;切换韩英
 			
 	}
+}
+
+;* 判断是否处于韩文输入法下, 输出 0 或者 1
+IsInKoreanLayout()
+{
+	layout := GetCurrentKeyboardLayoutCode()
+	
+	If(layout == 68289554){	;* 如果处于韩文输入法下
+		return 1
+	}else{
+		return 0
+	}
+}
+
+SendHanjaKey()
+{
+	Send, {vk19}	; 汉字切换
+}
+
+SendHangulKey()
+{
+	Send, {vk15sc1F2}	;* 韩文键盘专有的「hangul」键
 }
 
 ;* 发送鼠标滚动操作
@@ -888,67 +983,139 @@ WheelScroll(dir, steps:= 1, sleepTime := 15, isBlockInput := 1)
 	}
 }
 
+;* 无格式粘贴文本, 同时会清除复制内容的左右空格或制表符
+PasteWithoutFormat()
+{
+	cb := Clipboard
+	cb := Trim(cb)
+	Send ^v
+}
 
 
+;* 高级粘贴文本功能
+AdvancedPaste()
+{
+	cb := Clipboard
+	cb_original := cb
+	
+	; 清除字符串左右两侧空白符
+	cb := Trim(cb)
+	
+	; 清除字符串的所有换行符
+	cb := StrReplace(cb, "`n")
+	cb := StrReplace(cb, "`r")
+	
+	
+	; 如果字符串被一对半角双引号或单引号引用, 则解引用
+	; 注: AHK中, 字符串中的引号要打两次, 而不是通过通配符来实现
+	; SubStr函数第二个参数为开始位置,
+	;	1为第一个字符,0为最后一个字符,-1为倒数第二个字符, 
+	;   第三个参数为字符长度
+	;if((SubStr(cb, 1, 1) == """") && (SubStr(cb, 0, 1) == """")){
+	if(ReGexMatch(cb, "^['""](.*)['""]$") != 0){
+		cb_len := StrLen(cb)
+		cb := SubStr(cb, 2, cb_len - 2)
+		
+	}
+	
+	; 如果字符串是个 url, 则取其域名
+	if(ReGexMatch(cb, "^(http|https|ftp):\/\/(.+)") != 0){
+		RegExMatch(cb, "\/\/([\w\.\d-]+)", cb_domain)
+		cb_len := StrLen(cb_domain)
+		cb := SubStr(cb_domain, 3, cb_len)
+	}
+	
+	; 如果字符串是个 file://开头的 Windows 格式的文件路径, 则去除头部的 "File://" 字符
+	if(RegExMatch(cb, "^file:\/\/(.+)")){
+		cb_len := StrLen(cb)
+		cb := SubStr(cb, 8, cb_len)
+	}
+	
+	; 粘贴文本
+	Clipboard := cb
+	Send ^v
+	
+	;剪贴板恢复原状
+	Clipboard := cb_original
+	
+}
 
+;* 对字符串去除左右两侧的双引号
+UnquoteString(str)
+{
+	str := Trim(str)
+	
+}
+
+ClearHttpsInString(str)
+{
+	str := Trim(str)
+	
+}
+
+;* 清除字符串所有换行符
+ClearLineBreakInString(str)
+{
+	
+}
 
 
 ;^================================= RAlt 模式具体方案列表：==================================
 ; RAlt
 ;*   ========================== 0 OFF 模式，关闭所有热键 =============================
 #If rAltMode == 0
-	F13 & Tab::return
-	F13 & CapsLock::return
-	F13 & Space::return
-	;F13 & Enter::return
-	;F13 & BackSpace::return
-	F13 & `::return
-	F13 & 1::return
-	F13 & 2::return
-	F13 & 3::return
-	F13 & 4::return
-	F13 & 5::return	
-	F13 & 6::return
-	F13 & 7::return
-	F13 & 8::return
-	F13 & 9::return
-	F13 & 0::return
-	F13 & -::return
-	F13 & =::return
-	F13 & [::return
-	F13 & ]::return
-	F13 & \::return	
-	F13 & `;::return
-	F13 & '::return
-	F13 & ,::return
-	F13 & .::return
-	F13 & /::return
-	F13 & a::return
-	F13 & b::return	
-	F13 & c::return	
-	F13 & d::return
-	F13 & e::return
-	F13 & f::return
-	F13 & g::return
-	F13 & h::return
-	F13 & i::return	
-	F13 & j::return
-	F13 & k::return
-	F13 & l::return
-	F13 & m::return
-	F13 & n::return
-	F13 & o::return	
-	F13 & p::return
-	F13 & q::return
-	F13 & r::return
-	F13 & s::return
-	F13 & t::return
-	F13 & u::return
-	F13 & v::return
-	F13 & w::return
-	F13 & x::return
-	F13 & y::return	
-	F13 & z::return	
+	F23 & Tab::return
+	F23 & CapsLock::return
+	F23 & Space::return
+	;F23 & Enter::return
+	;F23 & BackSpace::return
+	F23 & `::return
+	F23 & 1::return
+	F23 & 2::return
+	F23 & 3::return
+	F23 & 4::return
+	F23 & 5::return	
+	F23 & 6::return
+	F23 & 7::return
+	F23 & 8::return
+	F23 & 9::return
+	F23 & 0::return
+	F23 & -::return
+	F23 & =::return
+	F23 & [::return
+	F23 & ]::return
+	F23 & \::return	
+	F23 & `;::return
+	F23 & '::return
+	F23 & ,::return
+	F23 & .::return
+	F23 & /::return
+	F23 & a::return
+	F23 & b::return	
+	F23 & c::return	
+	F23 & d::return
+	F23 & e::return
+	F23 & f::return
+	F23 & g::return
+	F23 & h::return
+	F23 & i::return	
+	F23 & j::return
+	F23 & k::return
+	F23 & l::return
+	F23 & m::return
+	F23 & n::return
+	F23 & o::return	
+	F23 & p::return
+	F23 & q::return
+	F23 & r::return
+	F23 & s::return
+	F23 & t::return
+	F23 & u::return
+	F23 & v::return
+	F23 & w::return
+	F23 & x::return
+	F23 & y::return	
+	F23 & z::return	
 #If
 
 
@@ -956,132 +1123,132 @@ WheelScroll(dir, steps:= 1, sleepTime := 15, isBlockInput := 1)
 
 ;*   =========================== 1 编程模式 =================================
 #If rAltMode == 1
-	F13 & CapsLock::return
-	F13 & Space::return
-	;F13 & Enter::return
-	;F13 & BackSpace::return
-	F13 & `::return
+	F23 & CapsLock::return
+	F23 & Space::return
+	;F23 & Enter::return
+	;F23 & BackSpace::return
+	F23 & `::return
 	
-	F13 & Tab::
+	F23 & Tab::
 		if (GetKeyState("Shift")){		
 			Send, `t
 		}else{
 			Send, {Space 4}
 		}		
 	return
-	F13 & 1::
+	F23 & 1::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			SendBypassIME("!")
 		}
 	return
-	F13 & 2::
+	F23 & 2::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			SendBypassIME("@")
 		}
 	return
-	F13 & 3::
+	F23 & 3::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			SendBypassIME("#")
 		}
 	return
-	F13 & 4::
+	F23 & 4::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			SendBypassIME("$")
 		}
 	return
-	F13 & 5::
+	F23 & 5::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			SendBypassIME("%")
 		}
 	return	
-	F13 & 6::
+	F23 & 6::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			SendBypassIME("^")
 		}
 	return
-	F13 & 7::
+	F23 & 7::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			SendBypassIME("&")
 		}
 	return
-	F13 & 8::
+	F23 & 8::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			SendBypassIME("*")
 		}
 	return
-	F13 & 9::
+	F23 & 9::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			SendSymmetricSymbles("()")
 		}
 	return
-	F13 & 0::
+	F23 & 0::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			;Send, {Left}{BackSpace}{Right}
 		}
 	return
-	F13 & -::
+	F23 & -::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			SendBypassIME("_")
 		}
 	return
-	F13 & =::
+	F23 & =::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & [::
+	F23 & [::
 		if (GetKeyState("Shift")){
 			SendSymmetricSymbles("{}")
 		}else{
 			SendSymmetricSymbles("[]")
 		}
 	return
-	F13 & ]::
+	F23 & ]::
 		if (GetKeyState("Shift")){
 			SendCodeBlock("{}")
 		}else{
 			SendCodeBlock("[]")
 		}
 	return
-	F13 & \::
+	F23 & \::
 		if (GetKeyState("Shift")){
 			SendBypassIME("|")
 		}else{
 			SendBypassIME("\")
 		}
 	return	
-	F13 & `;::
+	F23 & `;::
 		if (GetKeyState("Shift")){
 			SendBypassIME(":")
 		}else{
 			SendBypassIME(";")
 		}
 	return
-	F13 & '::
+	F23 & '::
 		if (GetKeyState("Shift")){
 			SendSymmetricSymbles("""""")
 			
@@ -1090,203 +1257,203 @@ WheelScroll(dir, steps:= 1, sleepTime := 15, isBlockInput := 1)
 			
 		}
 	return
-	F13 & ,::
+	F23 & ,::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			SendInput, {Text},
 		}
 	return
-	F13 & .::
+	F23 & .::
 		if (GetKeyState("Shift")){
 			SendBypassIME("->")
 		}else{
 			SendBypassIME(".")
 		}
 	return
-	F13 & /::
+	F23 & /::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & a::
+	F23 & a::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			Send, +{Left}
 		}
 	return
-	F13 & b::
+	F23 & b::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return	
-	F13 & c::
+	F23 & c::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return	
-	F13 & d::
+	F23 & d::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			Send, {Down}
 		}
 	return
-	F13 & e::
+	F23 & e::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			Send, {Up}
 		}
 	return
-	F13 & f::
+	F23 & f::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			Send, {Right}
 		}
 	return
-	F13 & g::
+	F23 & g::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			Send, +{Right}
 		}
 	return
-	F13 & h::
+	F23 & h::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & i::
+	F23 & i::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return	
-	F13 & j::
+	F23 & j::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & k::
+	F23 & k::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & l::
+	F23 & l::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & m::
+	F23 & m::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & n::
+	F23 & n::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & o::
+	F23 & o::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return	
-	F13 & p::
+	F23 & p::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & q::
+	F23 & q::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			Send, ^+{Left}
 		}
 	return
-	F13 & r::
+	F23 & r::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			Send, ^{Right}
 		}
 	return
-	F13 & s::
+	F23 & s::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			Send, {Left}
 		}
 	return
-	F13 & t::
+	F23 & t::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			Send, ^+{Right}
 		}
 	return
-	F13 & u::
+	F23 & u::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & v::
+	F23 & v::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & w::
+	F23 & w::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			Send, ^{Left}
 		}
 	return
-	F13 & x::
+	F23 & x::
 		if (GetKeyState("Shift")){
 				
 		}else{
 			
 		}
 	return
-	F13 & y::
+	F23 & y::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return	
-	F13 & z::
+	F23 & z::
 		if (GetKeyState("Shift")){
 			
 		}else{
@@ -1300,328 +1467,328 @@ WheelScroll(dir, steps:= 1, sleepTime := 15, isBlockInput := 1)
 ;*   ============================= 2 统一字母输入模式 ===============================
 #If rAltMode == 2
 
-	F13 & Tab::return
-	F13 & CapsLock::return
-	F13 & Space::return
-	;F13 & Enter::return
-	;F13 & BackSpace::return
-	F13 & `::return
+	F23 & Tab::return
+	F23 & CapsLock::return
+	F23 & Space::return
+	;F23 & Enter::return
+	;F23 & BackSpace::return
+	F23 & `::return
 	
-	F13 & 1::
+	F23 & 1::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & 2::
+	F23 & 2::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & 3::
+	F23 & 3::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & 4::
+	F23 & 4::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & 5::
+	F23 & 5::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return	
-	F13 & 6::
+	F23 & 6::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & 7::
+	F23 & 7::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & 8::
+	F23 & 8::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & 9::
+	F23 & 9::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & 0::
+	F23 & 0::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & -::
+	F23 & -::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & =::
+	F23 & =::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & [::
+	F23 & [::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & ]::
+	F23 & ]::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & \::
+	F23 & \::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return	
-	F13 & `;::
+	F23 & `;::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & '::
+	F23 & '::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & ,::
+	F23 & ,::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & .::
+	F23 & .::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & /::
+	F23 & /::
 		if (GetKeyState("Shift")){
 			
 		}else{
 			
 		}
 	return
-	F13 & a::
+	F23 & a::
 		if (GetKeyState("Shift")){
 			SendRaw, Ä
 		}else{
 			SendRaw, ä
 		}
 	return
-	F13 & b::
+	F23 & b::
 		if (GetKeyState("Shift")){
 			SendRaw, Ḉ
 		}else{
 			SendRaw, ḉ
 		}
 	return	
-	F13 & c::
+	F23 & c::
 		if (GetKeyState("Shift")){
 			SendRaw, Ć
 		}else{
 			SendRaw, ć
 		}
 	return	
-	F13 & d::
+	F23 & d::
 		if (GetKeyState("Shift")){
 			SendRaw, Ɖ
 		}else{
 			SendRaw, đ
 		}
 	return
-	F13 & e::
+	F23 & e::
 		if(GetKeyState("Shift")) 
 			SendRaw, Ĕ
 		else 
 			SendRaw, ĕ 
 		return
-	F13 & f::
+	F23 & f::
 		if (GetKeyState("Shift")){
 			SendRaw, Ğ
 		}else{
 			SendRaw, ğ
 		}
 	return
-	F13 & g::
+	F23 & g::
 		if (GetKeyState("Shift")){
 			SendRaw, Ǵ
 		}else{
 			SendRaw, ǵ
 		}
 	return
-	F13 & h::
+	F23 & h::
 		if (GetKeyState("Shift")){
 			SendRaw, Ħ
 		}else{
 			SendRaw, ħ
 		}
 	return
-	F13 & i::
+	F23 & i::
 		if (GetKeyState("Shift")){
 			SendRaw, Ï
 		}else{
 			SendRaw, ï
 		}
 	return	
-	F13 & j::
+	F23 & j::
 		if (GetKeyState("Shift")){
 			SendRaw, Ë
 		}else{
 			SendRaw, ë
 		}
 	return
-	F13 & k::
+	F23 & k::
 		if (GetKeyState("Shift")){
 			SendRaw, Ꝁ
 		}else{
 			SendRaw, ꝁ
 		}
 	return
-	F13 & l::
+	F23 & l::
 		if (GetKeyState("Shift")){
 			SendRaw, Ł
 		}else{
 			SendRaw, ł
 		}
 	return
-	F13 & m::
+	F23 & m::
 		if (GetKeyState("Shift")){
 			SendRaw, Ñ
 		}else{
 			SendRaw, ñ
 		}
 	return
-	F13 & n::
+	F23 & n::
 		if (GetKeyState("Shift")){
 			SendRaw, Ń
 		}else{
 			SendRaw, ń
 		}
 	return
-	F13 & o::
+	F23 & o::
 		if (GetKeyState("Shift")){
 			SendRaw, Ö
 		}else{
 			SendRaw, ö
 		}
 	return	
-	F13 & p::
+	F23 & p::
 		if (GetKeyState("Shift")){
 			SendRaw, Ᵽ
 		}else{
 			SendRaw, ᵽ
 		}
 	return
-	F13 & q::
+	F23 & q::
 		if (GetKeyState("Shift")){
 			SendRaw, Ꝗ
 		}else{
 			SendRaw, ꝗ
 		}
 	return
-	F13 & r::
+	F23 & r::
 		if (GetKeyState("Shift")){
 			SendRaw, Ŕ
 		}else{
 			SendRaw, ŕ
 		}
 	return
-	F13 & s::
+	F23 & s::
 		if (GetKeyState("Shift")){
 			SendRaw, Ś
 		}else{
 			SendRaw, ś
 		}
 	return
-	F13 & t::
+	F23 & t::
 		if (GetKeyState("Shift")){
 			SendRaw, Ŧ
 		}else{
 			SendRaw, ŧ
 		}
 	return
-	F13 & u::
+	F23 & u::
 		if (GetKeyState("Shift")){
 			SendRaw, Ü
 		}else{
 			SendRaw, ü
 		}
 	return
-	F13 & v::
+	F23 & v::
 		if (GetKeyState("Shift")){
 			SendRaw, Ç
 		}else{
 			SendRaw, ç
 		}
 	return
-	F13 & w::
+	F23 & w::
 		if (GetKeyState("Shift")){
 			SendRaw, Ẅ
 		}else{
 			SendRaw, ẅ
 		}
 	return
-	F13 & x::
+	F23 & x::
 		if (GetKeyState("Shift")){
 			SendRaw, Ẍ
 		}else{
 			SendRaw, ẍ
 		}
 	return
-	F13 & y::
+	F23 & y::
 		if (GetKeyState("Shift")){
 			SendRaw, Ÿ
 		}else{
 			SendRaw, ÿ
 		}
 	return	
-	F13 & z::
+	F23 & z::
 		if (GetKeyState("Shift")){
 			SendRaw, Ź
 		}else{
