@@ -162,7 +162,7 @@ F24 & p::return	;
 F24 & q::return	;
 F24 & r::return	;
 F24 & s::Run, C:\
-F24 & t::Run, TaskMgr.exe	; 打开任务管理器
+F24 & t::return
 F24 & u::return	;
 ;F24 & v::Send, ^{v}	;* 粘贴
 F24 & w::return	;
