@@ -113,7 +113,7 @@ F24 & PgUp::return
 F24 & PgDn::return
 F24 & Delete::return	
 
-F24 & Tab::return		;
+F24 & Tab::SendRawTabs_detectShiftKey()		;
 ;F24 & CapsLock::return	;无效组合
 ;F24 & Space::return	;输入法占用
 F24 & Enter::return		;

@@ -78,7 +78,7 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	F23 & 0::return
 	
 	F23 & -::SendSymbolByCase("->", "_")
-	F23 & =::SendSymbolByCase("=>", "++")
+	F23 & =::SendSymbolByCase(":=", "++")
 	
 	F23 & [::SendPairedBraces_detectShiftKey()
 	F23 & ]::SendIntendedBraces_detectShiftKey()

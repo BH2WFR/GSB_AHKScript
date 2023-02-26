@@ -8,31 +8,54 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 
 
 
-;^==========================================================================
+;^============================ 设计 输入文本的函数 =====================================
 
+ExpandPairedSymbol(ByRef symble)
+{
+	switch symble{
+		case "'":
+			symble := "''"
+		case """":
+			symble := """"""
+		case "(":
+			symble := "()"
+		case "[":
+			symble := "[]"
+		case "{":
+			symble := "{}"
+		case "<":
+			symble := "<>"
+		case "%":
+			symble := "%%"
+	}	
+}
 
+;*=== 输入对称的括号等符号(不使用byref)
+SendPairedSymbles(quoteMarksPair){
 
-;*=== 输入对称的括号
-SendSymmetricSymbles(ByRef str){
-	if (StrLen(str) == 2){	;文本长度必须为 2
+	
+	ExpandPairedSymbol(quoteMarksPair) ; 如果输入单个符号，则展开
+		
+	if (StrLen(quoteMarksPair) == 2){	;文本长度必须为 2
 		Switch GetNotebookType(){
 			case 1: ;支持输入单侧花括号后自动补全另一侧的 智能 IDE
-				SendBypassIME(SubStr(str, 1, 1))
+				SendBypassIME(SubStr(quoteMarksPair, 1, 1))
+				
 			Default: ;不支持输入单侧花括号自动补全另一侧的 智障 IDE
-				SendBypassIME(str)
+				SendBypassIME(quoteMarksPair)
 				Send, {Left}	
 		}
 	}else{
-		Msgbox, Length of String should to be 2 in function Calling "SendSymmetricSymbles"
+		Msgbox, 0x10, 输入对称的括号等符号, 函数 SendPairedSymbles 传参字符串格式错误
 	}
 }
 
 SendPairedQuotes_detectShiftKey()
 {
 	if (GetKeyState("Shift")){
-		SendSymmetricSymbles("""""")
+		SendPairedSymbles("""""")
 	}else{
-		SendSymmetricSymbles("''")
+		SendPairedSymbles("''")
 	}	
 }
 
@@ -41,16 +64,16 @@ SendPairedBrackets_detectShiftKey()
 	if (GetKeyState("Shift")){
 		
 	}else{
-		SendSymmetricSymbles("()")
+		SendPairedSymbles("()")
 	}	
 }
 
 SendPairedBraces_detectShiftKey()
 {
 	if (GetKeyState("Shift")){
-		SendSymmetricSymbles("{}")
+		SendPairedSymbles("{}")
 	}else{
-		SendSymmetricSymbles("[]")
+		SendPairedSymbles("[]")
 	}	
 }
 
@@ -66,10 +89,76 @@ SendIntendedBraces_detectShiftKey()
 SendTabs_detectShiftKey()
 {
 	if (GetKeyState("Shift")){		
-		Send, `t
+		SendByClipboard("	")
 	}else{
 		Send, {Space 4}
 	}	
+}
+
+SendRawTabs_detectShiftKey()
+{
+	if (GetKeyState("Shift")){		
+		
+	}else{
+		IndentSelectedString()
+	}	
+}
+
+;* 给选中的文本加对称符号（括号、引号、尖角等)
+QuoteSelectedString(quoteMarksPair := """""")
+{
+	ExpandPairedSymbol(quoteMarksPair) ; 如果输入单个符号，则展开
+	
+	if (StrLen(quoteMarksPair) != 2){
+		MsgBox, 0x10, 给选中的文本加对称符号, QuoteSelectedString 传参错误！
+	}
+	
+	lastClip := Clipboard ; 备份剪贴板
+	
+	Send, ^x			; 复制文本
+	Clipwait, 1
+	str := Clipboard
+	;MsgBox, %str%
+	
+	str := SubStr(quoteMarksPair, 1, 1) . str . SubStr(quoteMarksPair, 2, 1)
+	
+	
+	Clipboard := str
+	Clipwait, 1
+	Send, ^v
+	Sleep, 30
+	ReleaseShiftCtrlAltKeys()
+	Clipboard := lastClip		
+
+	
+}
+
+;*== 给选中文本全部向右缩进
+IndentSelectedString()
+{
+	lastClip := Clipboard ; 备份剪贴板
+	
+	Send, ^x			; 复制文本
+	Clipwait, 1
+	str := Clipboard
+	MsgBox, %str%
+	
+	str := "    " . str
+	s11 := InStr(str, "`n")
+	MsgBox, %s11%
+	
+	;TODO: 此代码无效，尚未完成
+	;StrReplace(str, "`r`n", "`r`n    ")
+	;RegExReplace(str,"(.{50}\s)","$1`n     ")
+
+	MsgBox, %str%
+	
+	Clipboard := str
+	Clipwait, 1
+	Send, ^v
+	Sleep, 30
+	ReleaseShiftCtrlAltKeys()
+	Clipboard := lastClip	
 }
 
 ;*=== 插入代码块并设置好缩进
@@ -80,10 +169,10 @@ SendCodeBlock(ByRef str){
 				SendBypassIME(SubStr(str, 1, 1))
 				Send, {Enter}
 			case 2: ; VC6.0/Keil
-				SendSymmetricSymbles(str)
+				SendPairedSymbles(str)
 				Send, {Enter}
 			Default:
-				SendSymmetricSymbles(str)
+				SendPairedSymbles(str)
 				Send, {Enter 2}	{BackSpace}{Up} {Space 3}
 		}
 		
@@ -98,14 +187,23 @@ SendBypassIME(ByRef str){
 	SendInput, {Text}%str%
 }
 
-;*=== 使用剪贴板强制输入指定文本
+;*=== 使用剪贴板强制输入指定长文本
 SendByClipboard(ByRef str){
+	lastClip := ClipBoard
+	;Clipwait, 1
+	;Sleep, 50
 	ClipBoard := ""
 	Clipboard := str
-	Sleep, 20
+	Clipboard := str
+	Clipboard := str
+	Clipwait, 1
 	Send, ^v
-
+	Sleep, 50
+	Clipboard := lastClip
+	
+	ReleaseShiftCtrlAltKeys()
 }
+
 
 ;*=== 输入文本, 根据是否有 shift 按下
 SendSymbolByCase(ByRef lower, ByRef upper:="")
@@ -119,7 +217,7 @@ SendSymbolByCase(ByRef lower, ByRef upper:="")
 
 
 
-;^==========================================================================
+;^================================ 插入代码模板 ======================================
 
 ;*== 快捷输入 C++ 头文件
 SendCppHeaderTemplate()

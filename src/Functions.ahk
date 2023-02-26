@@ -354,7 +354,10 @@ PasteWithoutFormat()
 	cb := Clipboard
 	cb := Trim(cb)
 	Clipboard := cb
+	ClipWait, 1
 	Send ^v
+	Sleep, 50
+	ReleaseShiftCtrlAltKeys()
 }
 
 
@@ -417,13 +420,13 @@ AdvancedPaste()
 	;Sleep, 10
 	Clipboard := cb
 	;MsgBox, 4 %cb%  %Clipboard%
-	Sleep, 50
+	ClipWait, 1
 	Send ^v
-
-	;Sleep, 10
+	Sleep, 50
+	
 	;剪贴板恢复原状
 	Clipboard := cb_original
-	
+	ReleaseShiftCtrlAltKeys()
 }
 
 ;* 对于目录文本, 弹对话框让用户选择把所有反斜杠转换成 "\\(json)" 还是 "/(一些IDE中)"
