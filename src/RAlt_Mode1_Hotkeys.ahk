@@ -11,7 +11,7 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 ;*   =========================== 1 编程(C++代码块)模式 =================================
 #If rAltMode == 1
 	F23 & CapsLock::return
-	F23 & Space::return
+	F23 & Space::SendSymbolByCase("_", "　")
 	;F23 & Enter::return
 	;F23 & BackSpace::return
 	

@@ -92,7 +92,7 @@ return
 
 ;*================== 其余 F24（CapsLock）组合快捷键, 用掉一个注释一个 =============
 
-F24 & Esc::return
+F24 & Esc::ReleaseShiftCtrlAltKeys() ; 释放 Shift，Ctrl，和 Alt 按键
 F24 & F1::return	
 F24 & F2::return
 F24 & F3::return
@@ -131,7 +131,7 @@ F24 & 7::return			;
 F24 & 8::return	;
 F24 & 9::return	;
 F24 & 0::return	;
-F24 & -::return	;
+F24 & -::SwitchRemapMinusToUnderline()	;
 F24 & =::return	;
 
 F24 & [::return	;        "	""	"
@@ -170,3 +170,8 @@ F24 & x::Send, ^{x}	;* 剪切
 F24 & y::return	;		;
 F24 & z::return	;	
 
+;*===== Caps+"-" 交换减号和下划线
+#If flag_remapMinusToUnderline == 1
+	-::SendBypassIME("_")
+	+-::SendBypassIME("-")
+#If

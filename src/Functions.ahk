@@ -27,9 +27,10 @@ AltModeTestToolTip(ifPressedShift := 0){
 }
 
 ;*==== 工具提示条显示 **一秒钟**
-ShowToolTip(ByRef str){
+ShowToolTip(ByRef str, time:=1000){
 	ToolTip, %str%
-	SetTimer, RemoveToolTip, -1000
+	time := -time
+	SetTimer, RemoveToolTip, %time%
 }
 RemoveToolTip:   ; 禁止删除，前面要用到，用于超时关闭工具提示
 	ToolTip
@@ -321,6 +322,29 @@ SendHangulKey()
 {
 	Send, {vk15sc1F2}	;* 韩文键盘专有的「hangul」键
 }
+
+ReleaseShiftCtrlAltKeys()
+{
+	Send, {Ctrl Up}{Alt Up}{Shift Up}
+}
+
+SwitchRemapMinusToUnderline()
+{
+	global flag_remapMinusToUnderline
+	
+	;MsgBox, %flag_remapMinusToUnderline%
+	if(flag_remapMinusToUnderline == 1){
+		flag_remapMinusToUnderline := 0
+		ShowToolTip("已关闭 减号_下划线交换功能！")
+		;MsgBox, %flag_remapMinusToUnderline%
+	}else{  ; flag_remapMinusToUnderline==0
+		flag_remapMinusToUnderline := 1
+		ShowToolTip("已开启 减号_下划线交换功能！")
+		;MsgBox, %flag_remapMinusToUnderline%
+		
+	}
+}
+
 
 
 
