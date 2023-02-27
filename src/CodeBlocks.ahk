@@ -121,18 +121,18 @@ IndentSelectedString()
 		
 	}else{
 		
-		MsgBox, %str%
+		;MsgBox, %str%
 		
 		str := "    " . str
 		
 		s11 := InStr(str, "`n")
-		MsgBox, %s11%
+		;MsgBox, %s11%
 		
 		;TODO: 此代码无效，尚未完成
-		StrReplace(str, "`r`n", "`r`n    ")
+		str := StrReplace(str, "`n", "`n    ")
 		;RegExReplace(str,"(.{50}\s)","$1`n     ")
 
-		MsgBox, %str%
+		;MsgBox, %str%
 		
 		PasteString(str)
 		

@@ -26,7 +26,7 @@ AttachRAltModeTooltipString(mode, ByRef str)
 				str := str . "已关闭 减号_下划线交换功能"
 			}
 		case 2:
-		
+			str := str . "已适配 2023 年 2 月新版试验性字母"
 		Default:
 			MsgBox, 0x10, "切换 RAlt 模式：不支持的值", "无效的 RAlt 值"
 	}	

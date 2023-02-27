@@ -4,7 +4,7 @@
 ;SetWorkingDir, %A_ScriptDir%
 /*
 ^ ====================================== GSB_AKHScript ==================================
-^ |   	版本：v0.2.6.dev3      作者：BH2WFR, GSB Electronic   	更新时间：26 Feb 2023 	 |
+^ |   	版本：v0.2.7      作者：BH2WFR, GSB Electronic   	更新时间：27 Feb 2023 	 |
 ------------------------------------------------------------------------------------
 *     				 AHK 版本： v1.1.x, 		操作系统支持版本 >= Vista(NT6.0)                     
 	----------------------------------------------------------------	
@@ -19,7 +19,7 @@
 GSB_IsInMainScript := 1	
 
 ; 当前版本
-GSB_ScriptVersion := "v0.2.6.dev3"
+GSB_ScriptVersion := "v0.2.7"
 
 
 ;* 启动时检查环境版本 + 定义全局变量
@@ -43,4 +43,5 @@ GSB_ScriptVersion := "v0.2.6.dev3"
 #include .\src\RAlt_Mode1_Hotkeys.ahk
 #include .\src\RAlt_Mode2_Hotkeys.ahk
 
-
+;* GUI界面
+#include .\src\GUI_Settings.ahk

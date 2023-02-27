@@ -20,15 +20,12 @@ F24 & F2::
 	ChangeIMEmode()
 return
 
-;* Ctrl+CapsLock 切换大小写锁定
-^F24::
-	if(GetKeyState("CapsLock", "T") = 1){
-		SetCapsLockState, Off
-	}else{
-		SetCapsLockState, On
-	}
+;* Ctrl+CapsLock 释放 Shift Ctrl Alt
++F24::
+	ReleaseShiftCtrlAltKeys()
+	SetCapsLockState, 0		; 关闭大写锁定，防止抽风
 return
-		
+
 		
 #If use_RimeInput == 1	; 仅适用于魔改快捷键的小狼毫输入法
 	#If rime_KeymapChanged == 0
@@ -84,18 +81,11 @@ return
 	#If
 #If
 
-;* 高级粘贴
-F24 & v::
-	if (GetKeyState("Shift")){
-		AdvancedPaste()	; 参见说明, 粘贴时去换行, 解引号, 如果是网址则提取域名粘贴
-	}else{
-		PasteWithoutFormat() ; 去格式粘贴
-	}
-return
+
 
 ;*================== 其余 F24（CapsLock）组合快捷键, 用掉一个注释一个 =============
 
-F24 & Esc::ReleaseShiftCtrlAltKeys() ; 释放 Shift，Ctrl，和 Alt 按键
+F24 & Esc::return 
 ;F24 & F1::return	;输入法占用
 ;F24 & F2::return	;输入法占用
 ;F24 & F3::return	;输入法占用
@@ -167,7 +157,7 @@ F24 & r::return	;
 F24 & s::Run, C:\
 F24 & t::return
 F24 & u::return	;
-;F24 & v::Send, ^{v}	;* 粘贴
+F24 & v::Func_F24_V()	;* 粘贴
 F24 & w::return	;
 F24 & x::Send, ^{x}	;* 剪切
 F24 & y::return	;		;
@@ -186,6 +176,15 @@ SendDirectionKey_getShiftStatus(ByRef dir, quickSteps := 5)
 		SendDirectionKey(dir, quickSteps)
 	}else{
 		SendDirectionKey(dir, 1)
+	}
+}
+
+Func_F24_V();* 高级粘贴
+{
+	if (GetKeyState("Shift")){
+		AdvancedPaste()	; 参见说明, 粘贴时去换行, 解引号, 如果是网址则提取域名粘贴
+	}else{
+		PasteWithoutFormat() ; 去格式粘贴
 	}
 }
 
