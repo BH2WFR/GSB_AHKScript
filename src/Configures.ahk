@@ -48,7 +48,10 @@ if (!(A_IsAdmin or RegExMatch(full_command_line, " /restart(?!\S)")))
 isTestMode := 1		; 是否处于测试模式
 rAltMode := 1		; 默认 RAlt 特殊模式，0 为关闭状态
 rAltModeList := {0:"OFF", 1:"Programming Mode", 2:"Galian Script", 3:"Esp Script", 4:"Colemak Input"}
-MouseQuickMoveUnitPixels := 30  ;F23+Shift+方向键 快速移动鼠标速度（每次移动的像素点个数) 
+
+g_MouseQuickMoveUnitPixels := 30  ;F23+Shift+方向键 快速移动鼠标速度（每次移动的像素点个数) 
+g_MouseQuickScrollUnit := 3		;caps+鼠标滚轮 快速滚动速度
+g_MouseSuperScrollUnit := 6		;caps+鼠标滚轮 快速滚动速度
 
 flag_remapMinusToUnderline := 0 ; 仅在RAltMode==1时有效！ caps+下划线，开启/关闭 把 减号/下划线交换
 

@@ -13,9 +13,13 @@ AttachRAltModeTooltipString(mode, ByRef str)
 	global flag_remapMinusToUnderline	
 	global rAltMode
 	
+	str := str . "`n  "
+	
 	switch mode{
+		case 0:
+			str := str . "RAlt特殊功能已关闭！"
 		case 1:
-			str := str . "`n  "
+			
 			if(flag_remapMinusToUnderline == 1){
 				str := str . "已开启 减号_下划线交换功能"
 			}else{
@@ -45,7 +49,10 @@ SetRAltMode(mode)
 	; }
 	
 	AttachRAltModeTooltipString(mode, str)
-
+	
+	ReleaseShiftCtrlAltKeys()
+	SetCapsLockState, 0		; 关闭大写锁定，防止抽风
+	
 	ShowToolTip(str)
 	
 }
@@ -175,14 +182,7 @@ SendDirectionKey(ByRef dir, steps:= 1, isBlockInput := 1)
 	}
 }
 
-SendDirectionKey_getShiftStatus(ByRef dir, quickSteps := 5)
-{
-	if (GetKeyState("Shift")){
-		SendDirectionKey(dir, quickSteps)
-	}else{
-		SendDirectionKey(dir, 1)
-	}
-}
+
 
 ;* 用浏览器打开网址, 要先确认打开的网址是合乎格式的
 OpenUrlInBrowser(ByRef URL)
@@ -340,6 +340,9 @@ ChangeIMEmode()
 			SendHangulKey()  ;切换韩英
 			
 	}
+	
+	ReleaseShiftCtrlAltKeys()
+	SetCapsLockState, 0		; 关闭大写锁定，防止抽风
 }
 
 ;* 判断是否处于韩文输入法下, 输出 0 或者 1

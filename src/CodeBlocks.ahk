@@ -180,7 +180,25 @@ SendSymbolByCase(ByRef lower, ByRef upper:="")
 	}	
 }
 
-
+SendSymbolByCaseAndCaps(ByRef lower, ByRef upper:="")
+{
+	if(GetKeyState("CapsLock", "T") == 0){ ;caps关闭
+		if (GetKeyState("Shift")){
+			SendBypassIME(upper)
+		}else{
+			SendBypassIME(lower)
+		}	
+			
+	}else{		;caps打开
+		if (GetKeyState("Shift")){
+			SendBypassIME(lower)
+		}else{
+			SendBypassIME(upper)
+		}		
+	}
+	
+	
+}
 
 ;^================================ 插入代码模板 ======================================
 

@@ -81,44 +81,11 @@ removetooltip_transparent_Lwin__2016.09.20:     ;LABEL
 	SetTimer, RemoveToolTip_transparent_Lwin__2016.09.20, Off
 return
 
-;* ================ Win+鼠标左右滚动 切换桌面
+;* ================ LWin+鼠标左右滚动 切换桌面
 ~LWin & WheelLeft::Send, ^#{Left}
 ~LWin & WheelRight::Send, ^#{Right}
 
 
-;* ================ RAlt+鼠标滚轮 横向滚动, 加 Shift 更快速
-F23 & WheelDown::	;* Right
-	if (GetKeyState("Shift")){
-		WheelScroll("right", 3)
-	}else{
-		WheelScroll("right", 1)
-	}
-return
-F23 & WheelUp::		;* Left
-	if (GetKeyState("Shift")){
-		WheelScroll("left", 3)
-	}else{
-		WheelScroll("left", 1)
-	}
-return
-
-
-
-;* ================ Caps+鼠标滚轮  加速纵向滚动, 加 Shift 更快速
-F24 & WheelDown::
-	if (GetKeyState("Shift")){
-		WheelScroll("down", 6)
-	}else{
-		WheelScroll("down", 3)
-	}
-return
-F24 & WheelUp::
-	if (GetKeyState("Shift")){
-		WheelScroll("up", 6)
-	}else{
-		WheelScroll("up", 3)
-	}
-return
 
 ;TODO 浏览器触控板缩放
 #If ! WinActive("ahk_exe msedge.exe") || WinActive("ahk_exe chrome.exe")

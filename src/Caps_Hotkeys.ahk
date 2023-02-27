@@ -39,7 +39,7 @@ return
 		return
 		; CapsLock+3 全角/半角
 		F24 & F1::return	
-		F24 & F2::return
+		;F24 & F2::return
 		F24 & F3::
 			Send, ^+{3}
 		return
@@ -64,7 +64,7 @@ return
 		F24 & F1::
 			Send, +{F20}
 		return
-		F24 & F2::return
+		;F24 & F2::return
 		; CapsLock+3 全角/半角
 		F24 & F3::
 			Send, ^+{F20}
@@ -180,7 +180,14 @@ F24 & z::return	;
 	+-::SendBypassIME("-")
 #If
 
-
+SendDirectionKey_getShiftStatus(ByRef dir, quickSteps := 5)
+{
+	if (GetKeyState("Shift")){
+		SendDirectionKey(dir, quickSteps)
+	}else{
+		SendDirectionKey(dir, 1)
+	}
+}
 
 
 Func_F24_9()

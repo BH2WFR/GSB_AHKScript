@@ -24,7 +24,7 @@ return
 ;* 对于 RAlt 不方便按下的键盘, 用分号键替代 F23 功能键
 #If use_SemiColonAsRAlt == 1
 F24 & F23::
-$RAlt::
+;$RAlt::
 	
 	If(1 == IsInKoreanLayout()){	;* 如果处于韩文输入法下
 		SendHanjaKey()	; 汉字切换
@@ -33,10 +33,10 @@ $RAlt::
 	}
 return
 
-Shift & F23::	;* 输出正常的分号和冒号
++F23::	;* 输出正常的分号和冒号
 	Send, :
 return	
-$F23::
+$F23 Up::
 	Send, `;
 return
 
@@ -85,12 +85,19 @@ F23 & Backspace::Send, {Right}{Backspace 2}
 ;*========== RAlt+方向键 以像素为单位移动鼠标指针, 加上 Shift 后快速移动鼠标
 #If 1
 
+#If use_SemiColonAsRAlt == 0
 F23 & Right::
 F23 & Left::
 F23 & Up::
 F23 & Down::
+#If use_SemiColonAsRAlt == 1
+RAlt & Right::
+RAlt & Left::
+RAlt & Up::
+RAlt & Down::
+#If
 	if (GetKeyState("Shift")){
-		increment := MouseQuickMoveUnitPixels
+		increment := g_MouseQuickMoveUnitPixels
 	}else{
 		increment := 1
 	}
@@ -107,11 +114,20 @@ F23 & Down::
 	;MsgBox, haha , %A_ThisHotkey%
 return
 
-
+#If use_SemiColonAsRAlt == 0
 F23 & RWin::
+#If use_SemiColonAsRAlt == 1
+RAlt & RWin::
+#If
 	Send, {LButton}
 return
+
+
+#If use_SemiColonAsRAlt == 0
 F23 & AppsKey::
+#If use_SemiColonAsRAlt == 1
+RAlt & AppsKey::
+#If
 	Send, {RButton}
 return
 
@@ -120,6 +136,48 @@ return
 
 
 
+;* ================ RAlt+鼠标滚轮 横向滚动, 加 Shift 更快速
+#If use_SemiColonAsRAlt == 0
+F23 & WheelDown::	;* Right
+#If use_SemiColonAsRAlt == 1
+RAlt & WheelDown::
+#If	
+	if (GetKeyState("Shift")){
+		WheelScroll("right", g_MouseQuickScrollUnit)
+	}else{
+		WheelScroll("right", 1)
+	}
+return
+
+#If use_SemiColonAsRAlt == 0
+F23 & WheelUp::		;* Left
+#If use_SemiColonAsRAlt == 1
+RAlt & WheelUp::
+#If	
+	if (GetKeyState("Shift")){
+		WheelScroll("left", g_MouseQuickScrollUnit)
+	}else{
+		WheelScroll("left", 1)
+	}
+return
+
+
+
+;* ================ Caps+鼠标滚轮  加速纵向滚动, 加 Shift 更快速
+F24 & WheelDown::
+	if (GetKeyState("Shift")){
+		WheelScroll("down", g_MouseSuperScrollUnit)
+	}else{
+		WheelScroll("down", g_MouseQuickScrollUnit)
+	}
+return
+F24 & WheelUp::
+	if (GetKeyState("Shift")){
+		WheelScroll("up", g_MouseSuperScrollUnit)
+	}else{
+		WheelScroll("up", g_MouseQuickScrollUnit)
+	}
+return
 
 
 
