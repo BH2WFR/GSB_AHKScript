@@ -3,3 +3,4 @@ build/*
 *.bak
 test.ahk
 main.exe
+ui/*

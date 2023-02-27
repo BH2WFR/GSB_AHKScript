@@ -85,7 +85,7 @@ return
 
 ;*================== 其余 F24（CapsLock）组合快捷键, 用掉一个注释一个 =============
 
-F24 & Esc::return 
+F24 & Esc::ShowSettingsGUI() ; 设置
 ;F24 & F1::return	;输入法占用
 ;F24 & F2::return	;输入法占用
 ;F24 & F3::return	;输入法占用
@@ -179,7 +179,7 @@ SendDirectionKey_getShiftStatus(ByRef dir, quickSteps := 5)
 	}
 }
 
-Func_F24_V();* 高级粘贴
+Func_F24_V() ;* 高级粘贴
 {
 	if (GetKeyState("Shift")){
 		AdvancedPaste()	; 参见说明, 粘贴时去换行, 解引号, 如果是网址则提取域名粘贴
