@@ -69,5 +69,13 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	F23 & y::SendSymbolByCase("", "")
 	F23 & z::SendSymbolByCase("ẑ", "Ẑ")
 	
+	
+	
+	
+
+		$- Up::SendBypassIME("-")
+		- & a::SendSymbolByCase("ā", "Ā")
+		- & e::SendSymbolByCase("ē", "Ē")	
+		
 #If
 

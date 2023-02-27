@@ -15,7 +15,7 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 ;* CapsLock 或 CapsLock+2 切换中英文
 ;F24 Up::
 F24::
-F24 & 2::
+F24 & F2::
 	;MsgBox, shabi
 	ChangeIMEmode()
 return
@@ -38,15 +38,17 @@ return
 			Send, ^``	;注意通配符, grave 是 两个``
 		return
 		; CapsLock+3 全角/半角
-		F24 & 3::
+		F24 & F1::return	
+		F24 & F2::return
+		F24 & F3::
 			Send, ^+{3}
 		return
 		; CapsLock+4 简繁体转换
-		F24 & 4::
+		F24 & F4::
 			Send, ^+{4}
 		return
 		; CapsLock+5 增廣字集
-		F24 & 5::
+		F24 & F5::
 			Send, ^+{5}
 		return		
 		; CapsLock+. 中英标点
@@ -59,19 +61,20 @@ return
 		F24 & `::
 			Send, {F20}	;注意通配符, grave 是 两个``
 		return
-		F24 & 1::
+		F24 & F1::
 			Send, +{F20}
 		return
+		F24 & F2::return
 		; CapsLock+3 全角/半角
-		F24 & 3::
+		F24 & F3::
 			Send, ^+{F20}
 		return
 		; CapsLock+4 简繁体转换
-		F24 & 4::
+		F24 & F4::
 			Send, ^+{F21}
 		return
 		; CapsLock+5 增廣字集
-		F24 & 5::
+		F24 & F5::
 			Send, +{F21}
 		return		
 		; CapsLock+. 中英标点
@@ -93,11 +96,11 @@ return
 ;*================== 其余 F24（CapsLock）组合快捷键, 用掉一个注释一个 =============
 
 F24 & Esc::ReleaseShiftCtrlAltKeys() ; 释放 Shift，Ctrl，和 Alt 按键
-F24 & F1::return	
-F24 & F2::return
-F24 & F3::return
-F24 & F4::return
-F24 & F5::return
+;F24 & F1::return	;输入法占用
+;F24 & F2::return	;输入法占用
+;F24 & F3::return	;输入法占用
+;F24 & F4::return	;输入法占用
+;F24 & F5::return	;输入法占用
 F24 & F6::return
 F24 & F7::return
 F24 & F8::return
@@ -122,14 +125,14 @@ F24 & Backspace::Send, {Left}{Backspace}{Right}	;* 删除二字词的第一个�
 
 ;F24 & `::return		;
 F24 & 1::return			;
-;F24 & 2::return		;输入法占用
-;F24 & 3::return		;输入法占用
-;F24 & 4::return		;输入法占用
-;F24 & 5::return		;输入法占用
+F24 & 2::return		
+F24 & 3::return		
+F24 & 4::return		
+F24 & 5::Func_F24_5()		
 F24 & 6::return			;
 F24 & 7::return			;
-F24 & 8::return	;
-F24 & 9::return	;
+F24 & 8::Func_F24_8()	;
+F24 & 9::Func_F24_9()	;
 F24 & 0::return	;
 F24 & -::SwitchRemapMinusToUnderline()	;
 F24 & =::return	;
@@ -141,7 +144,7 @@ F24 & `;::return		;
 F24 & '::return	;
 F24 & ,::return		;
 F24 & .::return		;
-F24 & /::return		;
+F24 & /::Func_F24_Slash()		;
 
 F24 & a::CopyTextAndSearch("Baidu")
 F24 & b::CopyTextAndSearch("Bing")	;F24+C 复制当前选中文本并网上搜索, 如果选中的是链接则打开链接
@@ -170,8 +173,57 @@ F24 & x::Send, ^{x}	;* 剪切
 F24 & y::return	;		;
 F24 & z::return	;	
 
-;*===== Caps+"-" 交换减号和下划线
-#If flag_remapMinusToUnderline == 1
+
+;*===== Caps+"-" 交换减号和下划线, 仅在 rAlt 模式为 1 时有效
+#If flag_remapMinusToUnderline == 1 && rAltMode == 1
 	-::SendBypassIME("_")
 	+-::SendBypassIME("-")
 #If
+
+
+
+
+Func_F24_9()
+{
+	if (GetKeyState("Shift")){
+		QuoteSelectedString("(**)")
+	}else{
+		QuoteSelectedString("()")
+	}	
+}
+
+Func_F24_LeftSquare()
+{
+	if (GetKeyState("Shift")){
+		QuoteSelectedString("{}")
+	}else{
+		QuoteSelectedString("[]")
+	}	
+}
+
+Func_F24_Slash()
+{
+	if (GetKeyState("Shift")){
+		QuoteSelectedString("/**/")
+	}else{
+		CommentSingleLine()
+	}	
+}
+
+Func_F24_5()
+{
+	if (GetKeyState("Shift")){
+		
+	}else{
+		QuoteSelectedString("%%")
+	}		
+}
+
+Func_F24_8()
+{
+	if (GetKeyState("Shift")){
+		QuoteSelectedString("****")
+	}else{
+		QuoteSelectedString("**")
+	}		
+}

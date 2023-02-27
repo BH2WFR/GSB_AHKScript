@@ -116,3 +116,71 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	F23 & y::return
 	F23 & z::return
 #If
+
+
+
+
+
+
+SendPairedQuotes_detectShiftKey()
+{
+	if (GetKeyState("Shift")){
+		SendPairedSymbles("""""")
+	}else{
+		SendPairedSymbles("''")
+	}	
+}
+
+SendPairedBrackets_detectShiftKey()
+{
+	if (GetKeyState("Shift")){
+		
+	}else{
+		SendPairedSymbles("()")
+	}	
+}
+
+SendPairedBraces_detectShiftKey()
+{
+	if (GetKeyState("Shift")){
+		SendPairedSymbles("{}")
+	}else{
+		SendPairedSymbles("[]")
+	}	
+}
+
+SendIntendedBraces_detectShiftKey()
+{
+	if (GetKeyState("Shift")){
+		SendCodeBlock("{}")
+	}else{
+		SendCodeBlock("[]")
+	}	
+}
+
+SendTabs_detectShiftKey()
+{
+	if (GetKeyState("Shift")){		
+		SendByClipboard("	")
+	}else{
+		Send, {Space 4}
+	}	
+}
+
+SendRawTabs_detectShiftKey()
+{
+	if (GetKeyState("Shift")){		
+		
+	}else{
+		IndentSelectedString()
+	}	
+}
+
+SendCppSourceTemplate_detectShiftKey()
+{
+	if (GetKeyState("Shift")){
+		SendCppSourceTemplate()
+	}else{
+		SendCppHeaderTemplate()
+	}		
+}

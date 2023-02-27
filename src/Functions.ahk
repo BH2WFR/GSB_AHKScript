@@ -6,24 +6,65 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	ExitApp
 }
 ; 函数
+
+;* RAltMode 工具提示，加入对具体模式专用功能开关状态的提示
+AttachRAltModeTooltipString(mode, ByRef str)
+{
+	global flag_remapMinusToUnderline	
+	global rAltMode
+	
+	switch mode{
+		case 1:
+			str := str . "`n  "
+			if(flag_remapMinusToUnderline == 1){
+				str := str . "已开启 减号_下划线交换功能"
+			}else{
+				str := str . "已关闭 减号_下划线交换功能"
+			}
+		case 2:
+		
+		Default:
+			MsgBox, 0x10, "切换 RAlt 模式：不支持的值", "无效的 RAlt 值"
+	}	
+	
+	
+}
+
 ;* ===设置 RAlt 模式并弹出工具条提示
 SetRAltMode(mode)
 {
 	global rAltMode
 	global rAltModeList
+	global flag_remapMinusToUnderline
 	rAltMode := mode
-	ShowToolTip("切换到 rAlt 模式：" rAltMode ": " rAltModeList[rAltMode])
+	
+	str := "切换到 rAlt 模式：" rAltMode ": " rAltModeList[rAltMode]
+	
+	; if(mode != 1){
+	; 	lag_remapMinusToUnderline == 0
+	; }
+	
+	AttachRAltModeTooltipString(mode, str)
+
+	ShowToolTip(str)
+	
 }
 
 ;*==== 工具提示条显示当前模式
 AltModeTestToolTip(ifPressedShift := 0){
 	global rAltMode
 	global rAltModeList
+	str := " 当前状态:`n当前 rAlt 模式为： " rAltMode ": " rAltModeList[rAltMode]
+	
 	If(ifPressedShift == 1){
-		ShowToolTip("测试:当前 rAlt 模式为： " rAltMode ": " rAltModeList[rAltMode] " (Shift 键已按下)")
+		str :=  str . " `n (Shift 键已按下)"
 	}else{
-		ShowToolTip("测试:当前 rAlt 模式为： " rAltMode ": " rAltModeList[rAltMode])
+		
 	}
+	
+	AttachRAltModeTooltipString(rAltMode, str)
+	
+	ShowToolTip(str)
 }
 
 ;*==== 工具提示条显示 **一秒钟**
@@ -37,7 +78,7 @@ RemoveToolTip:   ; 禁止删除，前面要用到，用于超时关闭工具提�
 return
 
 
-;检测当前文本输入器或IDE是什么类型返回类型如下表: VS/VSCode/QtCreator:1, VC6.0/Keil uv:2/notepad++:2, Notepad等无代码写作功能文本框:0
+;*检测当前文本输入器或IDE是什么类型返回类型如下表: VS/VSCode/QtCreator:1, VC6.0/Keil uv:2/notepad++:2, Notepad等无代码写作功能文本框:0
 GetNotebookType(){
 	;支持输入单侧花括号后按下回车就可以创建代码块的智能 IDE
 	If (WinActive("ahk_exe vscode.exe") || WinActive("ahk_exe devenv.exe") || WinActive("ahk_exe qtcreator.exe") ){
@@ -71,7 +112,7 @@ MoveMouse(ByRef Dir, Increment)
 		case "Down", "down", "D", "d", "↓":
 			y_pos += Increment
 		default:
-			MsgBox, 0x10, 错误, 移动鼠标：方向参数错误调用！
+			MsgBox, 0x10, 移动鼠标：方向参数错误调用, 方向指令无效，请输入小写字母的"up""down""left""right"
 			return
 	}
 	;MsgBox,  X:%x_pos% Y:%y_pos%
@@ -98,7 +139,7 @@ WheelScroll(ByRef dir, steps:= 1, isBlockInput := 1)
 		case "Right", "right","R", "r", "→":
 			Send, {WheelRight %steps%}	
 		Default:
-			MsgBox, 0x10, 方向指令无效, 方向指令无效，请输入小写字母的"up""down""left""right"
+			MsgBox, 0x10, 滚动鼠标：方向指令无效, 方向指令无效，请输入小写字母的"up""down""left""right"
 			;return
 	}
 	
@@ -125,7 +166,7 @@ SendDirectionKey(ByRef dir, steps:= 1, isBlockInput := 1)
 		case "Right", "right","R", "r", "→":
 			Send, {Right %steps%}	
 		Default:
-			MsgBox, 0x10, 方向指令无效, 方向指令无效，请输入小写字母的"up""down""left""right"
+			MsgBox, 0x10, 发送方向键：方向指令无效, 方向指令无效，请输入小写字母的"up""down""left""right"
 
 	}
 	
@@ -331,22 +372,62 @@ ReleaseShiftCtrlAltKeys()
 SwitchRemapMinusToUnderline()
 {
 	global flag_remapMinusToUnderline
-	
+	global rAltMode
 	;MsgBox, %flag_remapMinusToUnderline%
-	if(flag_remapMinusToUnderline == 1){
+	
+	if(rAltMode == 1){
+		if(flag_remapMinusToUnderline == 1){
+			flag_remapMinusToUnderline := 0
+			ShowToolTip("已关闭 减号_下划线交换功能！")
+			;MsgBox, %flag_remapMinusToUnderline%
+		}else{  ; flag_remapMinusToUnderline==0
+			flag_remapMinusToUnderline := 1
+			ShowToolTip("已开启 减号_下划线交换功能！")
+			;MsgBox, %flag_remapMinusToUnderline%
+			
+		}		
+	}else{
 		flag_remapMinusToUnderline := 0
-		ShowToolTip("已关闭 减号_下划线交换功能！")
-		;MsgBox, %flag_remapMinusToUnderline%
-	}else{  ; flag_remapMinusToUnderline==0
-		flag_remapMinusToUnderline := 1
-		ShowToolTip("已开启 减号_下划线交换功能！")
-		;MsgBox, %flag_remapMinusToUnderline%
-		
+		ShowToolTip("非 Mode 1 模式下无法使用 减号_下划线交换功能！")
 	}
+
 }
 
+;* 普通粘贴文本
+;*=== 使用剪贴板强制输入指定长文本
+SendByClipboard(ByRef str, sleepTime := 50)
+{
+	lastClip := Clipboard
+	ClipBoard := ""
+	;ClipWait, 1
+	Clipboard := str
+	ClipWait, 1
+	
+	Send ^v
+	Sleep, %sleepTime%
+	
+	ReleaseShiftCtrlAltKeys()
+		
+	Clipboard := lastClip
+	ClipWait, 1
+}
 
+PasteString(ByRef str, sleepTime := 50)
+{
+	Clipboard := str
+	ClipWait, 1
+	Send ^v
+	Sleep, %sleepTime%
+	ReleaseShiftCtrlAltKeys()
+		
+}
 
+Paste()
+{
+	Send ^v
+	Sleep, 50
+	ReleaseShiftCtrlAltKeys()		
+}
 
 ;* 无格式粘贴文本, 同时会清除复制内容的左右空格或制表符
 PasteWithoutFormat()
@@ -355,9 +436,7 @@ PasteWithoutFormat()
 	cb := Trim(cb)
 	Clipboard := cb
 	ClipWait, 1
-	Send ^v
-	Sleep, 50
-	ReleaseShiftCtrlAltKeys()
+	Paste()
 }
 
 
@@ -414,15 +493,9 @@ AdvancedPaste()
 		cb := StrReplace(cb, "`n")
 		cb := StrReplace(cb, "`r")		
 	}
-	;op := cb
-	;MsgBox, 4 %cb% `n %op%
-	; 粘贴文本
-	;Sleep, 10
-	Clipboard := cb
-	;MsgBox, 4 %cb%  %Clipboard%
-	ClipWait, 1
-	Send ^v
-	Sleep, 50
+
+	
+	PasteString(cb) ;粘贴文本
 	
 	;剪贴板恢复原状
 	Clipboard := cb_original

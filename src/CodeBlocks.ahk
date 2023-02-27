@@ -27,6 +27,14 @@ ExpandPairedSymbol(ByRef symble)
 			symble := "<>"
 		case "%":
 			symble := "%%"
+		case "_":
+			symble := "__"
+		case "<<":
+			symble := "<<>>"
+		case "[[":
+			symble := "[[]]"
+		case "'''":
+			symble := "''''''"
 	}	
 }
 
@@ -35,73 +43,37 @@ SendPairedSymbles(quoteMarksPair){
 
 	
 	ExpandPairedSymbol(quoteMarksPair) ; 如果输入单个符号，则展开
-		
-	if (StrLen(quoteMarksPair) == 2){	;文本长度必须为 2
-		Switch GetNotebookType(){
-			case 1: ;支持输入单侧花括号后自动补全另一侧的 智能 IDE
-				SendBypassIME(SubStr(quoteMarksPair, 1, 1))
+	
+	
+	
+	slen := StrLen(quoteMarksPair)
+	
+	Switch slen {
+		case 2:
+			SendByClipboard(quoteMarksPair, 20)
+			Send, {Left}
 				
-			Default: ;不支持输入单侧花括号自动补全另一侧的 智障 IDE
-				SendBypassIME(quoteMarksPair)
-				Send, {Left}	
-		}
-	}else{
-		Msgbox, 0x10, 输入对称的括号等符号, 函数 SendPairedSymbles 传参字符串格式错误
+		case 4:
+			SendByClipboard(quoteMarksPair, 20)
+			Send, {Left 2}	
+			
+		case 6:
+		
+			SendByClipboard(quoteMarksPair, 20)
+			Send, {Left 3}	
+					
+		Default:
+			Msgbox, 0x10, 输入对称的括号等符号, 函数 SendPairedSymbles 传参字符串格式错误
 	}
+	
 }
 
-SendPairedQuotes_detectShiftKey()
+;* 注释当前行代码
+CommentSingleLine(commentMark := "//")
 {
-	if (GetKeyState("Shift")){
-		SendPairedSymbles("""""")
-	}else{
-		SendPairedSymbles("''")
-	}	
-}
-
-SendPairedBrackets_detectShiftKey()
-{
-	if (GetKeyState("Shift")){
-		
-	}else{
-		SendPairedSymbles("()")
-	}	
-}
-
-SendPairedBraces_detectShiftKey()
-{
-	if (GetKeyState("Shift")){
-		SendPairedSymbles("{}")
-	}else{
-		SendPairedSymbles("[]")
-	}	
-}
-
-SendIntendedBraces_detectShiftKey()
-{
-	if (GetKeyState("Shift")){
-		SendCodeBlock("{}")
-	}else{
-		SendCodeBlock("[]")
-	}	
-}
-
-SendTabs_detectShiftKey()
-{
-	if (GetKeyState("Shift")){		
-		SendByClipboard("	")
-	}else{
-		Send, {Space 4}
-	}	
-}
-
-SendRawTabs_detectShiftKey()
-{
-	if (GetKeyState("Shift")){		
-		
-	}else{
-		IndentSelectedString()
-	}	
+	Send, {Home}
+	SendBypassIME(commentMark)
+	
 }
 
 ;* 给选中的文本加对称符号（括号、引号、尖角等)
@@ -109,27 +81,28 @@ QuoteSelectedString(quoteMarksPair := """""")
 {
 	ExpandPairedSymbol(quoteMarksPair) ; 如果输入单个符号，则展开
 	
-	if (StrLen(quoteMarksPair) != 2){
-		MsgBox, 0x10, 给选中的文本加对称符号, QuoteSelectedString 传参错误！
+	
+	slen := StrLen(quoteMarksPair)
+	
+	
+	if((slen == 2) || (slen == 4) || (slen == 6)){
+		
+		Send, ^x			; 复制文本
+		Sleep, 20
+		str := Clipboard
+		
+		halfslen := slen / 2
+		
+		str := SubStr(quoteMarksPair, 1, halfslen) . str . SubStr(quoteMarksPair, halfslen+1, halfslen)	
+		
+		SendByClipboard(str, 20) ; 粘贴文本并还原剪贴板
+	
+		
+	}else{
+		Msgbox, 0x10, 输入对称的括号等符号, 函数 SendPairedSymbles 传参字符串格式错误
+		return
+		
 	}
-	
-	lastClip := Clipboard ; 备份剪贴板
-	
-	Send, ^x			; 复制文本
-	Clipwait, 1
-	str := Clipboard
-	;MsgBox, %str%
-	
-	str := SubStr(quoteMarksPair, 1, 1) . str . SubStr(quoteMarksPair, 2, 1)
-	
-	
-	Clipboard := str
-	Clipwait, 1
-	Send, ^v
-	Sleep, 30
-	ReleaseShiftCtrlAltKeys()
-	Clipboard := lastClip		
-
 	
 }
 
@@ -141,24 +114,32 @@ IndentSelectedString()
 	Send, ^x			; 复制文本
 	Clipwait, 1
 	str := Clipboard
-	MsgBox, %str%
 	
-	str := "    " . str
-	s11 := InStr(str, "`n")
-	MsgBox, %s11%
-	
-	;TODO: 此代码无效，尚未完成
-	;StrReplace(str, "`r`n", "`r`n    ")
-	;RegExReplace(str,"(.{50}\s)","$1`n     ")
+	If(StrLen(str) == 0){
+		
+		SendByClipboard("	")
+		
+	}else{
+		
+		MsgBox, %str%
+		
+		str := "    " . str
+		
+		s11 := InStr(str, "`n")
+		MsgBox, %s11%
+		
+		;TODO: 此代码无效，尚未完成
+		StrReplace(str, "`r`n", "`r`n    ")
+		;RegExReplace(str,"(.{50}\s)","$1`n     ")
 
-	MsgBox, %str%
+		MsgBox, %str%
+		
+		PasteString(str)
+		
+		Clipboard := lastClip			
+	}
 	
-	Clipboard := str
-	Clipwait, 1
-	Send, ^v
-	Sleep, 30
-	ReleaseShiftCtrlAltKeys()
-	Clipboard := lastClip	
+
 }
 
 ;*=== 插入代码块并设置好缩进
@@ -187,22 +168,6 @@ SendBypassIME(ByRef str){
 	SendInput, {Text}%str%
 }
 
-;*=== 使用剪贴板强制输入指定长文本
-SendByClipboard(ByRef str){
-	lastClip := ClipBoard
-	;Clipwait, 1
-	;Sleep, 50
-	ClipBoard := ""
-	Clipboard := str
-	Clipboard := str
-	Clipboard := str
-	Clipwait, 1
-	Send, ^v
-	Sleep, 50
-	Clipboard := lastClip
-	
-	ReleaseShiftCtrlAltKeys()
-}
 
 
 ;*=== 输入文本, 根据是否有 shift 按下
@@ -301,14 +266,7 @@ SendCppSourceTemplate()
 
 }
 
-SendCppSourceTemplate_detectShiftKey()
-{
-	if (GetKeyState("Shift")){
-		SendCppSourceTemplate()
-	}else{
-		SendCppHeaderTemplate()
-	}		
-}
+
 
 
 

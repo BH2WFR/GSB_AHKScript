@@ -50,7 +50,7 @@ rAltMode := 1		; 默认 RAlt 特殊模式，0 为关闭状态
 rAltModeList := {0:"OFF", 1:"Programming Mode", 2:"Galian Script", 3:"Esp Script", 4:"Colemak Input"}
 MouseQuickMoveUnitPixels := 30  ;F23+Shift+方向键 快速移动鼠标速度（每次移动的像素点个数) 
 
-flag_remapMinusToUnderline := 0 ; caps+下划线，开启/关闭 把 减号/下划线交换
+flag_remapMinusToUnderline := 0 ; 仅在RAltMode==1时有效！ caps+下划线，开启/关闭 把 减号/下划线交换
 
 ;* 系统安装的输入法语言代码：
 installedKeyboardLayout := {134481924:"Chinese,Simplicated", 68289554:"Korean", 67699721:"English,US,QWERTY"}
