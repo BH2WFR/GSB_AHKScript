@@ -11,7 +11,7 @@
 *  			代码仓库 git 地址：	 https://github.com/BH2WFR/GSB_AHKScript.git
 *			网页：				https://github.com/BH2WFR/GSB_AHKScript
 * 			开源协议：  
-*
+*1
 *-----------------------------------------------------------------------------------
 */
 
