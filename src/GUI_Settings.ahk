@@ -60,7 +60,7 @@ ShowSettingsGUI()
 		Gui, GuiSettings:Add, Text, x24 y253 w570 h2 +0x10
 	
 		Gui, GuiSettings:Font, s11 cPurple, Segoe UI
-			Gui Add, Text, x152 y208 w161 h30 +0x200, 作者：BH2WFR
+			Gui, GuiSettings:Add, Text, x152 y208 w161 h30 +0x200, 作者：BH2WFR
 		Gui, GuiSettings:Font
 	
 	

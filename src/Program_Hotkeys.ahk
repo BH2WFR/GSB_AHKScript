@@ -77,11 +77,11 @@ return
 #IfWinActive
 
 ;*============   Explorer 中，按 F23+C 复制选中文本的完整地址到剪贴板
-#If use_Explorer_CopyFullPath == 1
-	F23 & P:: ; Select the shot folders in Explorer, then hit WIN + P , after a few moments the file path of the first EXR in each shot will be added 
+; #If use_Explorer_CopyFullPath == 1
+; 	F23 & P:: ; Select the shot folders in Explorer, then hit WIN + P , after a few moments the file path of the first EXR in each shot will be added 
 	
-	return
+; 	return
 
-#If
+; #If
 
 

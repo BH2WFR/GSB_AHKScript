@@ -47,10 +47,11 @@ return
 		; CapsLock+5 增廣字集
 		F24 & F5::
 			Send, ^+{5}
+			
 		return		
 		; CapsLock+. 中英标点
 		F24 & .::
-			
+			ChangePunctuationMode()
 		return
 	#If rime_KeymapChanged == 1	;* 魔改快捷键后
 		; CapsLock+Space 调出小狼毫菜单
@@ -76,7 +77,7 @@ return
 		return		
 		; CapsLock+. 中英标点
 		F24 & .::
-			Send, ^{F21}
+			ChangePunctuationMode()
 		return		
 	#If
 #If
@@ -169,6 +170,32 @@ F24 & z::return	;
 	-::SendBypassIME("_")
 	+-::SendBypassIME("-")
 #If
+
+;*切换中英标点
+ChangePunctuationMode()
+{
+	global rime_KeymapChanged
+	
+	BlockInput, On	;阻塞用户输入增强稳定性	
+	
+	if(rime_KeymapChanged == 1){
+		Send, {F20}
+	}else{
+		Send, ^``
+	}
+	Sleep, 150
+	
+	Send, {1}
+	Sleep, 50
+	
+	Send, {5}
+	Sleep, 50
+	
+	ShowToolTip("已切换 全角/半角标点 模式", 500)
+	
+	BlockInput, Off
+}
+
 
 SendDirectionKey_getShiftStatus(ByRef dir, quickSteps := 5)
 {

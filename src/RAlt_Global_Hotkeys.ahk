@@ -26,11 +26,8 @@ return
 F24 & F23::
 ;$RAlt::
 	
-	If(1 == IsInKoreanLayout()){	;* 如果处于韩文输入法下
-		SendHanjaKey()	; 汉字切换
-	}else{
-		
-	}
+	SendHanjaKeyByDetectingIME() ;* 如果处于韩文输入法下输出汉字键
+	
 return
 
 +F23::	;* 输出正常的分号和冒号

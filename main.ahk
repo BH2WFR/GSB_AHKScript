@@ -4,7 +4,7 @@
 ;SetWorkingDir, %A_ScriptDir%
 /*
 ^ ====================================== GSB_AKHScript ==================================
-^ |   	版本：v0.2.7      作者：BH2WFR, GSB Electronic   	更新时间：27 Feb 2023 	 |
+^ |   	版本：v0.2.7.dev1     作者：BH2WFR, GSB Electronic   更新时间：28 Feb 2023 	 |
 ------------------------------------------------------------------------------------
 *     				 AHK 版本： v1.1.x, 		操作系统支持版本 >= Vista(NT6.0)                     
 	----------------------------------------------------------------	
@@ -19,8 +19,8 @@
 GSB_IsInMainScript := 1	
 
 ; 当前版本
-GSB_ScriptVersion := "v0.2.7"
-GSB_ScriptUpdateDate := "27 Feb, 2023"
+GSB_ScriptVersion := "v0.2.7.dev1"
+GSB_ScriptUpdateDate := "28 Feb, 2023"
 
 
 ;* 启动时检查环境版本 + 定义全局变量

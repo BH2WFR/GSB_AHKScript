@@ -182,24 +182,69 @@ SendSymbolByCase(ByRef lower, ByRef upper:="")
 
 SendSymbolByCaseAndCaps(ByRef lower, ByRef upper:="")
 {
-	if(GetKeyState("CapsLock", "T") == 0){ ;caps关闭
-		if (GetKeyState("Shift")){
-			SendBypassIME(upper)
-		}else{
-			SendBypassIME(lower)
-		}	
-			
-	}else{		;caps打开
-		if (GetKeyState("Shift")){
-			SendBypassIME(lower)
-		}else{
-			SendBypassIME(upper)
+	if((lower == "") && (upper == "")){
+		ShowToolTip("该键未适配输入字符", 500)
+		return
+	}else{
+		if(GetKeyState("CapsLock", "T") == 0){ ;caps关闭
+			if (GetKeyState("Shift")){
+				SendBypassIME(upper)
+			}else{
+				SendBypassIME(lower)
+			}	
+				
+		}else{		;caps打开
+			if (GetKeyState("Shift")){
+				SendBypassIME(lower)
+			}else{
+				SendBypassIME(upper)
+			}		
 		}		
 	}
-	
-	
+
 }
 
+; ;TODO 函数预留未使用
+; SendSymbolByCaseAndCapsWithRAlt(ByRef lower, ByRef upper:="", ByRef RAlt_lower:="", ByRef RAlt_Upper:="")
+; {
+; 	if((lower == "") && (upper == "") && (RAlt_lower == "") && (RAlt_upper == "")){
+; 		ShowToolTip("该键未适配输入字符", 500)
+; 		return
+; 	}else{
+		
+; 		if(GetKeyState("CapsLock", "T") == 0){ ;caps关闭
+; 			if (GetKeyState("F23")){
+; 				if (GetKeyState("Shift")){
+; 					SendBypassIME(upper)
+; 				}else{
+; 					SendBypassIME(lower)
+; 				}	
+; 			}else{ ;没挂 RAlt
+; 				if (GetKeyState("Shift")){
+; 					SendBypassIME(RAlt_upper)
+; 				}else{
+; 					SendBypassIME(RAlt_lower)
+; 				}				
+; 			}
+			
+; 		}else{		;caps打开
+; 			if (GetKeyState("Alt")){
+; 				if (GetKeyState("Shift")){
+; 					SendBypassIME(lower)
+; 				}else{
+; 					SendBypassIME(upper)
+; 				}		
+; 			}else{ ;没挂 RAlt
+; 				if (GetKeyState("Shift")){
+; 					SendBypassIME(RAlt_upper)
+; 				}else{
+; 					SendBypassIME(RAlt_lower)
+; 				}				
+; 			}	
+; 		}		
+; 	}
+
+; }
 ;^================================ 插入代码模板 ======================================
 
 ;*== 快捷输入 C++ 头文件

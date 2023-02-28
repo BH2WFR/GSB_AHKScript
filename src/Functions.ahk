@@ -362,6 +362,15 @@ SendHanjaKey()
 	Send, {vk19}	; 汉字切换
 }
 
+SendHanjaKeyByDetectingIME()
+{
+	If(1 == IsInKoreanLayout()){	;* 如果处于韩文输入法下输出汉字键
+		SendHanjaKey()	; 汉字切换
+	}else{
+		
+	}	
+}
+
 SendHangulKey()
 {
 	Send, {vk15sc1F2}	;* 韩文键盘专有的「hangul」键
@@ -398,37 +407,51 @@ SwitchRemapMinusToUnderline()
 
 ;* 普通粘贴文本
 ;*=== 使用剪贴板强制输入指定长文本
-SendByClipboard(ByRef str, sleepTime := 50)
+SendByClipboard(ByRef str, sleepTime := 500)
 {
+	
 	lastClip := Clipboard
 	ClipBoard := ""
 	;ClipWait, 1
+	
+	BlockInput, On	;阻塞用户输入增强稳定性
+	
 	Clipboard := str
 	ClipWait, 1
 	
 	Send ^v
+	
 	Sleep, %sleepTime%
 	
-	ReleaseShiftCtrlAltKeys()
-		
 	Clipboard := lastClip
 	ClipWait, 1
+	
+	BlockInput, Off
+	ReleaseShiftCtrlAltKeys()
 }
 
 PasteString(ByRef str, sleepTime := 50)
 {
 	Clipboard := str
+	BlockInput, On	;阻塞用户输入增强稳定性
+	
 	ClipWait, 1
 	Send ^v
+	
 	Sleep, %sleepTime%
+	
+	BlockInput, Off
 	ReleaseShiftCtrlAltKeys()
+	
 		
 }
 
 Paste()
 {
+	BlockInput, On	;阻塞用户输入增强稳定性
 	Send ^v
 	Sleep, 50
+	BlockInput, Off
 	ReleaseShiftCtrlAltKeys()		
 }
 
@@ -498,10 +521,12 @@ AdvancedPaste()
 	}
 
 	
-	PasteString(cb) ;粘贴文本
+	PasteString(cb) ;粘贴文本内含输入阻塞
 	
 	;剪贴板恢复原状
 	Clipboard := cb_original
+	
+	
 	ReleaseShiftCtrlAltKeys()
 }
 
