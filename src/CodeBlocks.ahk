@@ -182,8 +182,10 @@ SendSymbolByCase(ByRef lower, ByRef upper:="")
 
 SendSymbolByCaseAndCaps(ByRef lower, ByRef upper:="")
 {
+	global rAltMode
+	
 	if((lower == "") && (upper == "")){
-		ShowToolTip("该键未适配输入字符", 500)
+		ShowToolTip("RAlt mode " . rAltMode . ": 未适配当前组合键", 350)
 		return
 	}else{
 		if(GetKeyState("CapsLock", "T") == 0){ ;caps关闭

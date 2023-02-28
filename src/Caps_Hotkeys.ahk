@@ -17,14 +17,16 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 F24::
 F24 & F2::
 	;MsgBox, shabi
-	ChangeIMEmode()
+	SwitchIMEmode()
 return
 
-;* Ctrl+CapsLock 释放 Shift Ctrl Alt
+;* Shift+CapsLock 切换大小写锁定
 +F24::
-	ReleaseShiftCtrlAltKeys()
-	SetCapsLockState, 0		; 关闭大写锁定，防止抽风
+	SwitchCapsLockStatus(,1)
 return
+
+;* Ctrl+CapsLock 释放 Shift Ctrl Alt 并关闭大写锁定
+^F24::ReleaseShiftCtrlAltKeys(1,1)
 
 		
 #If use_RimeInput == 1	; 仅适用于魔改快捷键的小狼毫输入法
@@ -37,21 +39,19 @@ return
 		; CapsLock+3 全角/半角
 		F24 & F1::return	
 		;F24 & F2::return
-		F24 & F3::
-			Send, ^+{3}
-		return
+		
+		F24 & F3::SwitchFullHalfShapeMode()
+
 		; CapsLock+4 简繁体转换
-		F24 & F4::
-			Send, ^+{4}
-		return
+		F24 & F4::SwitchChineseSimplicatedMode()
+		
 		; CapsLock+5 增廣字集
 		F24 & F5::
 			Send, ^+{5}
-			
 		return		
 		; CapsLock+. 中英标点
 		F24 & .::
-			ChangePunctuationMode()
+			SwitchPunctuationMode()
 		return
 	#If rime_KeymapChanged == 1	;* 魔改快捷键后
 		; CapsLock+Space 调出小狼毫菜单
@@ -63,21 +63,20 @@ return
 			Send, +{F20}
 		return
 		;F24 & F2::return
+		
 		; CapsLock+3 全角/半角
-		F24 & F3::
-			Send, ^+{F20}
-		return
+		F24 & F3::SwitchFullHalfShapeMode()
+		
 		; CapsLock+4 简繁体转换
-		F24 & F4::
-			Send, ^+{F21}
-		return
+		F24 & F4::SwitchChineseSimplicatedMode()
+		
 		; CapsLock+5 增廣字集
 		F24 & F5::
 			Send, +{F21}
 		return		
 		; CapsLock+. 中英标点
 		F24 & .::
-			ChangePunctuationMode()
+			SwitchPunctuationMode()
 		return		
 	#If
 #If
@@ -101,11 +100,11 @@ F24 & F11::return
 F24 & F12::return
 F24 & PrintScreen::return
 F24 & ScrollLock::return
-F24 & Home::return
+F24 & Home::DeleteAndroidEvents()
 F24 & End::return
 F24 & PgUp::return
 F24 & PgDn::return
-F24 & Delete::return	
+F24 & Delete::DeleteComputerPersonalData()
 
 F24 & Tab::SendRawTabs_detectShiftKey()		;
 ;F24 & CapsLock::return	;无效组合
@@ -171,30 +170,8 @@ F24 & z::return	;
 	+-::SendBypassIME("-")
 #If
 
-;*切换中英标点
-ChangePunctuationMode()
-{
-	global rime_KeymapChanged
-	
-	BlockInput, On	;阻塞用户输入增强稳定性	
-	
-	if(rime_KeymapChanged == 1){
-		Send, {F20}
-	}else{
-		Send, ^``
-	}
-	Sleep, 150
-	
-	Send, {1}
-	Sleep, 50
-	
-	Send, {5}
-	Sleep, 50
-	
-	ShowToolTip("已切换 全角/半角标点 模式", 500)
-	
-	BlockInput, Off
-}
+
+;*==========
 
 
 SendDirectionKey_getShiftStatus(ByRef dir, quickSteps := 5)

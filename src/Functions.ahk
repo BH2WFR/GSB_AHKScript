@@ -27,6 +27,8 @@ AttachRAltModeTooltipString(mode, ByRef str)
 			}
 		case 2:
 			str := str . "已适配 2023 年 2 月新版试验性字母"
+		case 3:
+			str := str . "尚未开发完，敬请等待..."
 		Default:
 			MsgBox, 0x10, "切换 RAlt 模式：不支持的值", "无效的 RAlt 值"
 	}	
@@ -42,7 +44,7 @@ SetRAltMode(mode)
 	global flag_remapMinusToUnderline
 	rAltMode := mode
 	
-	str := "切换到 rAlt 模式：" rAltMode ": " rAltModeList[rAltMode]
+	str := "已切换到 RAlt 模式  " rAltMode "`t " rAltModeList[rAltMode]
 	
 	; if(mode != 1){
 	; 	lag_remapMinusToUnderline == 0
@@ -278,108 +280,6 @@ CopyTextAndSearch(ByRef searchEngine)
 ;   asdf asdf asdf       http://www.baidu.com      1
 ;    asdf asdf 			asdf asdf 	asdf 		
 
-;* 获取当前使用的输入法/键盘布局名字，输出文本依照全局变量
-GetCurrentKeyboardLayoutName(InputLocaleID:=0)
-{
-	global installedKeyboardLayout  ; 声明全局变量
-	getLayout := 0
-	layoutName := ""
-	
-	if(InputLocaleID == 0){
-		InputLocaleID := GetCurrentKeyboardLayoutCode()
-	}
-	
-	for ID, nm in installedKeyboardLayout{
-		if(InputLocaleID == ID){
-			getLayout := 1
-			layoutName = %nm%
-			;MsgBox, Found
-			break
-		}
-	}
-	
-	if(getLayout == 0){
-		MsgBox, 0x10, 未识别到你的输入法, 程序还没录入当前的输入法，不认识捏
-	}
-	
-	;MsgBox, layoutName: %layoutName%
-	
-	Return layoutName
-}
-
-GetCurrentKeyboardLayoutCode()
-{
-	WinGet, WinID,, A
-	ThreadID:=DllCall("GetWindowThreadProcessId", "UInt", WinID, "UInt", 0)
-	InputLocaleID:=DllCall("GetKeyboardLayout", "UInt", ThreadID, "UInt")
-	;DllCall("GetKeyboardLayout","int",0,UInt)
-	
-	If(InputLocaleID == 0){
-		WinActivate, ahk_class WorkerW
-		WinGet, WinID2,, ahk_class WorkerW
-		ThreadID:=DllCall("GetWindowThreadProcessId", "UInt", WinID2, "UInt", 0)
-		WinActivate, ahk_id %WinID%
-		InputLocaleID:=DllCall("GetKeyboardLayout", "UInt", ThreadID, "UInt")
-	}	
-	return InputLocaleID
-}
-
-;* 切换输入法中英/韩英问状态，适用于
-ChangeIMEmode()
-{
-	layout := GetCurrentKeyboardLayoutCode() ; 获取当前的输入法
-	switch (layout){
-		case 134481924:	; Chinese_Simp
-			If(rime_KeymapChanged == 0){	;切换汉英
-				Send, ^+{F4}
-			}else{
-				Send, ^{F20} 
-			}
-			
-		case 68289554:	; Korean	要求：设置中关闭 RAlt 映射到韩英切换键，改为专用的 韩文切换键
-			SendHangulKey()  ;切换韩英
-			
-	}
-	
-	ReleaseShiftCtrlAltKeys()
-	SetCapsLockState, 0		; 关闭大写锁定，防止抽风
-}
-
-;* 判断是否处于韩文输入法下, 输出 0 或者 1
-IsInKoreanLayout()
-{
-	layout := GetCurrentKeyboardLayoutCode()
-	
-	If(layout == 68289554){	;* 如果处于韩文输入法下
-		return 1
-	}else{
-		return 0
-	}
-}
-
-SendHanjaKey()
-{
-	Send, {vk19}	; 汉字切换
-}
-
-SendHanjaKeyByDetectingIME()
-{
-	If(1 == IsInKoreanLayout()){	;* 如果处于韩文输入法下输出汉字键
-		SendHanjaKey()	; 汉字切换
-	}else{
-		
-	}	
-}
-
-SendHangulKey()
-{
-	Send, {vk15sc1F2}	;* 韩文键盘专有的「hangul」键
-}
-
-ReleaseShiftCtrlAltKeys()
-{
-	Send, {Ctrl Up}{Alt Up}{Shift Up}
-}
 
 SwitchRemapMinusToUnderline()
 {
@@ -390,17 +290,17 @@ SwitchRemapMinusToUnderline()
 	if(rAltMode == 1){
 		if(flag_remapMinusToUnderline == 1){
 			flag_remapMinusToUnderline := 0
-			ShowToolTip("已关闭 减号_下划线交换功能！")
+			ShowToolTip("已关闭 减号_下划线交换功能！", 800)
 			;MsgBox, %flag_remapMinusToUnderline%
 		}else{  ; flag_remapMinusToUnderline==0
 			flag_remapMinusToUnderline := 1
-			ShowToolTip("已开启 减号_下划线交换功能！")
+			ShowToolTip("已开启 减号_下划线交换功能！", 800)
 			;MsgBox, %flag_remapMinusToUnderline%
 			
 		}		
 	}else{
 		flag_remapMinusToUnderline := 0
-		ShowToolTip("非 Mode 1 模式下无法使用 减号_下划线交换功能！")
+		ShowToolTip("非 Mode 1 模式下无法使用 减号_下划线交换功能！", 800)
 	}
 
 }

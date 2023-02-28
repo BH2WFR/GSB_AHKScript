@@ -54,11 +54,11 @@ F23 & Esc::   ;* 查看当前 RAlt 模式
 return
 F23 & F1::SetRAltMode(1)	; 设置 RAlt 模式
 F23 & F2::SetRAltMode(2)
-F23 & F3::return
-F23 & F4::return
-F23 & F5::return
-F23 & F6::return
-F23 & F7::return
+F23 & F3::SetRAltMode(3)
+F23 & F4::return ;SetRAltMode(4)
+F23 & F5::return ;SetRAltMode(5)
+F23 & F6::return ;SetRAltMode(5)
+F23 & F7::return ;SetRAltMode(5)
 F23 & F8::return
 F23 & F9::return
 F23 & F10::return

@@ -47,7 +47,7 @@ if (!(A_IsAdmin or RegExMatch(full_command_line, " /restart(?!\S)")))
 
 isTestMode := 1		; 是否处于测试模式
 rAltMode := 1		; 默认 RAlt 特殊模式，0 为关闭状态
-rAltModeList := {0:"OFF", 1:"Programming Mode", 2:"Galian Script", 3:"Esp Script", 4:"Colemak Input"}
+rAltModeList := {0:"OFF", 1:"Programming Mode", 2:"Unified Latin Script", 3:"Art Script", 4:"Colemak Input"}
 
 g_MouseQuickMoveUnitPixels := 30  ;F23+Shift+方向键 快速移动鼠标速度（每次移动的像素点个数) 
 g_MouseQuickScrollUnit := 3		;caps+鼠标滚轮 快速滚动速度
@@ -56,7 +56,7 @@ g_MouseSuperScrollUnit := 6		;caps+鼠标滚轮 快速滚动速度
 flag_remapMinusToUnderline := 0 ; 仅在RAltMode==1时有效！ caps+下划线，开启/关闭 把 减号/下划线交换
 
 ;* 系统安装的输入法语言代码：
-installedKeyboardLayout := {134481924:"Chinese,Simplicated", 68289554:"Korean", 67699721:"English,US,QWERTY"}
+installedKeyboardLayout := {134481924:"Chinese,Simplicated", 68289554:"Korean", 67699721:"English,US,QWERTY", 68224017:"Japanese"}
 ;Layout_ChineseSimp_Code := 134481924
 ;Layout_Korean_Code := 68289554
 
@@ -67,7 +67,7 @@ use_SemiColonAsRAlt := 0  ; 使用分号代替RAlt,（适用于一些 RAlt 不�
 rime_KeymapChanged := 1	; 小狼毫 快捷键是否非默认状态
 installed_Korean := 1
 installed_English_US := 1
-use_test_getIMEcode := 0 ; F16键弹出对话框显示当前输入法代号
+use_test_getIMEcode := 1 ; F16键弹出对话框显示当前输入法代号
 
 
 ;* 是否启用模块功能
