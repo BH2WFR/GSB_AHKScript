@@ -14,7 +14,7 @@ str2 =
 
 MsgBox, %str2%
 
-
+SplashTextOn,400,400,title,text
 
 
 

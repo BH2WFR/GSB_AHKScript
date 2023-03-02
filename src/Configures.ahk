@@ -7,6 +7,11 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 }
 
 ;^ ============================== 运行前检查兼容性并获取管理员权限 ===============================
+
+Progress, b fs20 zh0 W600 H70 C11, GSB_AKHScript  %GSB_ScriptVersion%  启动中..., , , Segoe UI
+
+
+
 ;*=================== 检查系统版本 ===============
 If(A_OSVersion == "WIN_2000" || A_OSVersion == "WIN_XP" || A_OSVersion == "WIN_2003" || A_OSType == "WIN32_WINDOWS"){
 	Msgbox, 0x10, 不支持的操作系统, 你的 Windows 操作系统版本 %A_OSType% %A_OSVersion% 不支持此脚本的一些功能！`n  请使用至少 Windows Vista (NT 6.0) 以上的系统！
@@ -40,7 +45,19 @@ if (!(A_IsAdmin or RegExMatch(full_command_line, " /restart(?!\S)")))
     ExitApp
 }
 
-	
+;*==================== 施放按键 关闭 CapsLock =====================
+
+ReleaseShiftCtrlAltKeys(1)
+
+
+;*=================== 弹出启动框 ==================
+
+
+
+
+
+
+
 ;^==================================  全局变量 ================================
 ;全局变量
 ; 注意： 使用时要在函数头部中声明一次这个变量, 否则无法使用, 格式: global isTestMode
@@ -92,3 +109,5 @@ use_Explorer_CopyFullPath := 1
 ; }
 ; g_Config = New GSB_Configure_Typedef
 
+Sleep, 200
+Progress, Off

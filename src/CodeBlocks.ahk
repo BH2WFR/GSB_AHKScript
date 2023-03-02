@@ -218,7 +218,7 @@ StringCaseShift(ByRef str, mode)
 		; 转换为首字母大写
 			StringUpper, str, str, T
 			;TODO 对虚词仍然保持小写
-			
+			;StringCaseFirstLetterUpper(str)  ;* 未完成
 			
 		case -1:
 		; 智能转换
@@ -229,6 +229,20 @@ StringCaseShift(ByRef str, mode)
 			return
 	}
 }
+
+StringCaseFirstLetterUpper(ByRef str) ;* 智能首字母大写功能
+{
+	StringCaseShift(str, 0) ; 先全部变成小写
+	; TODO: 功能展示：
+/*	TODO:
+	1. 寻找所有 空格后面 和 下划线后面 或 连字符后面的词，
+	2. 寻找所有被空格或下划线包围的虚词，不大写
+	3. 寻找 McCathy 之类的这种反常大写词汇，对其进行特殊转换
+	尽可能利用正则表达式
+*/
+	
+}
+
 
 ShiftCaseForSelectedText(mode)
 {

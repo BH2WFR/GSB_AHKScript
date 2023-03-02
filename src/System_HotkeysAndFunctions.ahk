@@ -755,6 +755,9 @@ ShowCurrentWindowInformation()
 			form_MinMax_text := "正常"
 	}
 	
+	if(form_transparency == ""){
+		form_transparency := 255
+	}
 	
 	str = 
 (
@@ -773,20 +776,18 @@ Count (窗口数量):%form_Count%
 最大化/最小化:	%form_MinMax%:   %form_MinMax_text%
 List（窗口号）:	%form_List%
 
-
-
 Style:		%form_Style%
 ExStyle:		%form_ExStyle%
-
-ControlListHwnd (窗体中每个控件的唯一 ID 号):
-%form_ControlListHwnd%
-
-ControlList (窗体中每个控件的控件名):
-%form_ControlList%
-
-
-
 )
+; ControlListHwnd (窗体中每个控件的唯一 ID 号):
+; %form_ControlListHwnd%
+
+; ControlList (窗体中每个控件的控件名):
+; %form_ControlList%
+
+
+
+; )
 
 	MsgBox, 0x1000, 当前窗口信息, %str%
 	
