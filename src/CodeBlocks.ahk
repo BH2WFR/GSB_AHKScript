@@ -116,23 +116,11 @@ IndentSelectedString()
 	str := Clipboard
 	
 	If(StrLen(str) == 0){
-		
 		SendByClipboard("	")
 		
 	}else{
-		
-		;MsgBox, %str%
-		
 		str := "    " . str
-		
-		s11 := InStr(str, "`n")
-		;MsgBox, %s11%
-		
-		;TODO: 此代码无效，尚未完成
 		str := StrReplace(str, "`n", "`n    ")
-		;RegExReplace(str,"(.{50}\s)","$1`n     ")
-
-		;MsgBox, %str%
 		
 		PasteString(str)
 		
@@ -184,9 +172,16 @@ SendSymbolByCaseAndCaps(ByRef lower, ByRef upper:="")
 {
 	global rAltMode
 	
-	if((lower == "") && (upper == "")){
-		ShowToolTip("RAlt mode " . rAltMode . ": 未适配当前组合键", 350)
-		return
+	if(lower == ""){
+		if(upper != ""){	; 如果大写的没传入，则不管按没按shift一律输出小写的
+			SendBypassIME(lower)
+			
+		}else{
+			ShowToolTip("RAlt mode " . rAltMode . ": 未适配当前组合键", 350)
+			return
+		}
+		
+		
 	}else{
 		if(GetKeyState("CapsLock", "T") == 0){ ;caps关闭
 			if (GetKeyState("Shift")){
@@ -204,6 +199,50 @@ SendSymbolByCaseAndCaps(ByRef lower, ByRef upper:="")
 		}		
 	}
 
+}
+
+
+;*==== 字符串大小写转换
+StringCaseShift(ByRef str, mode)
+{
+	switch mode{
+		case 0:
+		; 转换为小写
+			StringLower, str, str
+			
+		case 1:
+		; 转换为大写
+			StringUpper, str, str
+			
+		case 2:
+		; 转换为首字母大写
+			StringUpper, str, str, T
+			;TODO 对虚词仍然保持小写
+			
+			
+		case -1:
+		; 智能转换
+			;TODO 识别文本字符串是一个什么样的大小写状态
+			
+		Default:
+			ShowMsgBoxError("字符串大小写转换", A_ThisFunc, "mode 参数错误！")
+			return
+	}
+}
+
+ShiftCaseForSelectedText(mode)
+{
+	lastClip := Clipboard ; 备份剪贴板
+	
+	Send, ^x			; 复制文本
+	Clipwait, 1
+	str := Clipboard
+	
+	StringCaseShift(str, mode)
+		
+	PasteString(str)
+	
+	Clipboard := lastClip	
 }
 
 ; ;TODO 函数预留未使用
@@ -260,7 +299,7 @@ SendCppHeaderTemplate()
 	headerName := Trim(headerName)
 	
 	if(headerName == ""){
-		MsgBox, 0x10, 代码块输入功能: C++ 头文件, 无效的输入`, 不能为空!
+		ShowMsgBoxError("代码块输入功能: C++ 头文件", " 无效的头文件防重复包含宏定义名输入, 不能为空!"， A_ThisFunc)
 		return
 	}
 	
@@ -302,7 +341,7 @@ SendCppSourceTemplate()
 	headerName := Trim(headerName)
 	
 	if(headerName == ""){
-		MsgBox, 0x10, 代码块输入功能: C++ 源文件, 无效的输入`, 不能为空!
+		ShowMsgBoxError("代码块输入功能:C++ 源文件", " 无效的头文件名引用输入, 不能为空!"， A_ThisFunc)
 		return
 	}
 	

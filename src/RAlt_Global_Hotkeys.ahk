@@ -9,7 +9,6 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 
 ; 全局热键
 ;* F23 释放时触发正常的 F23 功能，如果在韩文输入法下则输出汉字切换键
-#If use_SemiColonAsRAlt == 0
 ;$F23 Up::
 $F23::
 	
@@ -21,23 +20,7 @@ $F23::
 	
 return
 
-;* 对于 RAlt 不方便按下的键盘, 用分号键替代 F23 功能键
-#If use_SemiColonAsRAlt == 1
-F24 & F23::
-;$RAlt::
-	
-	SendHanjaKeyByDetectingIME() ;* 如果处于韩文输入法下输出汉字键
-	
-return
 
-+F23::	;* 输出正常的分号和冒号
-	Send, :
-return	
-$F23 Up::
-	Send, `;
-return
-
-#If
 
 ;*=============== F23：全局切换 RAlt 模式 ========
 
@@ -68,120 +51,30 @@ F23 & PrintScreen::return
 F23 & ScrollLock::return
 F23 & Home::return
 F23 & End::return
-F23 & PgUp::return
-F23 & PgDn::return
+F23 & PgUp::MouseWheelScroll_detectKey("Left") ; 鼠标横向滚动
+F23 & PgDn::MouseWheelScroll_detectKey("Right")
 F23 & Delete::SetRAltMode(0)	;关闭RAlt模式
 
-
+F23 & CapsLock::return
 F23 & Backspace::Send, {Right}{Backspace 2}
 
-
+F23 & Right::MoveMouse_detectKey()
+F23 & Left::MoveMouse_detectKey()
+F23 & Up::MoveMouse_detectKey()
+F23 & Down::MoveMouse_detectKey()
 
 ;^===================================  系统特殊功能：=====================================
 ;系统功能
-;*========== RAlt+方向键 以像素为单位移动鼠标指针, 加上 Shift 后快速移动鼠标
-#If 1
-
-#If use_SemiColonAsRAlt == 0
-F23 & Right::
-F23 & Left::
-F23 & Up::
-F23 & Down::
-#If use_SemiColonAsRAlt == 1
-RAlt & Right::
-RAlt & Left::
-RAlt & Up::
-RAlt & Down::
-#If
-	if (GetKeyState("Shift")){
-		increment := g_MouseQuickMoveUnitPixels
-	}else{
-		increment := 1
-	}
-	
-	if (InStr(A_ThisHotkey, "Left")){
-		MoveMouse("Left", increment)
-	}else if (InStr(A_ThisHotkey, "Right")){
-		MoveMouse("Right", increment)
-	}else if (InStr(A_ThisHotkey, "Up")){
-		MoveMouse("Up", increment)
-	}else if (InStr(A_ThisHotkey, "Down")){
-		MoveMouse("Down", increment)
-	}
-	;MsgBox, haha , %A_ThisHotkey%
-return
-
-#If use_SemiColonAsRAlt == 0
-F23 & RWin::
-#If use_SemiColonAsRAlt == 1
-RAlt & RWin::
-#If
-	Send, {LButton}
-return
-
-
-#If use_SemiColonAsRAlt == 0
-F23 & AppsKey::
-#If use_SemiColonAsRAlt == 1
-RAlt & AppsKey::
-#If
-	Send, {RButton}
-return
-
-
-#If
 
 
 
-;* ================ RAlt+鼠标滚轮 横向滚动, 加 Shift 更快速
-#If use_SemiColonAsRAlt == 0
-F23 & WheelDown::	;* Right
-#If use_SemiColonAsRAlt == 1
-RAlt & WheelDown::
-#If	
-	if (GetKeyState("Shift")){
-		WheelScroll("right", g_MouseQuickScrollUnit)
-	}else{
-		WheelScroll("right", 1)
-	}
-return
 
-#If use_SemiColonAsRAlt == 0
-F23 & WheelUp::		;* Left
-#If use_SemiColonAsRAlt == 1
-RAlt & WheelUp::
-#If	
-	if (GetKeyState("Shift")){
-		WheelScroll("left", g_MouseQuickScrollUnit)
-	}else{
-		WheelScroll("left", 1)
-	}
-return
-
-
-
-;* ================ Caps+鼠标滚轮  加速纵向滚动, 加 Shift 更快速
-F24 & WheelDown::
-	if (GetKeyState("Shift")){
-		WheelScroll("down", g_MouseSuperScrollUnit)
-	}else{
-		WheelScroll("down", g_MouseQuickScrollUnit)
-	}
-return
-F24 & WheelUp::
-	if (GetKeyState("Shift")){
-		WheelScroll("up", g_MouseSuperScrollUnit)
-	}else{
-		WheelScroll("up", g_MouseQuickScrollUnit)
-	}
-return
 
 
 
 ;*   ========================== 0 OFF 模式，关闭所有热键 =============================
 #If rAltMode == 0
 	F23 & Tab::return
-	F23 & CapsLock::return
 	F23 & Space::return
 	;F23 & Enter::return
 	;F23 & BackSpace::return
@@ -214,7 +107,7 @@ return
 	F23 & f::return
 	F23 & g::return
 	F23 & h::return
-	F23 & i::return	
+	F23 & i::return
 	F23 & j::return
 	F23 & k::return
 	F23 & l::return

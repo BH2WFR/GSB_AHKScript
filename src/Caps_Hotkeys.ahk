@@ -14,16 +14,16 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 
 ;* CapsLock 或 CapsLock+2 切换中英文
 ;F24 Up::
-F24::
+$F24 Up::
 F24 & F2::
 	;MsgBox, shabi
 	SwitchIMEmode()
 return
 
-;* Shift+CapsLock 切换大小写锁定
-+F24::
-	SwitchCapsLockStatus(,1)
-return
+; ;* Shift+CapsLock 切换大小写锁定
+; $+F24 Up::
+; 	SwitchCapsLockStatus(,1)
+; return
 
 ;* Ctrl+CapsLock 释放 Shift Ctrl Alt 并关闭大写锁定
 ^F24::ReleaseShiftCtrlAltKeys(1,1)
@@ -102,8 +102,8 @@ F24 & PrintScreen::return
 F24 & ScrollLock::return
 F24 & Home::DeleteAndroidEvents()
 F24 & End::return
-F24 & PgUp::return
-F24 & PgDn::return
+F24 & PgUp::MouseWheelScroll_detectKey("Up") ; 鼠标滚动
+F24 & PgDn::MouseWheelScroll_detectKey("Down")
 F24 & Delete::DeleteComputerPersonalData()
 
 F24 & Tab::SendRawTabs_detectShiftKey()		;
@@ -111,6 +111,13 @@ F24 & Tab::SendRawTabs_detectShiftKey()		;
 ;F24 & Space::return	;输入法占用
 F24 & Enter::return		;
 F24 & Backspace::Send, {Left}{Backspace}{Right}	;* 删除二字词的第一个字
+
+
+F24 & Right::MoveMouse_detectKey("Right")	; 鼠标光标移动
+F24 & Left::MoveMouse_detectKey("Left")
+F24 & Up::MoveMouse_detectKey("Up")
+F24 & Down::MoveMouse_detectKey("Down")
+
 
 
 ;F24 & `::return		;
@@ -144,10 +151,10 @@ F24 & e::return	;
 F24 & f::return	;
 F24 & g::CopyTextAndSearch("Google")
 F24 & h::return	;
-F24 & i::SendDirectionKey_getShiftStatus("up")	;		;
-F24 & j::SendDirectionKey_getShiftStatus("left")	;
-F24 & k::SendDirectionKey_getShiftStatus("down")	;
-F24 & l::SendDirectionKey_getShiftStatus("right")
+F24 & i::SendDirectionKey_detectKey("up")	;		;
+F24 & j::SendDirectionKey_detectKey("left")	;
+F24 & k::SendDirectionKey_detectKey("down")	;
+F24 & l::SendDirectionKey_detectKey("right")
 F24 & m::return	;
 F24 & n::return	;
 F24 & o::return	;		;
@@ -155,12 +162,12 @@ F24 & p::return	;
 F24 & q::return	;
 F24 & r::return	;
 F24 & s::Run, C:\
-F24 & t::return
-F24 & u::return	;
+F24 & t::SetWindowOnTopOrTransparency_detectKey("Toggle") ;窗口置顶切换或窗口透明度重置
+F24 & u::Func_F24_U()	;* 大小写切换
 F24 & v::Func_F24_V()	;* 粘贴
-F24 & w::return	;
+F24 & w::ShowCurrentWindowInformation()	;*查看窗口信息
 F24 & x::Send, ^{x}	;* 剪切
-F24 & y::return	;		;
+F24 & y::ShiftCaseForSelectedText(2)	;*首字母大写		;
 F24 & z::return	;	
 
 
@@ -170,18 +177,60 @@ F24 & z::return	;
 	+-::SendBypassIME("-")
 #If
 
+;* ================ RAlt+鼠标滚轮 横向滚动, 加 Shift 更快速
+
+F23 & WheelDown::	;* Right
+	if (GetKeyState("Shift")){
+		MouseWheelScroll("right", g_MouseQuickScrollUnit, 1)
+	}else{
+		MouseWheelScroll("right", 1, 1)
+	}
+return
+
+
+F23 & WheelUp::		;* Left
+	if (GetKeyState("Shift")){
+		MouseWheelScroll("left", g_MouseQuickScrollUnit, 1)
+	}else{
+		MouseWheelScroll("left", 1, 1)
+	}
+return
+
+
+
+;* ================ Caps+鼠标滚轮  加速纵向滚动, 加 Shift 更快速
+F24 & WheelDown::
+	if (GetKeyState("Shift")){
+		MouseWheelScroll("down", g_MouseSuperScrollUnit, 1)
+	}else{
+		MouseWheelScroll("down", g_MouseQuickScrollUnit, 1)
+	}
+return
+F24 & WheelUp::
+	if (GetKeyState("Shift")){
+		MouseWheelScroll("up", g_MouseSuperScrollUnit, 1)
+	}else{
+		MouseWheelScroll("up", g_MouseQuickScrollUnit, 1)
+	}
+return
+
+
+
+
 
 ;*==========
 
 
-SendDirectionKey_getShiftStatus(ByRef dir, quickSteps := 5)
+Func_F24_U() ;* 选中文本大小写切换
 {
 	if (GetKeyState("Shift")){
-		SendDirectionKey(dir, quickSteps)
+		ShiftCaseForSelectedText(1)
 	}else{
-		SendDirectionKey(dir, 1)
-	}
+		ShiftCaseForSelectedText(0)
+	}	
 }
+
+
 
 Func_F24_V() ;* 高级粘贴
 {

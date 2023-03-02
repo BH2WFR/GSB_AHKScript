@@ -52,6 +52,7 @@ rAltModeList := {0:"OFF", 1:"Programming Mode", 2:"Unified Latin Script", 3:"Art
 g_MouseQuickMoveUnitPixels := 30  ;F23+Shift+方向键 快速移动鼠标速度（每次移动的像素点个数) 
 g_MouseQuickScrollUnit := 3		;caps+鼠标滚轮 快速滚动速度
 g_MouseSuperScrollUnit := 6		;caps+鼠标滚轮 快速滚动速度
+g_SendDirectionKeyQuickModeUnit := 5 ;caps+ijkl 发送方向键 shift按下时快速加倍幅度
 
 flag_remapMinusToUnderline := 0 ; 仅在RAltMode==1时有效！ caps+下划线，开启/关闭 把 减号/下划线交换
 
@@ -62,7 +63,7 @@ installedKeyboardLayout := {134481924:"Chinese,Simplicated", 68289554:"Korean", 
 
 ;IMEmodeChangeKey := 1   ; ==0:Shift切换，1:F24(Caps)切换, 2:Ctrl+Space 切换 3: Ctrl切换
 
-use_SemiColonAsRAlt := 0  ; 使用分号代替RAlt,（适用于一些 RAlt 不方便按到的键盘, 要提前映射到 F23）
+;'use_SemiColonAsRAlt := 0  ; 废弃使用 deprecated!
 
 rime_KeymapChanged := 1	; 小狼毫 快捷键是否非默认状态
 installed_Korean := 1

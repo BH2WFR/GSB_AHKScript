@@ -30,7 +30,7 @@ AttachRAltModeTooltipString(mode, ByRef str)
 		case 3:
 			str := str . "尚未开发完，敬请等待..."
 		Default:
-			MsgBox, 0x10, "切换 RAlt 模式：不支持的值", "无效的 RAlt 值"
+			ShowMsgBoxParameterError("切换 RAlt 模式：不支持的值", A_ThisFunc, "无效的 RAlt 值")
 	}	
 	
 	
@@ -87,6 +87,25 @@ RemoveToolTip:   ; 禁止删除，前面要用到，用于超时关闭工具提�
 return
 
 
+;*========== 函数参数错误提示，调用方式：ShowMsgBoxParameterError("代码块输入功能: C++ 头文件", A_ThisFunc, "无效的输入, 不能为空!")
+ShowMsgBoxParameterError(ByRef title, ByRef functionName, ByRef description := "")
+{
+	MsgBox, 0x1010, %title%：错误, 错误：函数 %functionName%(#)`n`t输入了一个不支持的参数！`n`n 说明：%description%
+}
+
+
+ShowMsgBoxError(ByRef title, ByRef description, ByRef functionName:="")
+{
+	if(functionName == ""){
+		; 使用 0x40010 省略任务栏图标窗口置顶
+		MsgBox, 0x1010, %title%, %description%
+	}else{
+		MsgBox, 0x1010, %title%, 函数 %functionName%`n`t 中发生一个错误：`n`n 说明: %description%
+	}
+}
+
+
+
 ;*检测当前文本输入器或IDE是什么类型返回类型如下表: VS/VSCode/QtCreator:1, VC6.0/Keil uv:2/notepad++:2, Notepad等无代码写作功能文本框:0
 GetNotebookType(){
 	;支持输入单侧花括号后按下回车就可以创建代码块的智能 IDE
@@ -104,85 +123,6 @@ GetNotebookType(){
 }
 
 
-
-;*移动鼠标，Dir=1左，2右，3上，4下； Increment 为每次移动像素点
-MoveMouse(ByRef Dir, Increment)
-{
-	CoordMode,Mouse,Screen	;必须加入，适应多屏幕情况，否则会抽风
-	MouseGetPos,x_pos,y_pos	;获取鼠标位置
-	;MsgBox,  X:%x_pos% Y:%y_pos%, incr:%Increment%, Dir:%Dir%
-	Switch Dir{	;加入方向增量
-		case "Left", "left", "L", "l", "←":
-			x_pos -= Increment
-		case "Right", "right","R", "r", "→":
-			x_pos += Increment
-		case "Up", "up", "U", "u", "↑":
-			y_pos -= Increment
-		case "Down", "down", "D", "d", "↓":
-			y_pos += Increment
-		default:
-			MsgBox, 0x10, 移动鼠标：方向参数错误调用, 方向指令无效，请输入小写字母的"up""down""left""right"
-			return
-	}
-	;MsgBox,  X:%x_pos% Y:%y_pos%
-	DllCall("SetCursorPos", "int", x_pos, "int", y_pos)	;移动鼠标指针到指定位置
-	;MsgBox,  X:%x_pos% Y:%y_pos%
-}
-
-
-;* 发送鼠标滚动操作
-WheelScroll(ByRef dir, steps:= 1, isBlockInput := 1)
-{	
-	If(isBlockInput == 1){ ;* 屏蔽外界输入
-		BlockInput, On
-	}
-
- 	;* 直接发送鼠标横向滚动键
-	Switch dir{
-		case "Up", "up", "U", "u", "↑":
-			Send, {WheelUp %steps%}
-		case "Down", "down", "D", "d", "↓":
-			Send, {WheelDown %steps%}		
-		case "Left", "left", "L", "l", "←":
-			Send, {WheelLeft %steps%}	
-		case "Right", "right","R", "r", "→":
-			Send, {WheelRight %steps%}	
-		Default:
-			MsgBox, 0x10, 滚动鼠标：方向指令无效, 方向指令无效，请输入小写字母的"up""down""left""right"
-			;return
-	}
-	
-	If(isBlockInput == 1){ ;* 恢复外界输入
-		BlockInput, Off
-	}
-}
-
-;* 发送方向键
-SendDirectionKey(ByRef dir, steps:= 1, isBlockInput := 1)
-{	
-	If(isBlockInput == 1){ ;* 屏蔽外界输入
-		BlockInput, On
-	}
-	
- 	;* 直接发送鼠标横向滚动键
-	Switch dir{
-		case "Up", "up", "U", "u", "↑":
-			Send, {Up %steps%}
-		case "Down", "down", "D", "d", "↓":
-			Send, {Down %steps%}		
-		case "Left", "left", "L", "l", "←":
-			Send, {Left %steps%}	
-		case "Right", "right","R", "r", "→":
-			Send, {Right %steps%}	
-		Default:
-			MsgBox, 0x10, 发送方向键：方向指令无效, 方向指令无效，请输入小写字母的"up""down""left""right"
-
-	}
-	
-	If(isBlockInput == 1){ ;* 恢复外界输入
-		BlockInput, Off
-	}
-}
 
 
 
@@ -253,7 +193,7 @@ InternetSearch(text, ByRef searchEngine)
 		case "":
 			MsgBox, 未指定搜索引擎
 		Default:
-			MsgBox, 0x10, 错误, 不知道这是什么搜索引擎捏
+			ShowMsgBoxParameterError("搜索或打开选中文本或链接功能", A_ThisFunc, "不知道这是个什么搜索引擎或超链接？")
 		}
 		
 		searchURL := searchURL . text ; 拼接文本
@@ -346,13 +286,16 @@ PasteString(ByRef str, sleepTime := 50)
 		
 }
 
-Paste()
+Paste(ifReleaseShiftCtrlAltKeys := 1, isTurnOffCaps := 0)
 {
 	BlockInput, On	;阻塞用户输入增强稳定性
 	Send ^v
 	Sleep, 50
 	BlockInput, Off
-	ReleaseShiftCtrlAltKeys()		
+	
+	if(ifReleaseShiftCtrlAltKeys){
+		ReleaseShiftCtrlAltKeys(isTurnOffCaps)		
+	}
 }
 
 ;* 无格式粘贴文本, 同时会清除复制内容的左右空格或制表符
@@ -362,7 +305,8 @@ PasteWithoutFormat()
 	cb := Trim(cb)
 	Clipboard := cb
 	ClipWait, 1
-	Paste()
+	Paste(0, 1)
+	
 }
 
 
@@ -450,7 +394,7 @@ InputToSelectSlashMode:
 		case "2", 2, "２", "\", "\\":	;反斜杠转换成 "\\"
 			str := StrReplace(str, "\", "\\")
 		Default:
-			MsgBox, 0x10, 高级粘贴功能: 反斜杠替换, 无效的输入`, 请输入合法字符!
+			ShowMsgBoxError("高级粘贴功能: 反斜杠替换", "无效的输入, 请输入合法字符!", A_ThisFunc)
 			goto InputToSelectSlashMode
 		
 	}

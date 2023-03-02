@@ -10,7 +10,7 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 ;*   ============================= 2 统一字母输入模式 ===============================
 #If rAltMode == 2
 
-	F23 & CapsLock::return
+	
 	F23 & Space::return
 	;F23 & Enter::return
 	;F23 & BackSpace::return
@@ -105,12 +105,45 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	; - & z::SendSymbolByCaseAndCaps("", "")
 	
 ;*===============  使用：-/\~.^'
+; *===   ";" + 字母  
+	$`; Up::Send, {`;}
+	+`;::Send, {:}
+	^`;::Send, ^{`;}
+	^+`;::Send, ^+{`;}
+	`; & Space::SendSymbolByCaseAndCaps("̈", "")  ; 已添加 ä 
+	`; & a::SendSymbolByCaseAndCaps("ä", "Ä")
+	`; & b::SendSymbolByCaseAndCaps("", "")
+	`; & c::SendSymbolByCaseAndCaps("", "")
+	`; & d::SendSymbolByCaseAndCaps("", "")
+	`; & e::SendSymbolByCaseAndCaps("ë", "Ë")
+	`; & f::SendSymbolByCaseAndCaps("", "")
+	`; & g::SendSymbolByCaseAndCaps("", "")
+	`; & h::SendSymbolByCaseAndCaps("", "")
+	`; & i::SendSymbolByCaseAndCaps("ï", "Ï")
+	`; & j::SendSymbolByCaseAndCaps("", "")
+	`; & k::SendSymbolByCaseAndCaps("", "")
+	`; & l::SendSymbolByCaseAndCaps("", "")
+	`; & m::SendSymbolByCaseAndCaps("", "")
+	`; & n::SendSymbolByCaseAndCaps("", "")
+	`; & o::SendSymbolByCaseAndCaps("ö", "Ö")
+	`; & p::SendSymbolByCaseAndCaps("", "")
+	`; & q::SendSymbolByCaseAndCaps("", "")
+	`; & r::SendSymbolByCaseAndCaps("", "")
+	`; & s::SendSymbolByCaseAndCaps("ß", "ẞ")
+	`; & t::SendSymbolByCaseAndCaps("", "")
+	`; & u::SendSymbolByCaseAndCaps("ü", "Ü")
+	`; & v::SendSymbolByCaseAndCaps("", "")
+	`; & w::SendSymbolByCaseAndCaps("ẅ", "Ẅ")
+	`; & x::SendSymbolByCaseAndCaps("ẍ", "Ẍ")
+	`; & y::SendSymbolByCaseAndCaps("ÿ", "Ÿ")
+	`; & z::SendSymbolByCaseAndCaps("", "")
 	
-;*===   "-" + 字母  
+		
+;*===   "-" + 字母  ā a̅
 	$- Up::SendBypassIME("-")
 	^-::Send, ^{-}
 	^+-::Send, ^+{-}
-	- & Space::SendSymbolByCaseAndCaps("", "")
+	- & Space::SendSymbolByCaseAndCaps("̄", "")
 	- & a::SendSymbolByCaseAndCaps("ā", "Ā")
 	- & b::SendSymbolByCaseAndCaps("", "")
 	- & c::SendSymbolByCaseAndCaps("ꞓ", "Ꞓ")
@@ -129,7 +162,7 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	- & p::SendSymbolByCaseAndCaps("ꝑ", "Ꝑ")
 	- & q::SendSymbolByCaseAndCaps("", "")
 	- & r::SendSymbolByCaseAndCaps("", "")
-	- & s::SendSymbolByCaseAndCaps("ß", "ẞ")
+	- & s::SendSymbolByCaseAndCaps("", "")
 	- & t::SendSymbolByCaseAndCaps("ŧ", "Ŧ")
 	- & u::SendSymbolByCaseAndCaps("ū", "Ū")
 	- & v::SendSymbolByCaseAndCaps("ǖ", "Ǖ")
@@ -145,7 +178,7 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	+/::Send, {?}
 	^/::Send, ^{/}
 	^+/::Send, ^+{/}
-	/ & Space::SendSymbolByCaseAndCaps("", "")
+	/ & Space::SendSymbolByCaseAndCaps("́", "")
 	/ & a::SendSymbolByCaseAndCaps("á", "Á")
 	/ & b::SendSymbolByCaseAndCaps("", "")
 	/ & c::SendSymbolByCaseAndCaps("ć", "Ć")
@@ -180,7 +213,7 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	+`::Send, {~}
 	^`::Send, ^{`}
 	^+`::Send, ^+{`}
-	` & Space::SendSymbolByCaseAndCaps("", "")
+	` & Space::SendSymbolByCaseAndCaps("̃", "")
 	` & a::SendSymbolByCaseAndCaps("ã", "Ấ")
 	` & b::SendSymbolByCaseAndCaps("", "")
 	` & c::SendSymbolByCaseAndCaps("", "")
@@ -214,7 +247,7 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	+=::Send, {+}
 	^=::Send, ^{=}
 	^+=::Send, ^+{=}
-	= & Space::SendSymbolByCaseAndCaps("", "")
+	= & Space::SendSymbolByCaseAndCaps("̄̈", "")
 	= & a::SendSymbolByCaseAndCaps("ǟ", "Ǟ")
 	= & b::SendSymbolByCaseAndCaps("ɓ", "Ɓ")
 	= & c::SendSymbolByCaseAndCaps("", "")
@@ -248,7 +281,7 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	+\::Send, {|}
 	^\::Send, ^{\}
 	^+\::Send, ^+{\}
-	\ & Space::SendSymbolByCaseAndCaps("", "")
+	\ & Space::SendSymbolByCaseAndCaps("̀", "")
 	\ & a::SendSymbolByCaseAndCaps("à", "À")
 	\ & b::SendSymbolByCaseAndCaps("", "")
 	\ & c::SendSymbolByCaseAndCaps("", "")
@@ -282,7 +315,7 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	+6::Send, {^}	
 	^6::Send, ^{6}
 	^+6::Send, ^+{6}
-	6 & Space::SendSymbolByCaseAndCaps("", "")
+	6 & Space::SendSymbolByCaseAndCaps("̂", "")
 	6 & a::SendSymbolByCaseAndCaps("â", "Â")
 	6 & b::SendSymbolByCaseAndCaps("", "")
 	6 & c::SendSymbolByCaseAndCaps("ĉ", "Ĉ")
@@ -317,107 +350,110 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	+,::Send, {<}	
 	^,::Send, ^{,}
 	^+,::Send, ^+{,}
-	, & Space::SendSymbolByCaseAndCaps("", "")
-	, & a::SendSymbolByCaseAndCaps("", "")
+	, & Space::SendSymbolByCaseAndCaps("̧", "")
+	, & a::SendSymbolByCaseAndCaps("ą", "Ą")
 	, & b::SendSymbolByCaseAndCaps("", "")
 	, & c::SendSymbolByCaseAndCaps("ç", "Ç")
 	, & d::SendSymbolByCaseAndCaps("", "")
 	, & e::SendSymbolByCaseAndCaps("ȩ", "Ȩ")
-	, & f::SendSymbolByCaseAndCaps("", "")
+	, & f::SendSymbolByCaseAndCaps("ę", "Ę")
 	, & g::SendSymbolByCaseAndCaps("", "")
 	, & h::SendSymbolByCaseAndCaps("", "")
-	, & i::SendSymbolByCaseAndCaps("", "")
+	, & i::SendSymbolByCaseAndCaps("į", "Į")
 	, & j::SendSymbolByCaseAndCaps("", "")
 	, & k::SendSymbolByCaseAndCaps("", "")
 	, & l::SendSymbolByCaseAndCaps("", "")
 	, & m::SendSymbolByCaseAndCaps("", "")
 	, & n::SendSymbolByCaseAndCaps("", "")
-	, & o::SendSymbolByCaseAndCaps("", "")
+	, & o::SendSymbolByCaseAndCaps("ǫ", "Ǫ")
 	, & p::SendSymbolByCaseAndCaps("", "")
 	, & q::SendSymbolByCaseAndCaps("", "")
 	, & r::SendSymbolByCaseAndCaps("", "")
 	, & s::SendSymbolByCaseAndCaps("ş", "Ş")	
 	, & t::SendSymbolByCaseAndCaps("ţ", "Ţ")
-	, & u::SendSymbolByCaseAndCaps("", "")
+	, & u::SendSymbolByCaseAndCaps("ų", "Ų")
 	, & v::SendSymbolByCaseAndCaps("", "")
 	, & w::SendSymbolByCaseAndCaps("", "")
 	, & x::SendSymbolByCaseAndCaps("", "")
 	, & y::SendSymbolByCaseAndCaps("", "")
 	, & z::SendSymbolByCaseAndCaps("", "")
-	
+
+
 ; *===   "8" + 字母  
 	$8 Up::Send, {8}
 	+8::Send, {*}
 	^8::Send, ^{8}
 	^+8::Send, ^+{8}
-	8 & Space::SendSymbolByCaseAndCaps("", "")
+	8 & Space::SendSymbolByCaseAndCaps("̣", "")
 	8 & a::SendSymbolByCaseAndCaps("ạ", "Ạ")
+	8 & c::SendSymbolByCaseAndCaps("ḅ", "")
 	8 & b::SendSymbolByCaseAndCaps("", "Ḅ")
-	8 & c::SendSymbolByCaseAndCaps("", "")
 	8 & d::SendSymbolByCaseAndCaps("ḍ", "Ḍ")
 	8 & e::SendSymbolByCaseAndCaps("ẹ", "Ẹ")
 	8 & f::SendSymbolByCaseAndCaps("", "")
 	8 & g::SendSymbolByCaseAndCaps("", "")
-	8 & h::SendSymbolByCaseAndCaps("", "")
-	8 & i::SendSymbolByCaseAndCaps("", "")
+	8 & h::SendSymbolByCaseAndCaps("ḥ", "Ḥ")
+	8 & i::SendSymbolByCaseAndCaps("ị", "Ị")
 	8 & j::SendSymbolByCaseAndCaps("", "")
-	8 & k::SendSymbolByCaseAndCaps("", "")
-	8 & l::SendSymbolByCaseAndCaps("", "")
-	8 & m::SendSymbolByCaseAndCaps("", "")
-	8 & n::SendSymbolByCaseAndCaps("", "")
-	8 & o::SendSymbolByCaseAndCaps("", "")
+	8 & k::SendSymbolByCaseAndCaps("ḳ", "Ḳ")
+	8 & l::SendSymbolByCaseAndCaps("ḷ", "Ḷ")
+	8 & m::SendSymbolByCaseAndCaps("ṃ", "Ṃ")
+	8 & n::SendSymbolByCaseAndCaps("ṇ", "Ṇ")
+	8 & o::SendSymbolByCaseAndCaps("ọ", "Ọ")
 	8 & p::SendSymbolByCaseAndCaps("", "")
 	8 & q::SendSymbolByCaseAndCaps("", "")
-	8 & r::SendSymbolByCaseAndCaps("", "")
-	8 & s::SendSymbolByCaseAndCaps("", "")
-	8 & t::SendSymbolByCaseAndCaps("", "")
-	8 & u::SendSymbolByCaseAndCaps("", "")
-	8 & v::SendSymbolByCaseAndCaps("", "")
-	8 & w::SendSymbolByCaseAndCaps("", "")
+	8 & r::SendSymbolByCaseAndCaps("ṛ", "Ṛ")
+	8 & s::SendSymbolByCaseAndCaps("ṣ", "Ṣ")
+	8 & t::SendSymbolByCaseAndCaps("ṭ", "Ṭ")
+	8 & u::SendSymbolByCaseAndCaps("ụ", "Ụ")
+	8 & v::SendSymbolByCaseAndCaps("ṿ", "Ṿ")
+	8 & w::SendSymbolByCaseAndCaps("ẉ", "Ẉ")
 	8 & x::SendSymbolByCaseAndCaps("", "")
-	8 & y::SendSymbolByCaseAndCaps("", "")
-	8 & z::SendSymbolByCaseAndCaps("", "")
-		
+	8 & y::SendSymbolByCaseAndCaps("ỵ", "Ỵ")
+	8 & z::SendSymbolByCaseAndCaps("ẓ", "Ẓ")
+
+
+
 ; *===   "7" + 字母  
 	$7 Up::Send, {7}
 	+7::Send, {&}
 	^7::Send, ^{7}
 	^+7::Send, ^+{7}
-	7 & Space::SendSymbolByCaseAndCaps("", "")
+	7 & Space::SendSymbolByCaseAndCaps("͘", "")
 	7 & a::SendSymbolByCaseAndCaps("ȧ", "Ȧ")
-	7 & b::SendSymbolByCaseAndCaps("", "")
-	7 & c::SendSymbolByCaseAndCaps("", "")
-	7 & d::SendSymbolByCaseAndCaps("", "")
-	7 & e::SendSymbolByCaseAndCaps("", "")
-	7 & f::SendSymbolByCaseAndCaps("", "")
-	7 & g::SendSymbolByCaseAndCaps("", "")
-	7 & h::SendSymbolByCaseAndCaps("", "")
-	7 & i::SendSymbolByCaseAndCaps("", "")
-	7 & j::SendSymbolByCaseAndCaps("", "")
+	7 & b::SendSymbolByCaseAndCaps("ḃ", "Ḃ")
+	7 & c::SendSymbolByCaseAndCaps("ċ", "Ċ")
+	7 & d::SendSymbolByCaseAndCaps("ḋ", "Ḋ")
+	7 & e::SendSymbolByCaseAndCaps("ė", "Ė")
+	7 & f::SendSymbolByCaseAndCaps("ḟ", "Ḟ")
+	7 & g::SendSymbolByCaseAndCaps("ġ", "Ġ")
+	7 & h::SendSymbolByCaseAndCaps("ḣ", "Ḣ")
+	7 & i::SendSymbolByCaseAndCaps("ı", "İ")
+	7 & j::SendSymbolByCaseAndCaps("ȷ", "")
 	7 & k::SendSymbolByCaseAndCaps("", "")
-	7 & l::SendSymbolByCaseAndCaps("", "")
-	7 & m::SendSymbolByCaseAndCaps("", "")
-	7 & n::SendSymbolByCaseAndCaps("", "")
-	7 & o::SendSymbolByCaseAndCaps("", "")
-	7 & p::SendSymbolByCaseAndCaps("", "")
+	7 & l::SendSymbolByCaseAndCaps("ŀ", "Ŀ")
+	7 & m::SendSymbolByCaseAndCaps("ṁ", "Ṁ")
+	7 & n::SendSymbolByCaseAndCaps("ṅ", "Ṅ")
+	7 & o::SendSymbolByCaseAndCaps("ȯ", "Ȯ")
+	7 & p::SendSymbolByCaseAndCaps("ṗ", "Ṗ")
 	7 & q::SendSymbolByCaseAndCaps("", "")
-	7 & r::SendSymbolByCaseAndCaps("", "")
-	7 & s::SendSymbolByCaseAndCaps("", "")
-	7 & t::SendSymbolByCaseAndCaps("", "")
+	7 & r::SendSymbolByCaseAndCaps("ṙ", "Ṙ")
+	7 & s::SendSymbolByCaseAndCaps("ṡ", "Ṡ")
+	7 & t::SendSymbolByCaseAndCaps("ṫ", "Ṫ")
 	7 & u::SendSymbolByCaseAndCaps("", "")
 	7 & v::SendSymbolByCaseAndCaps("", "")
-	7 & w::SendSymbolByCaseAndCaps("", "")
-	7 & x::SendSymbolByCaseAndCaps("", "")
-	7 & y::SendSymbolByCaseAndCaps("", "")
-	7 & z::SendSymbolByCaseAndCaps("", "")
+	7 & w::SendSymbolByCaseAndCaps("ẇ", "Ẇ")
+	7 & x::SendSymbolByCaseAndCaps("ẋ", "Ẋ")
+	7 & y::SendSymbolByCaseAndCaps("ẏ", "Ẏ")
+	7 & z::SendSymbolByCaseAndCaps("ż", "Ż")
 
 ; *===   "." + 字母  
 	$. Up::Send, {.}
 	+.::Send, {>}
 	^.::Send, ^{.}
 	^+.::Send, ^+{.}
-	. & Space::SendSymbolByCaseAndCaps("ɐ", "Ɐ")
-	. & a::SendSymbolByCaseAndCaps("", "")
+	. & Space::SendSymbolByCaseAndCaps("̦", "")
+	. & a::SendSymbolByCaseAndCaps("ɐ", "Ɐ")
 	. & b::SendSymbolByCaseAndCaps("", "")
 	. & c::SendSymbolByCaseAndCaps("ɔ", "Ɔ")
 	. & d::SendSymbolByCaseAndCaps("ʇ", "Ʇ")
@@ -446,10 +482,10 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 
 ; *===   "'" + 字母  
 	$' Up::Send, {'}
-	+'::Send, {""}
+	+'::Send, {"}
 	^'::Send, ^{'}
 	^+'::Send, ^+{'}
-	' & Space::SendSymbolByCaseAndCaps("", "")
+	' & Space::SendSymbolByCaseAndCaps("̆", "")
 	' & a::SendSymbolByCaseAndCaps("ă", "Ă")
 	' & b::SendSymbolByCaseAndCaps("", "")
 	' & c::SendSymbolByCaseAndCaps("", "")
@@ -479,10 +515,10 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 
 ; *===   "[" + 字母  
 	$[ Up::Send, {[}
-	+[::Send, {""}
+	+[::Send, {{}
 	^[::Send, ^{[}
 	^+[::Send, ^+{[}
-	[ & Space::SendSymbolByCaseAndCaps("", "")
+	[ & Space::SendSymbolByCaseAndCaps("̌", "")
 	[ & a::SendSymbolByCaseAndCaps("ǎ", "Ǎ")
 	[ & b::SendSymbolByCaseAndCaps("", "")
 	[ & c::SendSymbolByCaseAndCaps("č", "Č")
@@ -509,7 +545,6 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	[ & x::SendSymbolByCaseAndCaps("", "")
 	[ & y::SendSymbolByCaseAndCaps("ǯ", "Ǯ")
 	[ & z::SendSymbolByCaseAndCaps("ž", "Ž")
-
 
 
 

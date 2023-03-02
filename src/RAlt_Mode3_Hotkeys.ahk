@@ -10,7 +10,7 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 ;*   ============================= 3 花体字母输入模式 ===============================
 #If rAltMode == 3
 
-	F23 & CapsLock::return
+	
 	F23 & Space::return
 	;F23 & Enter::return
 	;F23 & BackSpace::return

@@ -20,70 +20,57 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 
 
 ;*===============窗口上： LWin+鼠标滚轮：窗口置顶/取消置顶， LWin+Shift+鼠标滚轮：调节窗口透明度
-~LWin & WheelUp::
+LWin & WheelUp::
 #F1::
-; 透明度调整，增加。
-	BlockInput, On	;* 新增：阻塞键盘鼠标输入（不含触控板）
-	if (GetKeyState("Shift")){
-		WinGet, Transparent, Transparent,A
-		If (Transparent="")
-			Transparent=255
-		Transparent_New := Transparent + 20    ;◆透明度增加速度。
-		If (Transparent_New > 254)
-			Transparent_New =255
-		WinSet,Transparent,%Transparent_New%,A
-		tooltip now: ▲%Transparent_New%`nmae: __%Transparent%  ;查看当前透明度（操作之后的）。
-		;sleep 1500
-		SetTimer, RemoveToolTip_transparent_Lwin__2016.09.20, 1000  ;设置统一的这个格式，label在最后。
-	}else{
-		WinSet AlwaysOnTop,On,A
-		tooltip, AlwaysOnTop ON
-		SetTimer, RemoveToolTip, -1000
-	}
-	BlockInput, Off
+	SetWindowOnTopOrTransparency_detectKey("Up")
 return
  
-~LWin & WheelDown::
+LWin & WheelDown::
 #F2::
-;透明度调整，减少。
-	BlockInput, On
-	if (GetKeyState("Shift")){
-		WinGet, Transparent, Transparent,A
-		If (Transparent="")
-			Transparent=255
-		Transparent_New := Transparent - 20  ;◆透明度减少速度。
-		If (Transparent_New < 35)    ;◆最小透明度限制。
-			Transparent_New = 35
-		WinSet,Transparent,%Transparent_New%,A
-		tooltip now: ▼%Transparent_New%`nmae: __%Transparent%  ;查看当前透明度（操作之后的）。
-		;sleep 1500
-		SetTimer, RemoveToolTip_transparent_Lwin__2016.09.20, 1000  ;设置统一的这个格式，label在最后。
-	}else{
-		WinSet AlwaysOnTop,Off,A
-		tooltip, AlwaysOnTop OFF
-		SetTimer, RemoveToolTip, -1000
-	}
-	BlockInput, Off
+	SetWindowOnTopOrTransparency_detectKey("Down")
 return
+ 
  
 ;设置Lwin &Mbutton直接恢复透明度到255。
 ~LWin & Mbutton:: 
-	WinGet, Transparent, Transparent,A
-	WinSet,Transparent,255,A 
-	tooltip ▲Restored ;查看当前透明度（操作之后的）。
-	;sleep 1500
-	SetTimer, RemoveToolTip_transparent_Lwin__2016.09.20, 1000  ;设置统一的这个格式，label在最后。
+	SetWindowOnTopOrTransparency_detectKey("Reset")
 return
  
  
-removetooltip_transparent_Lwin__2016.09.20:     ;LABEL
-	tooltip
-	SetTimer, RemoveToolTip_transparent_Lwin__2016.09.20, Off
-return
+
 
 ;* ================ LWin+鼠标左右滚动 切换桌面
-~LWin & WheelLeft::Send, ^#{Left}
-~LWin & WheelRight::Send, ^#{Right}
+; $LWin Up::Send, {LWin}
+$#WheelLeft::Send, ^#{Left}
+$#WheelRight::Send, ^#{Right}
+
+
+
+
+
+;*========== RAlt+方向键 以像素为单位移动鼠标指针, 加上 Shift 后快速移动鼠标
+#If 1
+
+
+
+
+	F23 & RWin::
+		Send, {LButton}
+	return
+
+
+
+	F23 & AppsKey::
+		Send, {RButton}
+	return
+
+
+#If
+
+
+
+
+
 
 
 
@@ -110,7 +97,233 @@ return
 	return
 #If
  
- ;^====================== 键盘相关函数
+ 
+ ;^==================================== 鼠标相关函数 ===========================================
+ 
+;*移动鼠标，Dir=1左，2右，3上，4下； Increment 为每次移动像素点
+MoveMouse(ByRef Dir, Increment, isShowTooptip:=0, isBlockInput := 1)
+{
+	CoordMode,Mouse,Screen	;必须加入，适应多屏幕情况，否则会抽风
+	MouseGetPos,x_pos,y_pos	;获取鼠标位置
+	
+	If(isBlockInput == 1){ ;* 屏蔽外界输入
+		BlockInput, On
+	}
+	
+	;MsgBox,  X:%x_pos% Y:%y_pos%, incr:%Increment%, Dir:%Dir%
+	Switch Dir{	;加入方向增量
+		case "Left", "left", "L", "l", "←":
+			x_pos -= Increment
+		case "Right", "right","R", "r", "→":
+			x_pos += Increment
+		case "Up", "up", "U", "u", "↑":
+			y_pos -= Increment
+		case "Down", "down", "D", "d", "↓":
+			y_pos += Increment
+		default:
+			ShowMsgBoxParameterError("移动鼠标", A_ThisFunc, "方向指令无效，请输入小写字母的 up, down, left, right")
+			BlockInput, Off
+			return
+	}
+	
+	;MsgBox,  X:%x_pos% Y:%y_pos%
+	DllCall("SetCursorPos", "int", x_pos, "int", y_pos)	;移动鼠标指针到指定位置
+	;MsgBox,  X:%x_pos% Y:%y_pos%
+	
+	if(isShowTooptip == 1)
+	{	
+		if(Increment == 1){
+			ShowToolTip("移动鼠标指针, 方向 " . dir, 400)
+		}else{
+			ShowToolTip("快速移动鼠标指针, 方向 " . dir, 400)
+		}
+	}
+	
+	If(isBlockInput == 1){ ;* 恢复外界输入
+		BlockInput, Off
+	}
+}
+
+MoveMouse_detectKey(dir:="")	; 检测按键和 Shift 状态, 用于热键上
+{
+	global g_MouseQuickMoveUnitPixels
+	
+	if (GetKeyState("Shift")){
+		increment := g_MouseQuickMoveUnitPixels
+	}else{
+		increment := 1
+	}
+	
+	;dir := Trim(dir)
+	
+	if(dir == ""){
+		if (InStr(A_ThisHotkey, "Left")){
+			dir := "Left"
+			
+		}else if (InStr(A_ThisHotkey, "Right")){
+			dir := "Right"
+			
+		}else if (InStr(A_ThisHotkey, "Up")){
+			dir := "Up"
+			
+		}else if (InStr(A_ThisHotkey, "Down")){
+			dir := "Down"
+			
+		}			
+	}
+	
+		
+	MoveMouse(dir, increment, 1)
+	
+}
+
+;* 发送鼠标滚动操作
+MouseWheelScroll(ByRef dir, steps:= 1, isShowTooptip:=0, isBlockInput := 1)
+{	
+	If(isBlockInput == 1){ ;* 屏蔽外界输入
+		BlockInput, On
+	}
+
+ 	;* 直接发送鼠标横向滚动键
+	Switch dir{
+		case "Up", "up", "U", "u", "↑":
+			Send, {WheelUp %steps%}
+			strapd := ""
+		case "Down", "down", "D", "d", "↓":
+			Send, {WheelDown %steps%}		
+			strapd := ""
+		case "Left", "left", "L", "l", "←":
+			Send, {WheelLeft %steps%}	
+			strapd := "横向"
+		case "Right", "right","R", "r", "→":
+			Send, {WheelRight %steps%}	
+			strapd := "横向"
+		Default:
+			ShowMsgBoxParameterError("滚动鼠标", A_ThisFunc, "方向指令无效，请输入小写字母的 up, down, left, right")
+			BlockInput, Off
+			return
+	}
+	
+	if(isShowTooptip == 1)
+	{
+		if(steps == 1){
+			ShowToolTip(strapd . "滚动鼠标滚轮, 方向 " . dir, 500)
+		}else{
+			ShowToolTip(strapd . "快速滚动鼠标滚轮, 方向 " . dir, 500)
+		}
+	}
+	
+	If(isBlockInput == 1){ ;* 恢复外界输入
+		BlockInput, Off
+	}
+}
+
+MouseWheelScroll_detectKey(dir:="")	; 检测按键和 Shift 状态, 用于热键上
+{
+	global g_MouseQuickScrollUnit
+	
+	if (GetKeyState("Shift")){
+		increment := g_MouseQuickScrollUnit
+	}else{
+		increment := 1
+	}	
+	
+	if(dir == ""){
+		if (InStr(A_ThisHotkey, "Left")){
+			dir := "Left"
+			
+		}else if (InStr(A_ThisHotkey, "Right")){
+			dir := "Right"
+			
+		}else if (InStr(A_ThisHotkey, "Up")){
+			dir := "Up"
+			
+		}else if (InStr(A_ThisHotkey, "Down")){
+			dir := "Down"
+			
+		}			
+	}	
+	
+	MouseWheelScroll(dir, increment, 1)
+	
+}
+
+
+
+
+
+
+;* 发送方向键
+SendDirectionKey(ByRef dir, steps:= 1, isShowTooptip:=0 , isBlockInput := 1)
+{	
+	If(isBlockInput == 1){ ;* 屏蔽外界输入
+		BlockInput, On
+	}
+	
+ 	;* 直接发送鼠标横向滚动键
+	Switch dir{
+		case "Up", "up", "U", "u", "↑":
+			Send, {Up %steps%}
+		case "Down", "down", "D", "d", "↓":
+			Send, {Down %steps%}		
+		case "Left", "left", "L", "l", "←":
+			Send, {Left %steps%}	
+		case "Right", "right","R", "r", "→":
+			Send, {Right %steps%}	
+		Default:
+			ShowMsgBoxParameterError("发送方向键", A_ThisFunc, "方向指令无效，请输入小写字母的 up, down, left, right")
+			BlockInput, Off
+			return
+	}
+	
+	if(isShowTooptip == 1)
+	{
+		if(steps == 1){
+			;ShowToolTip("正在滚动页面, 方向 " . dir, 300)
+		}else{
+			ShowToolTip("正在发送多次方向键, 方向 " . dir, 300)
+		}
+	}
+	
+	If(isBlockInput == 1){ ;* 恢复外界输入
+		BlockInput, Off
+	}
+}
+
+SendDirectionKey_detectKey(dir:="")	; 检测按键和 Shift 状态, 用于热键上
+{
+	global g_SendDirectionKeyQuickModeUnit
+	
+	if (GetKeyState("Shift")){
+		increment := g_SendDirectionKeyQuickModeUnit
+	}else{
+		increment := 1
+	}	
+	
+	if(dir == ""){
+		if (InStr(A_ThisHotkey, "Left")){
+			dir := "Left"
+			
+		}else if (InStr(A_ThisHotkey, "Right")){
+			dir := "Right"
+			
+		}else if (InStr(A_ThisHotkey, "Up")){
+			dir := "Up"
+			
+		}else if (InStr(A_ThisHotkey, "Down")){
+			dir := "Down"
+			
+		}			
+	}	
+	
+	SendDirectionKey(dir, increment, 1)	
+}
+
+
+
+ 
+ 
+ ;^======================================== 键盘相关函数 ========================================
  ;* 释放 Shift Ctrl Alt 键
 ReleaseShiftCtrlAltKeys(isTurnOffCapsLock := 0, isShowTooptip := 0)
 {
@@ -163,11 +376,11 @@ SwitchCapsLockStatus(status := -1, isShowTooltip := 0)
 			}
 						
 		Default:
-			MsgBox, 0x10, 大写锁定切换, 函数 SwitchCapsLockStatus() 参数不合法！
+			ShowMsgBoxParameterError("大写锁定切换", A_ThisFunc, "参数不合法！请输入 -1 0 或 1")
 	}
 }
  
- 
+
  
  ;^==================================== 输入法相关函数 ==================================
  
@@ -192,7 +405,7 @@ GetCurrentKeyboardLayoutName(InputLocaleID:=0)
 	}
 	
 	if(getLayout == 0){
-		MsgBox, 0x10, 未识别到你的输入法, 程序还没录入当前的输入法，不认识捏
+		ShowMsgBoxError("获取当前输入法", "程序还没录入当前的输入法, 暂时无法识别", A_ThisFunc)
 	}
 	
 	;MsgBox, layoutName: %layoutName%
@@ -236,8 +449,8 @@ SwitchIMEmode()
 			
 	}
 	
-	ReleaseShiftCtrlAltKeys()
-	SetCapsLockState, 0		; 关闭大写锁定，防止抽风
+	ReleaseShiftCtrlAltKeys(1)  ; 关闭大写锁定，施放按键
+	
 }
 
 ;*切换中英标点
@@ -304,6 +517,7 @@ SwitchChineseSimplicatedMode()
 SwitchFullHalfShapeMode()
 {
 	global rime_KeymapChanged
+	global use_RimeInput
 	
 	keylayout := GetCurrentKeyboardLayoutCode()
 
@@ -311,11 +525,28 @@ SwitchFullHalfShapeMode()
 	switch keylayout{
 		case 134481924: ;*中文输入法
 			if(use_RimeInput == 1){	;小狼毫输入法
+			
+				; BlockInput, On
+				
 				if(rime_KeymapChanged == 1){
-					Send, ^+{F21}
-				}else{
 					Send, ^+{F20}
-				}		
+					; Send, {F20}
+				}else{
+					Send, ^+{3}
+					; Send, ^``
+				}
+				; MsgBox, 11
+				; Sleep, 150
+				
+				; Send, {1}
+				; Sleep, 50
+						
+				; Send, {3}
+				; Sleep, 50				
+				
+				; BlockInput, Off
+				
+					
 			}else{
 				
 			}	
@@ -362,9 +593,206 @@ SendHangulKey()
 }
 
 
- 
- 
- 
+
+;^================================= 系统API相关函数  ==============================
+
+;*=== 窗体置顶
+SetWindowOnTopStatus(status := -1)
+{
+	switch status{
+		case 0:
+			WinSet AlwaysOnTop,Off,A
+			ShowToolTip("已取消置顶当前窗口", 1000)
+			
+		case 1:
+			WinSet AlwaysOnTop,On,A
+			ShowToolTip("已置顶当前窗口", 1000)
+			
+		Default:
+			ToggleWindowOnTopStatus() ; 切换置顶/非置顶，
+	}
+}
+
+ToggleWindowOnTopStatus()
+{
+	; Use ExStyle to figure out if AlwaysOnTop is set, and display a ToolTip
+	WinGet, ExStyle, ExStyle, A
+
+	if (ExStyle & 0x8) {	; 窗口已经置顶
+		SetWindowOnTopStatus(0)
+		;ToolTip, AlwaysOnTop - "%title%"
+	} else {		; 窗口没有置顶
+		SetWindowOnTopStatus(1)
+		;ToolTip, Not AlwaysOnTop - "%title%"
+	}	
+}
+
+;*=== 窗体透明度设置
+SetWindowTransparency(ByRef value, isBlockInput := 0)
+{
+	maxTransparency := 255
+	minTransparency := 35
+	
+	if(isBlockInput == 1){
+		BlockInput, On	;* 新增：阻塞键盘鼠标输入（不含触控板）
+	}
+	
+	WinGet, Transparent, Transparent,A ; 获取当前透明度
+	
+	If (Transparent=""){
+		Transparent=255	
+	}	
+	
+		
+	switch value{
+		case "Up", "up", "UP", "Increase", "increase", "U", "u", "↑":
+			Transparent_New := Transparent + 20    ;透明度增加速度。
+			If (Transparent_New >= maxTransparency){		;最大透明度限制。
+				Transparent_New := maxTransparency	
+			}		
+			ShowToolTip("当前窗口透明度：▲ 增加`n   now: " . Transparent_New . "    mae: __" . Transparent , 1000)
+			
+		case "Down", "down", "DN", "Decrease", "decrease", "D", "d", "↓":
+			Transparent_New := Transparent - 20  ;透明度减少速度。
+			If (Transparent_New <= minTransparency) {   ;最小透明度限制。
+				Transparent_New := minTransparency
+			}
+			ShowToolTip("当前窗口透明度：▼ 减少`n   now: " . Transparent_New . "    mae: __" . Transparent , 1000)
+			
+			
+		case "Reset", "reset", "Rst", "rst", "RST":
+			Transparent_New := 255
+			ShowToolTip("当前窗口透明度：◉ 已重置`n ", 1000)
+			
+		Default:
+			if (value is number){
+				If (value >= maxTransparency){		;最大透明度限制。
+					value := maxTransparency	
+				}
+				If (value <= minTransparency) {   ;最小透明度限制。
+					value := minTransparency
+				}				
+				Transparent_New := value
+				
+			}else{
+				ShowMsgBoxParameterError("窗口透明度设置", A_ThisFunc, " 参数错误！, 接收 Up, Down, Reset 这三种字符串，或一个 0-255 的整数值！")
+				
+				BlockInput, Off
+				return
+			}
+			
+		
+	}
+	
+	WinSet,Transparent,%Transparent_New%,A	; 设置透明度
+	
+	
+
+	if(isBlockInput == 1){
+		BlockInput, Off	
+	}
+}
+
+
+SetWindowOnTopOrTransparency_detectKey(dir)
+{
+	switch dir{
+		case "Up", "up", "UP", "Increase", "increase", "U", "u", "↑":
+			if (GetKeyState("Shift")){
+				SetWindowTransparency("Up")
+			}else{
+				SetWindowOnTopStatus(1)
+			}		
+				
+		case "Down", "down", "DN", "Decrease", "decrease", "D", "d", "↓":
+			if (GetKeyState("Shift")){
+				SetWindowTransparency("Down")
+			}else{
+				SetWindowOnTopStatus(0)
+			}
+		case "Toggle", "toggle", "Reset", "reset", "RST":
+			if (GetKeyState("Shift")){
+				SetWindowTransparency("Reset")
+			}else{
+				ToggleWindowOnTopStatus()
+			}			
+		Default:
+			ShowMsgBoxParameterError("窗口透明度设置", A_ThisFunc, "参数错误！请输入 Up/Down/Toggle/Reset")
+		
+	}
+	
+
+}
+
+;*===== 查看当前活动窗口的各项属性
+ShowCurrentWindowInformation()
+{
+	WinGetTitle, form_Title, A
+	WinGetClass, form_Class, A
+	WinGetPos, form_X, form_Y, form_W, form_H, A
+	
+	WinGet, form_ID, ID, A
+	WinGet, form_PID, PID,A
+	WinGet, form_ProcessName, ProcessName,A
+	WinGet, form_ProcessPath, ProcessPath,A
+	
+	WinGet, form_Count, Count,A
+	WinGet, form_Style, Style,A
+	WinGet, form_ExStyle, ExStyle,A		
+	WinGet, form_transparency, Transparent,A
+
+	WinGet, form_ControlListHwnd, ControlListHwnd,A
+	WinGet, form_ControlList, ControlList,A
+	WinGet, form_MinMax, MinMax,A
+	WinGet, form_List, List,A
+
+	switch form_MinMax{
+		case -1:
+			form_MinMax_text := "最大化"
+		case 1:
+			form_MinMax_text := "最小化"
+		case 0:
+			form_MinMax_text := "正常"
+	}
+	
+	
+	str = 
+(
+当前窗口标题: "%form_Title%" 的各项信息如下：
+
+ID (句柄 HWND):	%form_ID%
+PID (进程 PID):	%form_PID%
+Class:		%form_Class%
+进程名:		%form_ProcessName%
+进程路径:	
+       %form_ProcessPath%
+	   
+Count (窗口数量):%form_Count%
+透明度:		%form_transparency%  (范围：0~255)
+位置和大小：	X 座标: %form_X% | Y 座标: %form_Y% | 宽度: %form_W% | 高度: %form_H%
+最大化/最小化:	%form_MinMax%:   %form_MinMax_text%
+List（窗口号）:	%form_List%
+
+
+
+Style:		%form_Style%
+ExStyle:		%form_ExStyle%
+
+ControlListHwnd (窗体中每个控件的唯一 ID 号):
+%form_ControlListHwnd%
+
+ControlList (窗体中每个控件的控件名):
+%form_ControlList%
+
+
+
+)
+
+	MsgBox, 0x1000, 当前窗口信息, %str%
+	
+}
+
+
 ;^==================================== 跑路函数 ==================================
  
  

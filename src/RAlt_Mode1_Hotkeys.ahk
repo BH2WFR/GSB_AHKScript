@@ -10,7 +10,7 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 
 ;*   =========================== 1 编程(C++代码块)模式 =================================
 #If rAltMode == 1
-	F23 & CapsLock::return
+	
 	F23 & Space::SendSymbolByCase("_", "　")
 	;F23 & Enter::return
 	;F23 & BackSpace::return
@@ -96,11 +96,11 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	F23 & e::return
 	F23 & f::return
 	F23 & g::return
-	F23 & h::SendCppSourceTemplate_detectShiftKey()
-	F23 & i::return
-	F23 & j::return
-	F23 & k::return
-	F23 & l::return
+	F23 & h::return
+	F23 & i::SendDirectionKey_detectKey("Up")
+	F23 & j::SendDirectionKey_detectKey("Left")
+	F23 & k::SendDirectionKey_detectKey("Down")
+	F23 & l::SendDirectionKey_detectKey("Right")
 	F23 & m::return
 	F23 & n::return
 	F23 & o::return
