@@ -19,7 +19,7 @@
 GSB_IsInMainScript := 1	
 
 ; 当前版本
-GSB_ScriptVersion := "v0.2.7.dev3"
+GSB_ScriptVersion := "v0.2.8"
 GSB_ScriptUpdateDate := "03 Mar, 2023"
 
 
