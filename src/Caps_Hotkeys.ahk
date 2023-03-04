@@ -159,7 +159,7 @@ F24 & m::return	;
 F24 & n::return	;
 F24 & o::return	;		;
 F24 & p::return	; 
-F24 & q::return	;
+F24 & q::ForceMoveWindowToCenter_detectShiftKey()	;
 F24 & r::return	;
 F24 & s::Run, C:\
 F24 & t::SetWindowOnTopOrTransparency_detectKey("Toggle") ;窗口置顶切换或窗口透明度重置

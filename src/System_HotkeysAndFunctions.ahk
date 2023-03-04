@@ -721,8 +721,83 @@ SetWindowOnTopOrTransparency_detectKey(dir)
 		
 	}
 	
+	
+	
 
 }
+
+;*======= 强制调整窗口大小
+ForceModifyWindowSize(Width:=0, Height:=0, isShowToolTip := 1, ByRef str := "")
+{
+	
+	if(str == ""){  ;字符串未传参或非空
+		str := "已强制修改当前窗口大小"
+	}
+	
+	if(Width > 200){
+		;调整窗体宽度
+		if(str != ""){
+			str := str . ", 宽度调整为:" . Width
+		}
+		
+		WinMove, A, , , , %Width%
+	}
+
+	if(Height > 200){
+		;调整窗体高度
+		if(str != ""){
+			str := str . ", 高度调整为:" . Height
+		}
+		
+		WinMove, A, , , , , %Height%
+	}
+		
+	if(isShowToolTip == 1){
+		ShowToolTip(str, 1000)
+	}
+}
+
+ForceModifyWindowSizeByIncrement(Width_increment:=0, Height_increment:=0)
+{
+	WinGetPos, form_X, form_Y, form_Width, form_Height, A	
+	form_Width += Width_increment
+	form_Height += Height_increment
+	
+	
+	ForceModifyWindowSize(form_Width, form_Height, 0)
+	ShowToolTip("已改变窗口大小, 宽度增加:" . form_Width . ", 高度增加:" . form_Height, 1000)
+	
+}
+
+
+
+;*======= 强制把窗口放到屏幕正中间，并调整大小
+ForceMoveWindowToCenter(Width:=0, Heigth:=0)
+{
+	;ShowToolTip("强制窗口移动到屏幕正中间并调整大小功能: 未开发完毕，敬请等待…", 1000)
+	WinGetPos, form_X, form_Y, form_Width, form_Height, A
+	TargetX := (A_ScreenWidth / 2) - (form_Width / 2)
+	TargetY := (A_ScreenHeight / 2) - (form_Height / 2)
+	
+	; 窗口居中
+	WinMove, A, , %TargetX%, %TargetY%
+	toolTipStr := "已将此窗口强制移动到屏幕正中间"
+	
+	ForceModifyWindowSize(Width, Height, 0, toolTipStr)
+	
+	ShowToolTip(toolTipStr, 1000)
+	
+}
+
+ForceMoveWindowToCenter_detectShiftKey()
+{
+	if (GetKeyState("Shift")){
+		ForceModifyWindowSize(800, 600)
+	}else{
+		ForceMoveWindowToCenter()
+	}
+}
+
 
 ;*===== 查看当前活动窗口的各项属性
 ShowCurrentWindowInformation()

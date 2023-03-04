@@ -35,21 +35,23 @@ ExpandPairedSymbol(ByRef symble)
 			symble := "[[]]"
 		case "'''":
 			symble := "''''''"
+		case "":
+			ShowToolTip("输入对称引号：功能未适配", 500)
 	}	
 }
 
 ;*=== 输入对称的括号等符号(不使用byref)
-SendPairedSymbles(quoteMarksPair){
+SendPairedSymbles(quoteMarksPair:=""){
 
 	
 	ExpandPairedSymbol(quoteMarksPair) ; 如果输入单个符号，则展开
 	
-	
+		
 	
 	slen := StrLen(quoteMarksPair)
 	
 	Switch slen {
-		case 2:
+		case 2:  ;""
 			SendByClipboard(quoteMarksPair, 20)
 			Send, {Left}
 				
@@ -61,11 +63,23 @@ SendPairedSymbles(quoteMarksPair){
 		
 			SendByClipboard(quoteMarksPair, 20)
 			Send, {Left 3}	
-					
+			
+		case 0:
+			ShowToolTip("输入对称引号：功能未适配", 500)		
+				
 		Default:
-			Msgbox, 0x10, 输入对称的括号等符号, 函数 SendPairedSymbles 传参字符串格式错误
+			ShowMsgBoxParameterError("输入对称的括号等符号", A_ThisFunc, "传参字符串格式错误, 请输入字符串长度为 2、4、6 的对称字符！")
 	}
 	
+}
+
+SendPairedSymbles_detectShiftKeys(ByRef lower:="", ByRef upper:="")
+{
+	if (GetKeyState("Shift")){
+		SendPairedSymbles(upper)
+	}else{
+		SendPairedSymbles(lower)
+	}		
 }
 
 ;* 注释当前行代码

@@ -74,17 +74,17 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 			SendBypassIME("*")
 		}
 	return
-	F23 & 9::SendPairedBrackets_detectShiftKey()
+	F23 & 9::SendPairedSymbles_detectShiftKeys("()", "()")
 	F23 & 0::return
 	
 	F23 & -::SendSymbolByCase("->", "_")
 	F23 & =::SendSymbolByCase(":=", "")
 	
-	F23 & [::SendPairedBraces_detectShiftKey()
+	F23 & [::SendPairedSymbles_detectShiftKeys("[]", "{}")
 	F23 & ]::SendIntendedBraces_detectShiftKey()
 	F23 & \::SendSymbolByCase("\", "|")	
 	F23 & `;::SendSymbolByCase(";", ":")
-	F23 & '::SendPairedQuotes_detectShiftKey()
+	F23 & '::SendPairedSymbles_detectShiftKeys("''", """""")
 	F23 & ,::SendSymbolByCase(",", "<")
 	F23 & .::SendSymbolByCase(".", ">")
 	F23 & /::SendSymbolByCase("/", "?")
@@ -93,10 +93,10 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	F23 & b::return
 	F23 & c::return
 	F23 & d::return
-	F23 & e::return
+	F23 & e::SendSymbolByCase("...", "…")
 	F23 & f::return
 	F23 & g::return
-	F23 & h::return
+	F23 & h::SendCppSourceTemplate_detectShiftKey()
 	F23 & i::SendDirectionKey_detectKey("Up")
 	F23 & j::SendDirectionKey_detectKey("Left")
 	F23 & k::SendDirectionKey_detectKey("Down")
@@ -105,7 +105,7 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	F23 & n::return
 	F23 & o::return
 	F23 & p::return
-	F23 & q::return
+	F23 & q::SendPairedSymbles_detectShiftKeys("‹›", "«»")
 	F23 & r::return
 	F23 & s::return
 	F23 & t::return
@@ -119,35 +119,6 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 
 
 
-
-
-
-SendPairedQuotes_detectShiftKey()
-{
-	if (GetKeyState("Shift")){
-		SendPairedSymbles("""""")
-	}else{
-		SendPairedSymbles("''")
-	}	
-}
-
-SendPairedBrackets_detectShiftKey()
-{
-	if (GetKeyState("Shift")){
-		
-	}else{
-		SendPairedSymbles("()")
-	}	
-}
-
-SendPairedBraces_detectShiftKey()
-{
-	if (GetKeyState("Shift")){
-		SendPairedSymbles("{}")
-	}else{
-		SendPairedSymbles("[]")
-	}	
-}
 
 SendIntendedBraces_detectShiftKey()
 {
