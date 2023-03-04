@@ -69,6 +69,10 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	F23 & y::SendSymbolByCaseAndCaps("", "")
 	F23 & z::SendSymbolByCaseAndCaps("ẑ", "Ẑ")
 	
+	F23 & Right::MoveMouse_detectKey()
+	F23 & Left::MoveMouse_detectKey()
+	F23 & Up::MoveMouse_detectKey()
+	F23 & Down::MoveMouse_detectKey()	
 	
 ; ;*=================  模板 误删 ================
 ; ; *===   "=" + 字母  

@@ -43,6 +43,7 @@ GSB_ScriptUpdateDate := "03 Mar, 2023"
 #include .\src\RAlt_Global_Hotkeys.ahk
 #include .\src\RAlt_Mode1_Hotkeys.ahk
 #include .\src\RAlt_Mode2_Hotkeys.ahk
+#include .\src\RAlt_Mode3_Hotkeys.ahk
 
 ;* GUI界面
 #include .\src\GUI_Settings.ahk

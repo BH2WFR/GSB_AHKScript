@@ -8,7 +8,7 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 ; 函数
 
 ;* RAltMode 工具提示，加入对具体模式专用功能开关状态的提示
-AttachRAltModeTooltipString(mode, ByRef str)
+SetRAltMode_AttachRAltModeTooltipString(mode, ByRef str, isSetRAltMode := 0)
 {
 	global flag_remapMinusToUnderline	
 	global rAltMode
@@ -31,8 +31,12 @@ AttachRAltModeTooltipString(mode, ByRef str)
 			str := str . "尚未开发完，敬请等待..."
 		Default:
 			ShowMsgBoxParameterError("切换 RAlt 模式：不支持的值", A_ThisFunc, "无效的 RAlt 值")
+			return
 	}	
 	
+	if(isSetRAltMode == 1){
+		rAltMode := mode
+	}
 	
 }
 
@@ -42,15 +46,15 @@ SetRAltMode(mode)
 	global rAltMode
 	global rAltModeList
 	global flag_remapMinusToUnderline
-	rAltMode := mode
 	
-	str := "已切换到 RAlt 模式  " rAltMode "`t " rAltModeList[rAltMode]
+	
+	str := "已切换到 RAlt 模式  " mode "`t " rAltModeList[mode]
 	
 	; if(mode != 1){
 	; 	lag_remapMinusToUnderline == 0
 	; }
 	
-	AttachRAltModeTooltipString(mode, str)
+	SetRAltMode_AttachRAltModeTooltipString(mode, str, 1)
 	
 	ReleaseShiftCtrlAltKeys()
 	SetCapsLockState, 0		; 关闭大写锁定，防止抽风
@@ -71,7 +75,7 @@ AltModeTestToolTip(ifPressedShift := 0){
 		
 	}
 	
-	AttachRAltModeTooltipString(rAltMode, str)
+	SetRAltMode_AttachRAltModeTooltipString(rAltMode, str)
 	
 	ShowToolTip(str)
 }

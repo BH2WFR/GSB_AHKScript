@@ -58,10 +58,7 @@ F23 & Delete::SetRAltMode(0)	;关闭RAlt模式
 F23 & CapsLock::return
 F23 & Backspace::Send, {Right}{Backspace 2}
 
-F23 & Right::MoveMouse_detectKey()
-F23 & Left::MoveMouse_detectKey()
-F23 & Up::MoveMouse_detectKey()
-F23 & Down::MoveMouse_detectKey()
+
 
 ;^===================================  系统特殊功能：=====================================
 ;系统功能
