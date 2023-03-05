@@ -37,10 +37,10 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	F23 & ]::return
 	F23 & \::return
 	F23 & `;::return
-	F23 & '::return
+	F23 & '::SendPairedSymbles_detectShiftKeys("‹›", "«»")
 	F23 & ,::return
 	F23 & .::return
-	F23 & /::return
+	F23 & /::SendPairedSymbles_detectShiftKeys("¡", "¿")
 	
 	F23 & a::SendSymbolByCaseAndCaps("ä", "Ä")
 	F23 & b::SendSymbolByCaseAndCaps("", "")

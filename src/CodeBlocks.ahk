@@ -188,29 +188,36 @@ SendSymbolByCaseAndCaps(ByRef lower, ByRef upper:="")
 	
 	if(lower == ""){
 		if(upper != ""){	; 如果大写的没传入，则不管按没按shift一律输出小写的
-			SendBypassIME(lower)
+			SendBypassIME(upper) ;lower空，upper有
 			
-		}else{
+		}else{ ;lower空，upper空
 			ShowToolTip("RAlt mode " . rAltMode . ": 未适配当前组合键", 350)
 			return
 		}
 		
 		
-	}else{
-		if(GetKeyState("CapsLock", "T") == 0){ ;caps关闭
-			if (GetKeyState("Shift")){
-				SendBypassIME(upper)
-			}else{
-				SendBypassIME(lower)
-			}	
-				
-		}else{		;caps打开
-			if (GetKeyState("Shift")){
-				SendBypassIME(lower)
-			}else{
-				SendBypassIME(upper)
-			}		
-		}		
+	}else{ ;lower != ""
+		if(upper == ""){
+			SendBypassIME(lower) ;lower有，upper空
+			
+			
+		}else{
+			if(GetKeyState("CapsLock", "T") == 0){ ;caps关闭
+				if (GetKeyState("Shift")){
+					SendBypassIME(upper)
+				}else{
+					SendBypassIME(lower)
+				}	
+					
+			}else{		;caps打开
+				if (GetKeyState("Shift")){
+					SendBypassIME(lower)
+				}else{
+					SendBypassIME(upper)
+				}		
+			}				
+		}
+	
 	}
 
 }
