@@ -6,6 +6,7 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	ExitApp
 }
 
+#If GSB_IsInMainScript == 1
 
 ShowSettingsGUI()
 {
@@ -63,23 +64,53 @@ ShowSettingsGUI()
 			Gui, GuiSettings:Add, Text, x152 y208 w161 h30 +0x200, 作者：BH2WFR
 		Gui, GuiSettings:Font
 	
-	
+	Gui, GuiSettings:Tab, 2
+		
+		
+		
+		
+		
 	Gui, GuiSettings:Tab
 	
 
+	LoadSettings()	;* 加载设置
 	
-	Gui, Show, w618 h420
+	Gui, Show, w618 h420	;* 弹出窗口
+	
 }
 
 Settings_Button_OK:
+	SaveSettings()
+	ShowToolTip("已保存当前更改设置, 并关闭窗口. ", 1000)
+	Gui, GuiSettings:Destroy
 	;MsgBox, test
 return
 	
 Settings_Button_Cancel:
-	ShowToolTip("您刚才关闭了设置窗口，设置未保存")
+	ShowToolTip("您刚才关闭了设置窗口，但是未保存更改的设置. ", 1000)
 	Gui, GuiSettings:Destroy
 return	
 	
 Settings_Button_Apply:
+	SaveSettings()
+	ShowToolTip("已应用当前更改的设置. ", 1000)
 	;MsgBox, test
 return
+
+
+
+;*  保存设置
+SaveSettings()
+{
+	
+}
+
+;* 加载设置
+LoadSettings()
+{
+	
+}
+
+
+#If ;GSB_IsInMainScript == 1
+

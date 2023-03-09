@@ -6,6 +6,8 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	ExitApp
 }
 
+#If GSB_IsInMainScript == 1
+
 ;*=============== 任务栏上：任务栏上滚动鼠标滚轮以调节音量（更新：副屏的任务栏也可以了）
 #if MouseIsOver("ahk_class Shell_TrayWnd") || MouseIsOver("ahk_class Shell_SecondaryTrayWnd")
 	WheelUp::Send {Volume_Up}
@@ -870,44 +872,158 @@ ExStyle:		%form_ExStyle%
 
 
 ;^==================================== 跑路函数 ==================================
+ ;*强制关机
+System_ForceShutdown(waitTime := 15)
+{
+	Run, cmd /c shutdown -s -f -t %waitTime%  ;15秒后强制关机
+}
  
  
+ ;*取消强制关机
+System_CancelShutdown()
+{
+	System_RunCMDCommand("shutdown -a", 0, 1)
+	ShowToolTip("已取消强制关机", 700)
+}
+
+;*== 执行 CMD 命令, 参数 isSilent==2 时根据全局变量 g_isKeepSilentWhileCleaning 决定是否静默运行
+System_RunCMDCommand(ByRef cmdstr, isWait := 1, isSilent := 0)
+{
+	global g_isKeepSilentWhileCleaning
+	
+	if(isSilent == 2){
+		isSilent := g_isKeepSilentWhileCleaning
+	}
+	
+	if(isWait == 1){
+		if(isSilent == 0){
+			RunWait, cmd /c %cmdstr%
+		}else{
+			RunWait, cmd /c %cmdstr%, , Hide
+		}			
+	}else{
+		if(isSilent == 0){
+			Run, cmd /c %cmdstr%
+		}else{
+			Run, cmd /c %cmdstr%, , Hide
+		}			
+	}
+
+}
  ;*== 清除个人电脑中的隐私信息
- DeleteComputerPersonalData()
- {
+DeleteComputerPersonalData()
+{
+	global g_ShutDownAfterCleaning
+	
 	BlockInput, On	;阻塞用户输入增强稳定性	
 	ShowToolTip("开始跑路...", 700)
-	;Sleep, 500
+	
+	Sleep, 500
 	
 	
- 	DeleteComputerEvents()
-	;DeletePersonalFiles()
+
+	DeletePersonalFiles()
 	
+	Extern_PrivacyEraser()
+	Extern_USBOblivion()
 	
-	ShowToolTip("跑路成功！", 1500)
+ 	DeleteComputerEvents()	
+	
+	;Sleep, 20000
+	
+	if(g_ShutDownAfterCleaning == 0){
+		ShowToolTip("跑路成功！", 1500)
+	}else{
+		ShowToolTip("跑路成功！ 15 秒后即将强制关机, 运行 Shutdown -a 撤销关机功能...", 1500)
+		System_ForceShutdown()  ;15秒后强制关机
+	}
+	
 	BlockInput, Off
- }
- 
- DeleteComputerEvents()
- {
+}
+
+;* 删除 Windows 系统所有日志
+DeleteComputerEvents()
+{
+	global g_isKeepSilentWhileCleaning
 	
 	;*== 清除 windows 所有日志
-	Runwait, powershell  -NoProfile -Command "Get-EventLog -LogName * | ForEach { Clear-EventLog $_.Log }"
-	;-NoExit
-	RunWait, cmd /c for /F "tokens=*" `%1 in ('wevtutil.exe el') DO wevtutil.exe cl "`%1"	
- }
- 
- DeletePersonalFiles()
- {
+	ShowToolTip("正在清除所有 Windows 日志...", 1200)
 	
- }
+	if(g_isKeepSilentWhileCleaning == 0){
+		Runwait, powershell  -NoProfile -Command "Get-EventLog -LogName * | ForEach { Clear-EventLog $_.Log }"
+		RunWait, cmd /c for /F "tokens=*" `%1 in ('wevtutil.exe el') DO wevtutil.exe cl "`%1"
+	}else{
+		Runwait, powershell  -NoProfile -Command "Get-EventLog -LogName * | ForEach { Clear-EventLog $_.Log }", , Hide
+		RunWait, cmd /c for /F "tokens=*" `%1 in ('wevtutil.exe el') DO wevtutil.exe cl "`%1", , Hide
+	}	
+	
+}
  
- DeleteAndroidEvents()
- {
+DeletePersonalFiles()
+{
+	
+}
+
+;* ADB 清除安卓手机的所有日志
+DeleteAndroidEvents(loopTime := 3)
+{
+	global g_ADBPath
+	global g_isKeepSilentWhileCleaning
+		
 	;*== 清除adb手机日志
-	ShowToolTip("ADB 清除手机所有日志信息...", 1200)
-	RunWait, cmd /c adb logcat -c -b main -b events -b radio -b system
-	RunWait, cmd /c adb logcat -c -b main -b events -b radio -b system
-	RunWait, cmd /c adb logcat -c -b main -b events -b radio -b system
+	ShowToolTip("正在使用 ADB 清除手机所有日志信息...", 1200)
+	
+	cmdstr := g_ADBPath . " logcat -c -b main -b events -b radio -b system"
+	Loop, %loopTime%{
+		System_RunCMDCommand(cmdstr, 1, 0)
+	}
+	
 	ShowToolTip("已清除手机日志信息...", 1500)
- }
+}
+
+;* 调用 PrivacyEraser 软件 删除电脑上的隐私和系统垃圾
+Extern_PrivacyEraser()
+{
+	global g_isKeepSilentWhileCleaning
+	global g_PrivacyEraserPath
+	
+	ShowToolTip("正在使用 PrivacyEraser 清除电脑痕迹信息...", 800)
+	
+	cmdstr := g_PrivacyEraserPath . " /Clean"
+	
+	if(g_isKeepSilentWhileCleaning == 1){
+		cmdstr := cmdstr . " /Silent"
+	}
+	
+	System_RunCMDCommand(cmdstr, 1, g_isKeepSilentWhileCleaning)
+	
+}
+
+;* 调用 USBOblivion 软件 删除电脑上的所有 USB 使用记录
+Extern_USBOblivion()
+{
+	;cmdstr := """" . g_USBOblivionPath . """"
+	global g_isKeepSilentWhileCleaning
+	global g_USBOblivionPath
+	global g_isRestartExplorerWhileCleaning
+	
+	ShowToolTip("正在使用 USBOblivion 清除电脑 USB 使用记录...", 800)
+	
+	cmdstr := g_USBOblivionPath . " -norestart -auto -enable"
+	
+	if(g_isKeepSilentWhileCleaning == 1){
+		cmdstr := cmdstr . " -silent"
+	}	
+
+	if(g_isRestartExplorerWhileCleaning == 0){
+		cmdstr := cmdstr . " -noexplorer"
+	}	
+		
+	System_RunCMDCommand(cmdstr, 1, g_isKeepSilentWhileCleaning)
+	
+}
+
+
+
+
+#If ;GSB_IsInMainScript == 1

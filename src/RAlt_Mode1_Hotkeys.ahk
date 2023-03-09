@@ -7,6 +7,7 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	ExitApp
 }
 
+#If GSB_IsInMainScript == 1
 
 ;*   =========================== 1 编程(C++代码块)模式 =================================
 #If rAltMode == 1
@@ -162,3 +163,6 @@ SendCppSourceTemplate_detectShiftKey()
 		SendCppHeaderTemplate()
 	}		
 }
+
+#If ;GSB_IsInMainScript == 1
+

@@ -6,6 +6,7 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	ExitApp
 }
 
+#If GSB_IsInMainScript == 1
 ;^ ============================== 运行前检查兼容性并获取管理员权限 ===============================
 
 Progress, b fs20 zh0 W600 H70 C11, GSB_AKHScript  %GSB_ScriptVersion%  启动中..., , , Segoe UI
@@ -94,6 +95,14 @@ use_Anki := 1
 use_AutoCAD := 1
 use_Explorer_CopyFullPath := 1 
 
+;* 跑路功能增强
+g_PrivacyEraserPath := """D:\Portable_Programs\Privacy_Eraser\PrivacyEraser.exe"""
+g_USBOblivionPath := """D:\Portable_Programs\USBOblivion\USBOblivion32.exe"""
+g_ADBPath := "adb"
+
+g_isKeepSilentWhileCleaning := 1
+g_isRestartExplorerWhileCleaning := 0
+g_ShutDownAfterCleaning := 0
 
 
 ; ;* 新版使用类包装所有全局变量定义
@@ -111,3 +120,6 @@ use_Explorer_CopyFullPath := 1
 
 Sleep, 200
 Progress, Off
+
+
+#If ;GSB_IsInMainScript == 1

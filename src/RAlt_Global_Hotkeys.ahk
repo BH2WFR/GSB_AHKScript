@@ -7,6 +7,9 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	ExitApp
 }
 
+#If GSB_IsInMainScript == 1
+
+
 ; 全局热键
 ;* F23 释放时触发正常的 F23 功能，如果在韩文输入法下则输出汉字切换键
 ;$F23 Up::
@@ -123,3 +126,6 @@ F23 & Backspace::Send, {Right}{Backspace 2}
 	F23 & y::return	
 	F23 & z::return	
 #If
+
+
+#If ;GSB_IsInMainScript == 1

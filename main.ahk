@@ -19,8 +19,8 @@
 GSB_IsInMainScript := 1	
 
 ; 当前版本
-GSB_ScriptVersion := "v0.2.9"
-GSB_ScriptUpdateDate := "06 Mar, 2023"
+GSB_ScriptVersion := "v0.2.10"
+GSB_ScriptUpdateDate := "09 Mar, 2023"
 
 
 ;* 启动时检查环境版本 + 定义全局变量

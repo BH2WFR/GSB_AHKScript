@@ -6,6 +6,8 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	ExitApp
 }
 
+#If GSB_IsInMainScript == 1
+
 ;*内容：
 /*
 	1.各式箭头
@@ -19,14 +21,14 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 #If rAltMode == 3
 
 	
-	F23 & Space::SendSymbolByCaseAndCaps("　", "　")
+	F23 & Space::SendSymbolByCaseAndCaps(" ", "　")
 	;F23 & Enter::return
 	;F23 & BackSpace::return
 	
 	F23 & Tab::SendTabs_detectShiftKey()
 	
 	F23 & `::SendSymbolByCase("∽", "≈")
-	
+	 
 	F23 & 1::SendSymbolByCase("", "")
 	F23 & 2::SendSymbolByCase("", "")
 	F23 & 3::SendSymbolByCase("", "")
@@ -43,7 +45,7 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	
 	F23 & [::return
 	F23 & ]::return
-	F23 & \::return
+	F23 & \::SendSymbolByCase("¥", "￥")
 	F23 & `;::return
 	F23 & '::SendPairedSymbles_detectShiftKeys("‹›", "«»")
 	F23 & ,::SendSymbolByCase("≤", "≮")
@@ -201,6 +203,7 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	`; & 0::SendSymbolByCase("〇", "零")
 	`; & -::SendSymbolByCase("十", "拾")
 	`; & =::SendSymbolByCase("百", "佰")
+	`; & \::SendSymbolByCase("元", "圓")
 
 ; ; *===   "'" + 字母  
 	$' Up::Send, {'}
@@ -232,7 +235,7 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	' & 0::SendSymbolByCase("零", "")
 	' & -::SendSymbolByCase("拾", "Ⅹ")
 	' & =::SendSymbolByCase("佰", "")
-	
+	' & \::SendSymbolByCase("¥", "￥")
 ; ; *===   "=" + 字母  
 ; 	$- Up::Send, {-}
 ; 	+-::Send, {_}
@@ -280,3 +283,4 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 
 #If
 
+#If ;GSB_IsInMainScript == 1

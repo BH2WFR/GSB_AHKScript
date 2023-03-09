@@ -6,5 +6,9 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	ExitApp
 }
 
+#If GSB_IsInMainScript == 1
 
+
+
+#If ;GSB_IsInMainScript == 1
 

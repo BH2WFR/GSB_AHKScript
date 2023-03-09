@@ -6,6 +6,8 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	ExitApp
 }
 
+#If GSB_IsInMainScript == 1
+
 
 ;*   ============================= 2 统一字母输入模式 ===============================
 #If rAltMode == 2
@@ -555,3 +557,4 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 
 #If
 
+#If ;GSB_IsInMainScript == 1

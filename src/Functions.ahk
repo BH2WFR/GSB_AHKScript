@@ -7,6 +7,8 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 }
 ; 函数
 
+#If GSB_IsInMainScript == 1
+
 ;* RAltMode 工具提示，加入对具体模式专用功能开关状态的提示
 SetRAltMode_AttachRAltModeTooltipString(mode, ByRef str, isSetRAltMode := 0)
 {
@@ -384,7 +386,7 @@ ReplaceSlashInPath(ByRef str)
 	replaceMode := "0"
 	
 InputToSelectSlashMode:
-	InputBox, replaceMode, 高级粘贴功能: 反斜杠替换, 检测到您复制了一个 Windows 文件路径!`n    您要如何处理这个文件路径中的反斜杠 "`\" 符号`? `n`n  输入"0"或不输入:`t不替换`, 原样粘贴`n  输入"1" 或 输入"`/":`t将反斜杠"`\"替换为斜杠 "`/"`n  输入"2"或输入"`\":`t将反斜杠"`\"替换为双反斜杠"`\`\", , 450, 250
+	InputBox, replaceMode, 高级粘贴功能: 反斜杠替换, 检测到您复制了一个 Windows 下的文件路径!`n    您要如何处理这个文件路径中的反斜杠 "`\" 符号`? `n`n  输入"0"或不输入:`t不替换`, 去除引号后原样粘贴`n  输入"1" 或 输入"`/":`t将反斜杠"`\"替换为斜杠 "`/"`n  输入"2"或输入"`\":`t将反斜杠"`\"替换为双反斜杠"`\`\"`n  输入"3"或输入 ' " ': `t路径两侧加入双引号引用, , 450, 250
 	
 	replaceMode := trim(replaceMode)
 
@@ -397,6 +399,13 @@ InputToSelectSlashMode:
 			;MsgBox, %replaceMode%`n%str%
 		case "2", 2, "２", "\", "\\":	;反斜杠转换成 "\\"
 			str := StrReplace(str, "\", "\\")
+		case "3", 3, "３", """", """""":  ;不改变,但加入两侧双引号
+			str_len := StrLen(str)
+			if(SubStr(str, 1, 1) == """" && SubStr(str, StrLen, 1) == """"){
+				
+			}else{
+				str := """" . str . """"
+			}
 		Default:
 			ShowMsgBoxError("高级粘贴功能: 反斜杠替换", "无效的输入, 请输入合法字符!", A_ThisFunc)
 			goto InputToSelectSlashMode
@@ -406,5 +415,5 @@ InputToSelectSlashMode:
 
 
 
-
+#If ;GSB_IsInMainScript == 1
 

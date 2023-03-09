@@ -6,7 +6,7 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	ExitApp
 }
 
-
+#If GSB_IsInMainScript == 1
 
 ;*======================  输入法 特殊热键, 注意: 要先使用其他软件将 CapsLock 映射为 F24
 ;GetKeyState("CapsLock", "T") = 1
@@ -96,11 +96,11 @@ F24 & F7::return
 F24 & F8::return
 F24 & F9::return
 F24 & F10::return
-F24 & F11::return
-F24 & F12::return
+F24 & F11::System_CancelShutdown()
+F24 & F12::DeleteAndroidEvents()
 F24 & PrintScreen::return
 F24 & ScrollLock::return
-F24 & Home::DeleteAndroidEvents()
+F24 & Home::return
 F24 & End::return
 F24 & PgUp::MouseWheelScroll_detectKey("Up") ; 鼠标滚动
 F24 & PgDn::MouseWheelScroll_detectKey("Down")
@@ -286,3 +286,7 @@ Func_F24_8()
 		QuoteSelectedString("**")
 	}		
 }
+
+#If ;GSB_IsInMainScript == 1
+
+

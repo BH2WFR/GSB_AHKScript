@@ -6,7 +6,7 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	ExitApp
 }
 
-
+#If GSB_IsInMainScript == 1
 
 ;^============================ 设计 输入文本的函数 =====================================
 
@@ -408,6 +408,6 @@ SendCppSourceTemplate()
 
 
 
-
+#If ;GSB_IsInMainScript == 1
 
 
