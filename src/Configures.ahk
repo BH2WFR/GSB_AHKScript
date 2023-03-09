@@ -104,6 +104,11 @@ g_isKeepSilentWhileCleaning := 1
 g_isRestartExplorerWhileCleaning := 0
 g_isShutDownAfterCleaning := 0
 
+g_personalFilePath = 
+(
+	D:\Data\personalFileTest
+	D:\Data\personalFileTest2
+)
 
 ;*从配置文件加载设置到全局变量里面
 LoadSettingsToGlobalVariable()

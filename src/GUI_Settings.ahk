@@ -27,7 +27,7 @@ ShowSettingsGUI()
 	Gui, GuiSettings:Font
 	
 	Gui, GuiSettings:Font, s11, Segoe UI
-	Gui, GuiSettings:Add, Tab3, x8 y24 w599 h343, 关于软件|输入功能相关设置|跑路功能增强设置
+	Gui, GuiSettings:Add, Tab3, x8 y24 w599 h343, 关于软件|输入法设置|输入功能设置|跑路功能增强设置
 	Gui, GuiSettings:Font
 	
 	
@@ -70,7 +70,7 @@ ShowSettingsGUI()
 	Gui, GuiSettings:Tab, 3	
 		
 		
-	;Gui, GuiSettings:Tab, 4	
+	Gui, GuiSettings:Tab, 4	
 		
 	Gui, GuiSettings:Tab
 	
@@ -140,6 +140,7 @@ SaveSettingsFromGlobalVariable()
 	global g_PrivacyEraserPath
 	global g_USBOblivionPath
 	global g_ADBPath
+	global g_personalFilePath
 	global g_isKeepSilentWhileCleaning
 	global g_isRestartExplorerWhileCleaning
 	global g_isShutDownAfterCleaning
@@ -162,6 +163,7 @@ LoadSettingsToGlobalVariable()
 	global g_PrivacyEraserPath
 	global g_USBOblivionPath
 	global g_ADBPath
+	global g_personalFilePath
 	global g_isKeepSilentWhileCleaning
 	global g_isRestartExplorerWhileCleaning
 	global g_isShutDownAfterCleaning

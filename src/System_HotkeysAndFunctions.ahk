@@ -958,9 +958,13 @@ DeleteComputerEvents()
 	}	
 	
 }
- 
+
+;* 清除设定好的个人文件
 DeletePersonalFiles()
 {
+	global g_personalFilePath
+	
+	
 	
 }
 
