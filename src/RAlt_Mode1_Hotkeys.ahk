@@ -19,63 +19,15 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 	F23 & Tab::SendTabs_detectShiftKey()
 	
 	F23 & `::SendSymbolByCase("``", "~")
-	F23 & 1::
-		if (GetKeyState("Shift")){
-			
-		}else{
-			SendBypassIME("!")
-		}
-	return
-	F23 & 2::
-		if (GetKeyState("Shift")){
-			
-		}else{
-			SendBypassIME("@")
-		}
-	return
-	F23 & 3::
-		if (GetKeyState("Shift")){
-			
-		}else{
-			SendBypassIME("#")
-		}
-	return
-	F23 & 4::
-		if (GetKeyState("Shift")){
-			
-		}else{
-			SendBypassIME("$")
-		}
-	return
-	F23 & 5::
-		if (GetKeyState("Shift")){
-			
-		}else{
-			SendBypassIME("%")
-		}
-	return	
-	F23 & 6::
-		if (GetKeyState("Shift")){
-			
-		}else{
-			SendBypassIME("^")
-		}
-	return
-	F23 & 7::
-		if (GetKeyState("Shift")){
-			
-		}else{
-			SendBypassIME("&")
-		}
-	return
-	F23 & 8::
-		if (GetKeyState("Shift")){
-			
-		}else{
-			SendBypassIME("*")
-		}
-	return
-	F23 & 9::SendPairedSymbles_detectShiftKeys("()", "()")
+	F23 & 1::SendSymbolByCase("!", "")
+	F23 & 2::SendSymbolByCase("@", "")
+	F23 & 3::SendSymbolByCase("#", "")
+	F23 & 4::SendSymbolByCase("$", "")
+	F23 & 5::SendSymbolByCase("%", "")
+	F23 & 6::SendSymbolByCase("^", "")
+	F23 & 7::SendSymbolByCase("&", "")
+	F23 & 8::SendSymbolByCase("*", "")
+	F23 & 9::SendPairedSymbles_detectShiftKeys("()", "")
 	F23 & 0::return
 	
 	F23 & -::SendSymbolByCase("->", "_")

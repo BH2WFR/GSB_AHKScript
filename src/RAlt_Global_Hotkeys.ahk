@@ -12,10 +12,8 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 
 ; 全局热键
 ;* F23 释放时触发正常的 F23 功能，如果在韩文输入法下则输出汉字切换键
-;$F23 Up::
 $F23::
-	
-	If(1 == IsInKoreanLayout()){	;* 如果处于韩文输入法下
+	If(68289554 == GetCurrentKeyboardLayoutCode()){	;* 如果处于韩文输入法下
 		SendHanjaKey()	; 汉字切换
 	}else{
 		Send {F23} ; 释放正常 RAlt 点击

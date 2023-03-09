@@ -12,7 +12,10 @@ ShowSettingsGUI()
 {
 	global GSB_ScriptVersion
 	global GSB_ScriptUpdateDate
-	guiTitle := "软件设置和关于页面：" . "GSB_AHKScript " . GSB_ScriptVersion
+	global GSB_CurrentSoftwareName
+	
+	
+	guiTitle := "软件设置和关于页面：" . GSB_CurrentSoftwareName . " " . GSB_ScriptVersion
 	
 	Gui, GuiSettings:New, ,%guiTitle%
 	Gui, GuiSettings:Font, s12, Segoe UI
@@ -21,13 +24,13 @@ ShowSettingsGUI()
 	;Gui, GuiSettings:Add, Text,, %guiTitle%
 	
 	Gui, GuiSettings:Font, s12, Segoe UI
-	Gui, GuiSettings:Add, Button, gSettings_Button_OK x280 y376 w107 h31 +0x8000000, 确定(&O)
+	Gui, GuiSettings:Add, Button, gSettings_Button_OK x280 y376 w107 h31 +0x0000000, 确定(&O)
 	Gui, GuiSettings:Add, Button, gSettings_Button_Cancel  x392 y376 w107 h31, 取消(&C)
-	Gui, GuiSettings:Add, Button, gSettings_Button_Apply x504 y376 w107 h31 +0x8000000, 应用(&A)
+	Gui, GuiSettings:Add, Button, gSettings_Button_Apply x504 y376 w107 h31 +0x0000000, 应用(&A)
 	Gui, GuiSettings:Font
 	
-	Gui, GuiSettings:Font, s11, Segoe UI
-	Gui, GuiSettings:Add, Tab3, x8 y24 w599 h343, 关于软件|输入法设置|输入功能设置|跑路功能增强设置
+	Gui, GuiSettings:Font, s10, Segoe UI
+	Gui, GuiSettings:Add, Tab3, x8 y24 w599 h343, 关于软件|功能设置|输入法设置|跑路功能设置
 	Gui, GuiSettings:Font
 	
 	
@@ -63,7 +66,12 @@ ShowSettingsGUI()
 		Gui, GuiSettings:Font, s11 cPurple, Segoe UI
 			Gui, GuiSettings:Add, Text, x152 y208 w161 h30 +0x200, 作者：BH2WFR
 		Gui, GuiSettings:Font
-	
+		
+		Gui GuiSettings:Font, s11 cRed, Consolas
+			configPath := GetRegPath()
+			Gui GuiSettings:Add, Text, x40 y144 w542 h45 +0x200, 配置文件(注册表)路径:  %configPath%\
+		Gui GuiSettings:Font
+
 	Gui, GuiSettings:Tab, 2
 		
 		
@@ -75,7 +83,7 @@ ShowSettingsGUI()
 	Gui, GuiSettings:Tab
 	
 
-	LoadGlobalVariableToGUI()	;* 加载设置
+	LoadSettingsToGUI()	;* 加载设置
 	
 	Gui, Show, w618 h420	;* 弹出窗口
 	
@@ -84,7 +92,7 @@ ShowSettingsGUI()
 
 ;* 按钮事件函数
 Settings_Button_OK:
-	SaveGUISettings()
+	SaveSettingsFronGUI()
 	ShowToolTip("已保存当前更改设置, 并关闭窗口. ", 1000)
 	Gui, GuiSettings:Destroy
 	;MsgBox, test
@@ -96,83 +104,77 @@ Settings_Button_Cancel:
 return	
 	
 Settings_Button_Apply:
-	SaveGUISettings()
+	SaveSettingsFronGUI()
 	ShowToolTip("已应用当前更改的设置. ", 1000)
 	;MsgBox, test
 return
 
 
-;* GUI中保存设置
-SaveGUISettings()
-{
-	SaveGUIConfigureToGlobalVariable()
-	SaveSettingsFromGlobalVariable()
-}
 
-;*  保存当前设置窗口设置内容到全局变量里面
-SaveGUIConfigureToGlobalVariable()
+;*  保存当前设置
+SaveSettingsFronGUI()
 {
+	;软件相关
+	global GSB_ScriptVersion
 	
+	;基本设置
+	global rAltMode
+	;global flag_remapMinusToUnderline
+	
+	;输入法相关
+	global g_chineseInputMode
+	
+	;跑路功能
+	global g_PrivacyEraserPath
+	global g_USBOblivionPath
+	global g_ADBPath
+	global g_personalFilePath
+	
+	global g_isKeepSilentWhileCleaning
+	global g_isRestartExplorerWhileCleaning
+	global g_isShutDownAfterCleaning
+	
+	
+	
+	
+	
+		
+	SaveSettings() ;再把全局变量保存到配置文件里面
 }
 
 ;*加载全局变量到设置窗口里面
-LoadGlobalVariableToGUI()
+LoadSettingsToGUI()
 {
+	;软件相关
+	global GSB_ScriptVersion
 	
-}
-
-
-
-
-
-
-
-;^========================== 配置文件相关 ==================================
-
-;*  保存当前全局变量到设置文件里面
-SaveSettingsFromGlobalVariable()
-{
+	;基本设置
 	global rAltMode
+	;global flag_remapMinusToUnderline
 	
-	global use_RimeInput	
-	global rime_KeymapChanged
-
+	;输入法相关
+	global g_chineseInputMode
+	
+	;跑路功能
 	global g_PrivacyEraserPath
 	global g_USBOblivionPath
 	global g_ADBPath
 	global g_personalFilePath
+	
 	global g_isKeepSilentWhileCleaning
 	global g_isRestartExplorerWhileCleaning
 	global g_isShutDownAfterCleaning
 	
 	
 	
-	
-	
-	
+		
 }
 
-;* 加载配置文件到全局变量
-LoadSettingsToGlobalVariable()
-{
-	global rAltMode
-	
-	global use_RimeInput	
-	global rime_KeymapChanged
 
-	global g_PrivacyEraserPath
-	global g_USBOblivionPath
-	global g_ADBPath
-	global g_personalFilePath
-	global g_isKeepSilentWhileCleaning
-	global g_isRestartExplorerWhileCleaning
-	global g_isShutDownAfterCleaning
-	
-	
-	
-	
-	
-}
+
+
+
+
 
 
 

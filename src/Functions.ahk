@@ -61,9 +61,13 @@ SetRAltMode(mode)
 	ReleaseShiftCtrlAltKeys()
 	SetCapsLockState, 0		; 关闭大写锁定，防止抽风
 	
+	SaveSettings(0) ;* 保存设置到配置文件里面
+	
 	ShowToolTip(str)
 	
 }
+
+
 
 ;*==== 工具提示条显示当前模式
 AltModeTestToolTip(ifPressedShift := 0){
@@ -237,13 +241,15 @@ SwitchRemapMinusToUnderline()
 		if(flag_remapMinusToUnderline == 1){
 			flag_remapMinusToUnderline := 0
 			ShowToolTip("已关闭 减号_下划线交换功能！", 800)
-			;MsgBox, %flag_remapMinusToUnderline%
+			
 		}else{  ; flag_remapMinusToUnderline==0
 			flag_remapMinusToUnderline := 1
 			ShowToolTip("已开启 减号_下划线交换功能！", 800)
-			;MsgBox, %flag_remapMinusToUnderline%
 			
 		}		
+		
+		
+		
 	}else{
 		flag_remapMinusToUnderline := 0
 		ShowToolTip("非 Mode 1 模式下无法使用 减号_下划线交换功能！", 800)
@@ -414,6 +420,236 @@ InputToSelectSlashMode:
 }
 
 
+
+;*^============================= 注册表和配置相关函数 ============================
+;*   默认注册表目录:   HKEY_CURRENT_USER\Software\GSB_AHKScript
+;	WriteRegKey("test1", "shabi22", "REG_SZ", "TEST") ;\TEST子目录, 
+;						即放到HKEY_CURRENT_USER\Software\GSB_AHKScript\TEST 下
+;	WriteRegKey("test1", "shabi22", "REG_SZ", "")     ;软件配置根目录
+;	testvar := GetRegKey("test1", "TEST")  		;\TEST子目录
+;	testvar := GetRegKey("test1", "")				;软件配置根目录
+;   ReadRegKey("rAltMode", rAltMode, "")
+
+;* 写入注册表键值, subPath格式: 保持空值 或 输入如 "IME" 或 "IME\Path", 左右两侧没有斜杠
+WriteRegKey(ByRef name, ByRef value, ByRef type := "REG_SZ", ByRef subPath := "")
+{
+	regPath := GetRegPath(subPath)
+	
+	StringUpper, type, type
+	
+	name := Trim(name)
+	value := Trim(value)
+	
+	switch type{
+		case "REG_SZ", "SZ", "S":
+			RegWrite, REG_SZ, %regPath%, %name%, %value%
+			
+		case "REG_EXPAND_SZ", "EXPAND_SZ", "EXPAND", "E":
+			RegWrite, REG_EXPAND_SZ, %regPath%, %name%, %value%
+			
+		case "REG_MULTI_SZ", "MULTI_SZ", "MULTI", "M":
+			RegWrite, REG_MULTI_SZ, %regPath%, %name%, %value%
+			
+		case "REG_DWORD", "DWORD", "D":
+			RegWrite, REG_DWORD, %regPath%, %name%, %value%
+			
+		case "REG_BINARY", "BINARY", "B":
+			RegWrite, REG_BINARY, %regPath%, %name%, %value%
+			
+		default:
+			;MsgBox, %type%
+			ShowMsgBoxParameterError("注册表写入设置项功能", A_ThisFunc, "参数错误！请输入 REG_SZ, REG_EXPAND_SZ, REG_MULTI_SZ, REG_DWORD, 或 REG_BINARY")
+	}
+}
+
+
+GetRegKey(ByRef name, ByRef subPath := "")
+{
+	regPath := GetRegPath(subPath)
+	name := Trim(name)
+	
+	RegRead, output, %regPath%, %name% ; OutputVar是一个临时变量
+	
+	output := Trim(output)
+	return output
+	
+}
+
+
+ReadRegKey(ByRef name, ByRef var, ByRef subPath := "")
+{
+	getvar := GetRegKey(name, subPath)
+	
+	getVar := Trim(getvar)
+	
+	if(getVar != ""){ ;* 确保注册表有这个项, 没有的话就不动
+		var := getVar
+		
+	}else{
+		;* 注册表没有这个项，则保持全局变量中的默认设定
+		;MsgBox, 0x1000, , %name% 不存在
+	}
+}
+
+GetRegPath(ByRef subPath := "")
+{
+	global GSB_CurrentSoftwareName
+	
+	subPath := trim(subPath)
+	
+	if(subPath == ""){
+		regPath := "HKEY_CURRENT_USER\SOFTWARE\" . GSB_CurrentSoftwareName
+	}else{
+		regPath := "HKEY_CURRENT_USER\SOFTWARE\" . GSB_CurrentSoftwareName . "\" . subPath
+	}
+	
+	return regPath	
+}
+
+
+;*  保存当前全局变量到设置文件里面
+SaveSettings(operateCleanerSettings := 1)
+{
+	_OperateSettingsAndGlobalVariable(0, operateCleanerSettings)
+}
+
+;* 加载配置文件到全局变量
+LoadSettings()
+{
+	_OperateSettingsAndGlobalVariable(1)
+}
+
+
+_OperateSettingsAndGlobalVariable(isRead, operateCleanerSettings := 1) ;* 1读 2写
+{
+	;软件相关
+	global GSB_ScriptVersion
+	
+	;基本设置
+	global rAltMode
+	;global flag_remapMinusToUnderline
+	
+	;输入法相关
+	global g_chineseInputMode
+	
+	;跑路功能
+	global g_PrivacyEraserPath
+	global g_USBOblivionPath
+	global g_ADBPath
+	global g_personalFilePath
+	
+	global g_isKeepSilentWhileCleaning
+	global g_isRestartExplorerWhileCleaning
+	global g_isShutDownAfterCleaning
+	
+	if(isRead == 1){ ;* 读
+		ReadRegKey("rAltMode", rAltMode, "Basic")
+		
+		ReadRegKey("chineseInputMode", g_chineseInputMode, "IME")
+		
+		if(operateCleanerSettings == 1){
+			ReadRegKey("PrivacyEraserPath", g_PrivacyEraserPath, "Cleaner")
+			ReadRegKey("USBOblivionPath",   g_USBOblivionPath,   "Cleaner")
+			ReadRegKey("ADBPath",           g_ADBPath,           "Cleaner")
+			ReadRegKey("personalFilePath",  g_personalFilePath,  "Cleaner")
+			
+			ReadRegKey("isKeepSilentWhileCleaning", g_isKeepSilentWhileCleaning, "Cleaner")
+			ReadRegKey("isRestartExplorerWhileCleaning", g_isRestartExplorerWhileCleaning, "Cleaner")
+			ReadRegKey("isShutDownAfterCleaning", g_isShutDownAfterCleaning, "Cleaner")			
+		}				
+		
+	}else{ ;* 写
+		
+		
+		WriteRegKey("rAltMode", rAltMode, "REG_DWORD", "Basic")
+		
+		WriteRegKey("chineseInputMode", g_chineseInputMode, "REG_DWORD", "IME")
+		
+		if(operateCleanerSettings == 1){
+			WriteRegKey("PrivacyEraserPath", g_PrivacyEraserPath, "REG_SZ", "Cleaner")
+			WriteRegKey("USBOblivionPath",   g_USBOblivionPath,   "REG_SZ", "Cleaner")
+			WriteRegKey("ADBPath",           g_ADBPath,           "REG_SZ", "Cleaner")
+			WriteRegKey("personalFilePath",  g_personalFilePath,  "REG_SZ", "Cleaner")
+			
+			WriteRegKey("isKeepSilentWhileCleaning", g_isKeepSilentWhileCleaning, "REG_DWORD", "Cleaner")
+			WriteRegKey("isRestartExplorerWhileCleaning", g_isRestartExplorerWhileCleaning, "REG_DWORD", "Cleaner")
+			WriteRegKey("isShutDownAfterCleaning", g_isShutDownAfterCleaning, "REG_DWORD", "Cleaner")			
+		}	
+		
+		
+	}
+}
+
+;* 软件启动时检查安装版本
+CheckScriptVersionAndWrite()
+{
+	global GSB_ScriptVersion
+	
+	ReadRegKey("installedVersion", lastVersion, "")
+	
+	if(lastVersion == ""){ ;* 第一次运行
+		MsgBox, 0x1040, 欢迎使用, 检测到您第一次运行这个脚本, `n请查看使用说明和更新日志!`n`n 当前版本号: %GSB_ScriptVersion%
+	}else{
+		If (VerCompare(GSB_ScriptVersion, lastVersion) < 0){ ;*降级运行
+			MsgBox, 0x1040, 降级运行脚本, 检测到您正在降级运行脚本`, 可能会导致不可预料的错误`n`n 原版本号: %lastVersion%`, 当前版本号: %GSB_ScriptVersion%
+			;ExitApp
+			
+		}else if (VerCompare(GSB_ScriptVersion, lastVersion) > 0){ ;*升级运行
+			MsgBox, 0x1040, 脚本已升级, 脚本已升级`, 请查看更新日志!`n`n 原版本号: %lastVersion%`, 当前版本号: %GSB_ScriptVersion%
+		}		
+	}
+	
+
+	;* 获取当前时间
+	currentTime :=  A_YYYY . "-" . A_MM . "-" . A_DD . ", " . A_Hour . ":" .  A_Min . ":" . A_Sec
+	
+	;* 写入版本和时间
+	WriteRegKey("installedVersion", GSB_ScriptVersion, "REG_SZ", "")
+	WriteRegKey("lastExecuteTime", currentTime, "REG_SZ", "")
+	WriteRegKey("OSType", A_OSType, "REG_SZ", "")
+	WriteRegKey("OSVersion", A_OSVersion, "REG_SZ", "")
+}
+
+;*=================== 检查系统版本 ===============
+CheckSystemVersion()
+{
+	If(A_OSVersion == "WIN_2000" || A_OSVersion == "WIN_XP" || A_OSVersion == "WIN_2003" || A_OSType == "WIN32_WINDOWS"){
+		Msgbox, 0x10, 不支持的操作系统, 你的 Windows 操作系统版本 %A_OSType% %A_OSVersion% 不支持此脚本的一些功能！`n  请使用至少 Windows Vista (NT 6.0) 以上的系统！
+		ExitApp
+	}	
+}
+
+;*================== 检查 AutoHotkey 版本============
+CheckAHKVersion()
+{
+	If (VerCompare(A_AhkVersion, "<= 1.1")){
+		Msgbox, 0x10, 不支持的 AutoHotkey 解释器版本, 您的 AutoHotkey 解释器版本 v%A_AhkVersion% 太低 `n  请使用 AutoHotkey v1.1.x 的版本（也不支持使用 v2 及以上版本）运行！
+		ExitApp
+	}else if (VerCompare(A_AhkVersion, ">= 2")){
+		Msgbox, 0x10, 不支持的 AutoHotkey 解释器版本, 这是一个基于 AutoHotkey v1.1.x 的脚本，`n  不可以使用 v2 及以上版本运行，因为 AutoHotkey v1 和 v2 互不兼容！
+		ExitApp
+	}else{
+		
+	}	
+}
+
+;*==================  申请管理员权限 ==================
+RunThisScriptAsAdmin()
+{
+	full_command_line := DllCall("GetCommandLine", "str")
+
+	if (!(A_IsAdmin or RegExMatch(full_command_line, " /restart(?!\S)")))
+	{
+		try
+		{
+			if (A_IsCompiled)
+				Run *RunAs "%A_ScriptFullPath%" /restart
+			else
+				Run *RunAs "%A_AhkPath%" /restart "%A_ScriptFullPath%"
+		}
+		ExitApp
+	}	
+}
 
 #If ;GSB_IsInMainScript == 1
 

@@ -112,18 +112,20 @@ MoveMouse(ByRef Dir, Increment, isShowTooptip:=0, isBlockInput := 1)
 		BlockInput, On
 	}
 	
+	StringUpper, Dir, Dir
+	
 	;MsgBox,  X:%x_pos% Y:%y_pos%, incr:%Increment%, Dir:%Dir%
 	Switch Dir{	;加入方向增量
-		case "Left", "left", "L", "l", "←":
+		case "LEFT", "L", "←":
 			x_pos -= Increment
-		case "Right", "right","R", "r", "→":
+		case "RIGHT","R", "→":
 			x_pos += Increment
-		case "Up", "up", "U", "u", "↑":
+		case "UP", "U", "↑":
 			y_pos -= Increment
-		case "Down", "down", "D", "d", "↓":
+		case "DOWN", "D", "↓":
 			y_pos += Increment
 		default:
-			ShowMsgBoxParameterError("移动鼠标", A_ThisFunc, "方向指令无效，请输入小写字母的 up, down, left, right")
+			ShowMsgBoxParameterError("移动鼠标", A_ThisFunc, "方向指令无效，请输入 up, down, left, right")
 			BlockInput, Off
 			return
 	}
@@ -185,23 +187,25 @@ MouseWheelScroll(ByRef dir, steps:= 1, isShowTooptip:=0, isBlockInput := 1)
 	If(isBlockInput == 1){ ;* 屏蔽外界输入
 		BlockInput, On
 	}
-
+	
+	StringUpper, dir, dir
+	
  	;* 直接发送鼠标横向滚动键
 	Switch dir{
-		case "Up", "up", "U", "u", "↑":
+		case "UP", "U", "↑":
 			Send, {WheelUp %steps%}
 			strapd := ""
-		case "Down", "down", "D", "d", "↓":
+		case "DOWN", "D", "↓":
 			Send, {WheelDown %steps%}		
 			strapd := ""
-		case "Left", "left", "L", "l", "←":
+		case "LEFT", "L", "←":
 			Send, {WheelLeft %steps%}	
 			strapd := "横向"
-		case "Right", "right","R", "r", "→":
+		case "RIGHT","R", "→":
 			Send, {WheelRight %steps%}	
 			strapd := "横向"
 		Default:
-			ShowMsgBoxParameterError("滚动鼠标", A_ThisFunc, "方向指令无效，请输入小写字母的 up, down, left, right")
+			ShowMsgBoxParameterError("滚动鼠标", A_ThisFunc, "方向指令无效，请输入 up, down, left, right")
 			BlockInput, Off
 			return
 	}
@@ -262,18 +266,20 @@ SendDirectionKey(ByRef dir, steps:= 1, isShowTooptip:=0 , isBlockInput := 1)
 		BlockInput, On
 	}
 	
+	StringUpper, dir, dir
+	
  	;* 直接发送鼠标横向滚动键
 	Switch dir{
-		case "Up", "up", "U", "u", "↑":
+		case "UP", "U", "↑":
 			Send, {Up %steps%}
-		case "Down", "down", "D", "d", "↓":
+		case "DOWN", "D", "↓":
 			Send, {Down %steps%}		
-		case "Left", "left", "L", "l", "←":
+		case "LEFT", "L", "←":
 			Send, {Left %steps%}	
-		case "Right", "right","R", "r", "→":
+		case "RIGHT","R", "→":
 			Send, {Right %steps%}	
 		Default:
-			ShowMsgBoxParameterError("发送方向键", A_ThisFunc, "方向指令无效，请输入小写字母的 up, down, left, right")
+			ShowMsgBoxParameterError("发送方向键", A_ThisFunc, "方向指令无效，请输入 up, down, left, right")
 			BlockInput, Off
 			return
 	}
@@ -330,7 +336,8 @@ SendDirectionKey_detectKey(dir:="")	; 检测按键和 Shift 状态, 用于热键
 ReleaseShiftCtrlAltKeys(isTurnOffCapsLock := 0, isShowTooptip := 0)
 {
 	Send, {Ctrl Up}{Alt Up}{Shift Up}
-
+	BlockInput, Off
+	
 	if(isTurnOffCapsLock == 1){	;* 是否释放CapsLock
 		SetCapsLockState, 0
 		
@@ -432,16 +439,67 @@ GetCurrentKeyboardLayoutCode()
 	return InputLocaleID
 }
 
-;* 切换输入法中英/韩英问状态，适用于
+;* 弹出小狼毫菜单
+ShowRimeImputMenu(isGoToSecondMenu := 0, isBlockInput := 0)
+{
+	global g_chineseInputMode
+	
+	;* 如果不处于中文输入法下则退出
+	if(134481924 != GetCurrentKeyboardLayoutCode()){ 
+		return
+	}	
+	
+	if(isBlockInput == 1){
+		BlockInput, On
+	}	
+	
+	switch g_chineseInputMode{	;中文输入法哪种?
+		case 1:
+			Send, ^``
+			
+		case 2:
+			Send, {F20} ;*小狼毫魔改
+			
+		Default:
+			BlockInput, Off
+			return ;其他输入法没这个功能!
+	}	
+	
+	
+	if(isGoToSecondMenu == 1){
+		Sleep, 150
+		Send, {1}
+		Sleep, 50
+	}
+}
+
+
+;* 切换输入法 中英/韩英/日英 状态
 SwitchIMEmode()
 {
+	global g_chineseInputMode
+	
 	layout := GetCurrentKeyboardLayoutCode() ; 获取当前的输入法
 	switch (layout){
 		case 134481924:	; Chinese_Simp
-			If(rime_KeymapChanged == 0){	;切换汉英
-				Send, ^+{F4}
-			}else{
-				Send, ^{F20} 
+			switch g_chineseInputMode{	;切换汉英
+				case 1:
+					Send, ^+{F4}
+					
+				case 2:
+					Send, ^{F20} ;*小狼毫魔改
+					
+				case 10:
+					Send, {Shift}
+					
+				case 11:
+					Send, {Ctrl}
+					
+				case 12:
+					Send, ^{Space}
+				
+				Default:
+					
 			}
 			
 		case 68289554:	; Korean	要求：设置中关闭 RAlt 映射到韩英切换键，改为专用的 韩文切换键
@@ -458,57 +516,61 @@ SwitchIMEmode()
 ;*切换中英标点
 SwitchPunctuationMode()
 {
-	global rime_KeymapChanged
-	global use_RimeInput
+	global g_chineseInputMode
 	
 	;* 如果不处于中文输入法下则退出
 	if(134481924 != GetCurrentKeyboardLayoutCode()){ 
 		return
 	}
 	
-	if(use_RimeInput == 1){
-		BlockInput, On	;阻塞用户输入增强稳定性	
+	switch g_chineseInputMode{	;切换中英标点
+		case 1:
+			ShowRimeImputMenu(1,1)
+			Send, {5}
+			Sleep, 50
+			BlockInput, Off	
+			
+		case 2:
+			ShowRimeImputMenu(1,1)
+			Send, {5}
+			Sleep, 50
+			BlockInput, Off	
+			
+		case 10, 11, 12:
+			Send, ^{.}
 		
-		if(rime_KeymapChanged == 1){
-			Send, {F20}
-		}else{
-			Send, ^``
-		}
-		Sleep, 150
+		Default:
+			
+	}	
 		
-		Send, {1}
-		Sleep, 50
-				
-		Send, {5}
-		Sleep, 50
-		
-		BlockInput, Off	
-	}
-	
 	ShowToolTip("已切换 全角/半角标点 模式", 500)
+	return
 	
-	
+
 	
 }
 
 ;*简繁体切换
 SwitchChineseSimplicatedMode()
 {
-	global rime_KeymapChanged
-	global use_RimeInput
+	global g_chineseInputMode
 	
 	;* 如果不处于中文输入法下则退出
 	if(134481924 != GetCurrentKeyboardLayoutCode()){ 
 		return
 	}	
 	
-	if(use_RimeInput == 1){
-		if(rime_KeymapChanged == 1){
-			Send, ^+{F21}
-		}else{
+	switch g_chineseInputMode{	;切换汉英
+		case 1:
 			Send, ^+{4}
-		}		
-	}else{
+			
+		case 2:
+			Send, ^+{F21} ;*小狼毫魔改
+			
+		case 10, 11, 12:
+			Send, ^+{F}
+			
+		Default:
 		
 	}
 	
@@ -518,42 +580,29 @@ SwitchChineseSimplicatedMode()
 ;*全角半角切换
 SwitchFullHalfShapeMode()
 {
-	global rime_KeymapChanged
-	global use_RimeInput
+	global g_chineseInputMode
 	
 	keylayout := GetCurrentKeyboardLayoutCode()
 
 	
 	switch keylayout{
 		case 134481924: ;*中文输入法
-			if(use_RimeInput == 1){	;小狼毫输入法
-			
-				; BlockInput, On
-				
-				if(rime_KeymapChanged == 1){
-					Send, ^+{F20}
-					; Send, {F20}
-				}else{
+			switch g_chineseInputMode{	;切换汉英
+				case 1:
 					Send, ^+{3}
-					; Send, ^``
-				}
-				; MsgBox, 11
-				; Sleep, 150
-				
-				; Send, {1}
-				; Sleep, 50
-						
-				; Send, {3}
-				; Sleep, 50				
-				
-				; BlockInput, Off
-				
 					
-			}else{
-				
-			}	
+				case 2:
+					Send, ^+{F20} ;*小狼毫魔改
+					
+				case 10, 11, 12:
+					Send, +{Space}
+					
+				Default:
+					
+			}
+			
 		case 68289554:  ;*韩文输入法
-		
+			
 		case 68224017: ;*日文输入法
 			
 		Default:
@@ -563,36 +612,26 @@ SwitchFullHalfShapeMode()
 	ShowToolTip("已切换 全角/半角 模式", 500)
 }
 
-;* 判断是否处于韩文输入法下, 输出 0 或者 1
-IsInKoreanLayout()
-{
-	layout := GetCurrentKeyboardLayoutCode()
-	
-	If(layout == 68289554){	;* 如果处于韩文输入法下
-		return 1
-	}else{
-		return 0
-	}
-}
 
 SendHanjaKey()
 {
 	Send, {vk19}	; 汉字切换
 }
 
+SendHangulKey()
+{
+	Send, {vk15sc1F2}	;* 韩文键盘专有的「hangul」键
+}
+
 SendHanjaKeyByDetectingIME()
 {
-	If(1 == IsInKoreanLayout()){	;* 如果处于韩文输入法下输出汉字键
+	If(68289554 == GetCurrentKeyboardLayoutCode()){	;* 如果处于韩文输入法下输出汉字键
 		SendHanjaKey()	; 汉字切换
 	}else{
 		
 	}	
 }
 
-SendHangulKey()
-{
-	Send, {vk15sc1F2}	;* 韩文键盘专有的「hangul」键
-}
 
 
 
@@ -645,16 +684,17 @@ SetWindowTransparency(ByRef value, isBlockInput := 0)
 		Transparent=255	
 	}	
 	
+	StringUpper, value, value
 		
 	switch value{
-		case "Up", "up", "UP", "Increase", "increase", "U", "u", "↑":
+		case "UP", "INCREASE", "U", "↑":
 			Transparent_New := Transparent + 20    ;透明度增加速度。
 			If (Transparent_New >= maxTransparency){		;最大透明度限制。
 				Transparent_New := maxTransparency	
 			}		
 			ShowToolTip("当前窗口透明度：▲ 增加`n   now: " . Transparent_New . "    mae: __" . Transparent , 1000)
 			
-		case "Down", "down", "DN", "Decrease", "decrease", "D", "d", "↓":
+		case "DOWN", "DN", "DECREASE", "D", "↓":
 			Transparent_New := Transparent - 20  ;透明度减少速度。
 			If (Transparent_New <= minTransparency) {   ;最小透明度限制。
 				Transparent_New := minTransparency
@@ -662,7 +702,7 @@ SetWindowTransparency(ByRef value, isBlockInput := 0)
 			ShowToolTip("当前窗口透明度：▼ 减少`n   now: " . Transparent_New . "    mae: __" . Transparent , 1000)
 			
 			
-		case "Reset", "reset", "Rst", "rst", "RST":
+		case "RESET", "RST", "R":
 			Transparent_New := 255
 			ShowToolTip("当前窗口透明度：◉ 已重置`n ", 1000)
 			
@@ -698,21 +738,23 @@ SetWindowTransparency(ByRef value, isBlockInput := 0)
 
 SetWindowOnTopOrTransparency_detectKey(dir)
 {
+	StringUpper, dir, dir
+	
 	switch dir{
-		case "Up", "up", "UP", "Increase", "increase", "U", "u", "↑":
+		case "UP", "INCREASE", "U", "↑":
 			if (GetKeyState("Shift")){
 				SetWindowTransparency("Up")
 			}else{
 				SetWindowOnTopStatus(1)
 			}		
 				
-		case "Down", "down", "DN", "Decrease", "decrease", "D", "d", "↓":
+		case "DOWN", "DN", "DECREASE", "D", "↓":
 			if (GetKeyState("Shift")){
 				SetWindowTransparency("Down")
 			}else{
 				SetWindowOnTopStatus(0)
 			}
-		case "Toggle", "toggle", "Reset", "reset", "RST":
+		case "TOGGLE", "RESET", "RST", "TGL", "T", "R":
 			if (GetKeyState("Shift")){
 				SetWindowTransparency("Reset")
 			}else{
@@ -869,6 +911,7 @@ ExStyle:		%form_ExStyle%
 	MsgBox, 0x1000, 当前窗口信息, %str%
 	
 }
+
 
 
 ;^==================================== 跑路函数 ==================================

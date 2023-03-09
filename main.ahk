@@ -19,7 +19,8 @@
 GSB_IsInMainScript := 1	
 
 ; 当前版本
-GSB_ScriptVersion := "v0.2.10"
+GSB_CurrentSoftwareName := "GSB_AHKScript"
+GSB_ScriptVersion := "0.2.10"
 GSB_ScriptUpdateDate := "09 Mar, 2023"
 
 

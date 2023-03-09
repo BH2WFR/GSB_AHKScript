@@ -12,99 +12,53 @@ If (GSB_IsInMainScript != 1){ ;* 这个全局变量在主脚本中定义
 ;GetKeyState("CapsLock", "T") = 1
 ;SetCapsLockState, on
 
-;* CapsLock 或 CapsLock+2 切换中英文
-;F24 Up::
-$F24 Up::
+
+;*Caps+空格 或 Caps+"`" 弹出小狼毫菜单
+F24 & Space::
+F24 & `::  
+	ShowRimeImputMenu(0,0)	;
+return
+
+ ;*松开Caps键, 或者 Caps+F2 切换中英/韩英/日英
+$F24 Up:: 
 F24 & F2::
-	;MsgBox, shabi
 	SwitchIMEmode()
 return
 
-; ;* Shift+CapsLock 切换大小写锁定
-; $+F24 Up::
-; 	SwitchCapsLockStatus(,1)
-; return
 
 ;* Ctrl+CapsLock 释放 Shift Ctrl Alt 并关闭大写锁定
 ^F24::ReleaseShiftCtrlAltKeys(1,1)
 
-		
-#If use_RimeInput == 1	; 仅适用于魔改快捷键的小狼毫输入法
-	#If rime_KeymapChanged == 0
-		; CapsLock+Space 调出小狼毫菜单
-		F24 & Space::
-		F24 & `::
-			Send, ^``	;注意通配符, grave 是 两个``
-		return
-		; CapsLock+3 全角/半角
-		F24 & F1::return	
-		;F24 & F2::return
-		
-		F24 & F3::SwitchFullHalfShapeMode()
 
-		; CapsLock+4 简繁体转换
-		F24 & F4::SwitchChineseSimplicatedMode()
-		
-		; CapsLock+5 增廣字集
-		F24 & F5::
-			Send, ^+{5}
-		return		
-		; CapsLock+. 中英标点
-		F24 & .::
-			SwitchPunctuationMode()
-		return
-	#If rime_KeymapChanged == 1	;* 魔改快捷键后
-		; CapsLock+Space 调出小狼毫菜单
-		F24 & Space::
-		F24 & `::
-			Send, {F20}	;注意通配符, grave 是 两个``
-		return
-		F24 & F1::
-			Send, +{F20}
-		return
-		;F24 & F2::return
-		
-		; CapsLock+3 全角/半角
-		F24 & F3::SwitchFullHalfShapeMode()
-		
-		; CapsLock+4 简繁体转换
-		F24 & F4::SwitchChineseSimplicatedMode()
-		
-		; CapsLock+5 增廣字集
-		F24 & F5::
-			Send, +{F21}
-		return		
-		; CapsLock+. 中英标点
-		F24 & .::
-			SwitchPunctuationMode()
-		return		
-	#If
-#If
+;  Shift+CapsLock 切换大小写锁定
+; $+F24 Up::
+; 	SwitchCapsLockStatus(,1)
+; return
 
 
 
 ;*================== 其余 F24（CapsLock）组合快捷键, 用掉一个注释一个 =============
 
 F24 & Esc::ShowSettingsGUI() ; 设置
-;F24 & F1::return	;输入法占用
-;F24 & F2::return	;输入法占用
-;F24 & F3::return	;输入法占用
-;F24 & F4::return	;输入法占用
-;F24 & F5::return	;输入法占用
+F24 & F1::return	;输入法占用
+;F24 & F2::return						 ;* 中英切换 已占用
+F24 & F3::SwitchFullHalfShapeMode()		 ;* 全角/半角
+F24 & F4::SwitchChineseSimplicatedMode() ;* 简繁体转换
+F24 & F5::return						 ;* 增廣字集
 F24 & F6::return
 F24 & F7::return
 F24 & F8::return
 F24 & F9::return
-F24 & F10::return
-F24 & F11::System_CancelShutdown()
-F24 & F12::DeleteAndroidEvents()
+F24 & F10::LoadSettings()			;* 重新加载配置文件里面的设置
+F24 & F11::System_CancelShutdown()  ;* 取消强制关机发送 shutdown -a 命令
+F24 & F12::DeleteAndroidEvents()	;* 安卓 ADB 删除日志
 F24 & PrintScreen::return
 F24 & ScrollLock::return
 F24 & Home::return
 F24 & End::return
 F24 & PgUp::MouseWheelScroll_detectKey("Up") ; 鼠标滚动
 F24 & PgDn::MouseWheelScroll_detectKey("Down")
-F24 & Delete::DeleteComputerPersonalData()
+F24 & Delete::DeleteComputerPersonalData() ;* 跑路!
 
 F24 & Tab::SendRawTabs_detectShiftKey()		;
 ;F24 & CapsLock::return	;无效组合
@@ -120,7 +74,7 @@ F24 & Down::MoveMouse_detectKey("Down")
 
 
 
-;F24 & `::return		;
+;F24 & `::return		;;输入法占用
 F24 & 1::return			;
 F24 & 2::return		
 F24 & 3::return		
@@ -140,7 +94,7 @@ F24 & \::return	;		;
 F24 & `;::return		;
 F24 & '::return	;
 F24 & ,::return		;
-F24 & .::return		;
+F24 & .::SwitchPunctuationMode() ;* CapsLock+. 中英标点
 F24 & /::Func_F24_Slash()		;
 
 F24 & a::CopyTextAndSearch("Baidu")
