@@ -102,7 +102,12 @@ g_ADBPath := "adb"
 
 g_isKeepSilentWhileCleaning := 1
 g_isRestartExplorerWhileCleaning := 0
-g_ShutDownAfterCleaning := 0
+g_isShutDownAfterCleaning := 0
+
+
+;*从配置文件加载设置到全局变量里面
+LoadSettingsToGlobalVariable()
+
 
 
 ; ;* 新版使用类包装所有全局变量定义

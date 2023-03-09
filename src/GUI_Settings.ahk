@@ -27,7 +27,7 @@ ShowSettingsGUI()
 	Gui, GuiSettings:Font
 	
 	Gui, GuiSettings:Font, s11, Segoe UI
-	Gui, GuiSettings:Add, Tab3, x8 y24 w599 h343, 关于软件|设置
+	Gui, GuiSettings:Add, Tab3, x8 y24 w599 h343, 关于软件|输入功能相关设置|跑路功能增强设置
 	Gui, GuiSettings:Font
 	
 	
@@ -67,20 +67,24 @@ ShowSettingsGUI()
 	Gui, GuiSettings:Tab, 2
 		
 		
+	Gui, GuiSettings:Tab, 3	
 		
 		
+	;Gui, GuiSettings:Tab, 4	
 		
 	Gui, GuiSettings:Tab
 	
 
-	LoadSettings()	;* 加载设置
+	LoadGlobalVariableToGUI()	;* 加载设置
 	
 	Gui, Show, w618 h420	;* 弹出窗口
 	
 }
 
+
+;* 按钮事件函数
 Settings_Button_OK:
-	SaveSettings()
+	SaveGUISettings()
 	ShowToolTip("已保存当前更改设置, 并关闭窗口. ", 1000)
 	Gui, GuiSettings:Destroy
 	;MsgBox, test
@@ -92,24 +96,82 @@ Settings_Button_Cancel:
 return	
 	
 Settings_Button_Apply:
-	SaveSettings()
+	SaveGUISettings()
 	ShowToolTip("已应用当前更改的设置. ", 1000)
 	;MsgBox, test
 return
 
 
+;* GUI中保存设置
+SaveGUISettings()
+{
+	SaveGUIConfigureToGlobalVariable()
+	SaveSettingsFromGlobalVariable()
+}
 
-;*  保存设置
-SaveSettings()
+;*  保存当前设置窗口设置内容到全局变量里面
+SaveGUIConfigureToGlobalVariable()
 {
 	
 }
 
-;* 加载设置
-LoadSettings()
+;*加载全局变量到设置窗口里面
+LoadGlobalVariableToGUI()
 {
 	
 }
+
+
+
+
+
+
+
+;^========================== 配置文件相关 ==================================
+
+;*  保存当前全局变量到设置文件里面
+SaveSettingsFromGlobalVariable()
+{
+	global rAltMode
+	
+	global use_RimeInput	
+	global rime_KeymapChanged
+
+	global g_PrivacyEraserPath
+	global g_USBOblivionPath
+	global g_ADBPath
+	global g_isKeepSilentWhileCleaning
+	global g_isRestartExplorerWhileCleaning
+	global g_isShutDownAfterCleaning
+	
+	
+	
+	
+	
+	
+}
+
+;* 加载配置文件到全局变量
+LoadSettingsToGlobalVariable()
+{
+	global rAltMode
+	
+	global use_RimeInput	
+	global rime_KeymapChanged
+
+	global g_PrivacyEraserPath
+	global g_USBOblivionPath
+	global g_ADBPath
+	global g_isKeepSilentWhileCleaning
+	global g_isRestartExplorerWhileCleaning
+	global g_isShutDownAfterCleaning
+	
+	
+	
+	
+	
+}
+
 
 
 #If ;GSB_IsInMainScript == 1

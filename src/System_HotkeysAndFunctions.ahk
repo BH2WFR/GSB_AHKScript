@@ -913,7 +913,7 @@ System_RunCMDCommand(ByRef cmdstr, isWait := 1, isSilent := 0)
  ;*== 清除个人电脑中的隐私信息
 DeleteComputerPersonalData()
 {
-	global g_ShutDownAfterCleaning
+	global g_isShutDownAfterCleaning
 	
 	BlockInput, On	;阻塞用户输入增强稳定性	
 	ShowToolTip("开始跑路...", 700)
@@ -931,7 +931,7 @@ DeleteComputerPersonalData()
 	
 	;Sleep, 20000
 	
-	if(g_ShutDownAfterCleaning == 0){
+	if(g_isShutDownAfterCleaning == 0){
 		ShowToolTip("跑路成功！", 1500)
 	}else{
 		ShowToolTip("跑路成功！ 15 秒后即将强制关机, 运行 Shutdown -a 撤销关机功能...", 1500)
